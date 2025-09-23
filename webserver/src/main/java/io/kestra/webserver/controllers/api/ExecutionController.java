@@ -47,7 +47,7 @@ import io.kestra.webserver.services.ExecutionDependenciesStreamingService;
 import io.kestra.webserver.services.ExecutionStreamingService;
 import io.kestra.webserver.utils.PageableUtils;
 import io.kestra.webserver.utils.RequestUtils;
-import io.kestra.webserver.utils.filepreview.FileRender;
+import io.kestra.plugin.core.preview.FileRender;
 import io.kestra.webserver.utils.filepreview.FileRenderBuilder;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.context.annotation.Value;
@@ -200,6 +200,9 @@ public class ExecutionController {
 
     @Inject
     private LocalPathFactory localPathFactory;
+
+    @Inject
+    private FileRenderBuilder fileRenderBuilder;
 
     @Value("${" + LocalPath.ENABLE_PREVIEW_CONFIG + ":true}")
     private boolean enableLocalFilePreview;
@@ -1895,7 +1898,7 @@ public class ExecutionController {
         };
 
         try (fileStream) {
-            FileRender fileRender = FileRenderBuilder.of(
+            FileRender fileRender = fileRenderBuilder.of(
                 extension,
                 fileStream,
                 charset,

@@ -1,6 +1,7 @@
 package io.kestra.webserver.utils.filepreview;
 
 import io.kestra.core.serializers.FileSerde;
+import io.kestra.plugin.core.preview.FileRender;
 import lombok.Getter;
 
 import java.io.BufferedReader;

@@ -16,6 +16,8 @@ import io.kestra.core.storages.StorageInterface;
 import io.kestra.core.storages.kv.KVStore;
 import io.kestra.core.utils.ListUtils;
 import io.kestra.core.utils.VersionProvider;
+import io.kestra.plugin.core.preview.PreviewRenderer;
+import io.kestra.plugin.core.preview.PreviewRendererRegistry;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.core.annotation.Introspected;
 import jakarta.validation.ConstraintViolation;
@@ -602,6 +604,8 @@ public class DefaultRunContext extends RunContext {
         private List<String> secretInputs;
         private Task task;
         private AbstractTrigger trigger;
+        private PreviewRenderer previewRenderer;
+        private PreviewRendererRegistry previewRendererRegistry;
 
         /**
          * Builds the new {@link DefaultRunContext} object.

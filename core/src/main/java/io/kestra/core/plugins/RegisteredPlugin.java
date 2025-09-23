@@ -13,6 +13,7 @@ import io.kestra.core.models.tasks.runners.TaskRunner;
 import io.kestra.core.models.triggers.AbstractTrigger;
 import io.kestra.core.secret.SecretPluginInterface;
 import io.kestra.core.storages.StorageInterface;
+import io.kestra.plugin.core.preview.PreviewRenderer;
 import lombok.*;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -46,6 +47,8 @@ public class RegisteredPlugin {
     public static final String DATA_FILTERS_KPI_GROUP_NAME = "data-filters-kpi";
     public static final String LOG_EXPORTERS_GROUP_NAME = "log-exporters";
     public static final String ADDITIONAL_PLUGINS_GROUP_NAME = "additional-plugins";
+    public static final String PREVIEW_RENDERERS_GROUP_NAME = "preview-renderers";
+
 
     private final ExternalPlugin externalPlugin;
     private final Manifest manifest;
@@ -63,6 +66,7 @@ public class RegisteredPlugin {
     private final List<Class<? extends DataFilterKPI<?, ?>>> dataFiltersKPI;
     private final List<Class<? extends LogExporter<?>>> logExporters;
     private final List<Class<? extends AdditionalPlugin>> additionalPlugins;
+    private final List<Class<? extends PreviewRenderer>> previewRenderers;
     private final List<String> guides;
     // Map<lowercasealias, <Alias, Class>>
     private final Map<String, Map.Entry<String, Class<?>>> aliases;
@@ -115,6 +119,10 @@ public class RegisteredPlugin {
 
         if (this.getStorages().stream().anyMatch(r -> r.getName().equals(cls))) {
             return StorageInterface.class;
+        }
+
+        if (this.getPreviewRenderers().stream().anyMatch(r -> r.getName().equals(cls))) {
+            return PreviewRenderer.class;
         }
 
         if (this.getSecrets().stream().anyMatch(r -> r.getName().equals(cls))) {
@@ -187,6 +195,7 @@ public class RegisteredPlugin {
         result.put(DATA_FILTERS_KPI_GROUP_NAME, Arrays.asList(this.getDataFiltersKPI().toArray(Class[]::new)));
         result.put(LOG_EXPORTERS_GROUP_NAME, Arrays.asList(this.getLogExporters().toArray(Class[]::new)));
         result.put(ADDITIONAL_PLUGINS_GROUP_NAME, Arrays.asList(this.getAdditionalPlugins().toArray(Class[]::new)));
+        result.put(PREVIEW_RENDERERS_GROUP_NAME, Arrays.asList(this.getPreviewRenderers().toArray(Class[]::new)));
 
         return result;
     }

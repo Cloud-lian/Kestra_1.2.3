@@ -6,6 +6,8 @@ import io.kestra.core.plugins.PluginCatalogService;
 import io.kestra.core.plugins.PluginRegistry;
 import io.kestra.core.storages.StorageInterface;
 import io.kestra.core.storages.StorageInterfaceFactory;
+import io.kestra.plugin.core.preview.PreviewRendererFactory;
+import io.kestra.plugin.core.preview.PreviewRendererRegistry;
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.ConfigurationProperties;
 import io.micronaut.context.annotation.Factory;
@@ -86,5 +88,10 @@ public class KestraBeansFactory {
         public Map<String, Object> getStorageConfig(String type) {
             return (Map<String, Object>) storage.get(StringConvention.CAMEL_CASE.format(type));
         }
+    }
+
+    @Singleton
+    public PreviewRendererFactory previewRendererFactory(final PluginRegistry pluginRegistry) {
+        return new PreviewRendererFactory(pluginRegistry);
     }
 }

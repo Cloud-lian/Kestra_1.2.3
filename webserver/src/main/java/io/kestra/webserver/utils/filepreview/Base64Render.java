@@ -1,5 +1,6 @@
 package io.kestra.webserver.utils.filepreview;
 
+import io.kestra.plugin.core.preview.FileRender;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;

@@ -13,6 +13,7 @@ import io.kestra.core.models.tasks.runners.TaskRunner;
 import io.kestra.core.models.triggers.AbstractTrigger;
 import io.kestra.core.secret.SecretPluginInterface;
 import io.kestra.core.storages.StorageInterface;
+import io.kestra.plugin.core.preview.PreviewRenderer;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
@@ -117,6 +118,7 @@ public class PluginScanner {
         List<Class<? extends AdditionalPlugin>> additionalPlugins = new ArrayList<>();
         List<String> guides = new ArrayList<>();
         Map<String, Class<?>> aliases = new HashMap<>();
+        List<Class<? extends PreviewRenderer>> previewRenderers = new ArrayList<>();
 
         if (manifest == null) {
             manifest = getManifest(classLoader);
@@ -186,6 +188,11 @@ public class PluginScanner {
                         log.debug("Loading additional plugin: '{}'", plugin.getClass());
                         additionalPlugins.add(additionalPlugin.getClass());
                     }
+                    case PreviewRenderer previewRenderer -> {
+                        log.info("Found PreviewRenderer: {}", plugin.getClass().getName());
+                        log.debug("Loading PreviewRenderer plugin: '{}'", plugin.getClass());
+                        previewRenderers.add(previewRenderer.getClass());
+                    }
                     default -> {
                     }
                 }
@@ -236,6 +243,7 @@ public class PluginScanner {
                 e -> e.getKey().toLowerCase(),
                 Function.identity()
             )))
+            .previewRenderers(previewRenderers)
             .build();
     }
 

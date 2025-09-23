@@ -1,5 +1,6 @@
 package io.kestra.webserver.utils.filepreview;
 
+import jakarta.inject.Inject;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -13,13 +14,16 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class FileRenderBuilderTest {
+
+    @Inject
+    private FileRenderBuilder fileRenderBuilder;
     @ParameterizedTest
     @MethodSource("provideExtensions")
     void of(String extension, Class returnedClass) throws IOException {
         var emptyInput = new ByteArrayInputStream("".getBytes());
         var charset = StandardCharsets.UTF_8;
 
-        assertThat(FileRenderBuilder.of(extension, emptyInput, Optional.of(charset), 1000).getClass()).isEqualTo(returnedClass);
+        assertThat(fileRenderBuilder.of(extension, emptyInput, Optional.of(charset), 1000).getClass()).isEqualTo(returnedClass);
     }
 
     private static Stream<Arguments> provideExtensions() {

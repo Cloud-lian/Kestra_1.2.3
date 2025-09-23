@@ -1,4 +1,4 @@
-package io.kestra.webserver.utils.filepreview;
+package io.kestra.plugin.core.preview;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
@@ -18,7 +18,7 @@ public abstract class FileRender {
     @JsonInclude
     public boolean truncated = false;
 
-    FileRender(String extension, Integer maxLine) {
+    protected FileRender(String extension, Integer maxLine) {
         this.maxLine = maxLine;
         this.extension = extension;
     }
