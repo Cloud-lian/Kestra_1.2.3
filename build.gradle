@@ -1,4 +1,5 @@
 import net.e175.klaus.zip.ZipPrefixer
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.owasp.dependencycheck.gradle.extension.AnalyzerExtension
 
 buildscript {
@@ -38,6 +39,9 @@ plugins {
 
     // OWASP dependency check
     id "org.owasp.dependencycheck" version "12.1.3" apply false
+
+    // Linter
+    id "com.diffplug.spotless" version "7.2.1"
 }
 
 idea {
@@ -152,7 +156,7 @@ allprojects {
 
             // kestra
             implementation group: 'com.devskiller.friendly-id', name: 'friendly-id'
-            implementation (group: 'net.thisptr', name: 'jackson-jq') {
+            implementation(group: 'net.thisptr', name: 'jackson-jq') {
                 exclude group: 'com.fasterxml.jackson.core'
             }
 
@@ -403,10 +407,10 @@ run.classpath += configurations.developmentOnly
 test.classpath += configurations.developmentOnly
 
 run.jvmArgs(
-    "-noverify",
-    "-XX:TieredStopAtLevel=1",
-    "-Dcom.sun.management.jmxremote",
-    '-Dmicronaut.environments=dev,override'
+        "-noverify",
+        "-XX:TieredStopAtLevel=1",
+        "-Dcom.sun.management.jmxremote",
+        '-Dmicronaut.environments=dev,override'
 )
 
 /**********************************************************************************************************************\
@@ -415,11 +419,11 @@ run.jvmArgs(
 jar {
     manifest {
         attributes(
-            "Main-Class": mainClassName,
-            "X-Kestra-Name": project.name,
-            "X-Kestra-Title": project.name,
-            "X-Kestra-Group": project.group,
-            "X-Kestra-Version": project.version
+                "Main-Class": mainClassName,
+                "X-Kestra-Name": project.name,
+                "X-Kestra-Title": project.name,
+                "X-Kestra-Group": project.group,
+                "X-Kestra-Version": project.version
         )
     }
 }
@@ -448,7 +452,7 @@ tasks.register('writeExecutableJar') {
     description = "Write an executable jar from shadow jar"
     dependsOn = [shadowJar]
 
-    final shadowJarFile =  tasks.shadowJar.outputs.files.singleFile
+    final shadowJarFile = tasks.shadowJar.outputs.files.singleFile
     inputs.file shadowJarFile
     outputs.file executable
     outputs.cacheIf { true }
@@ -687,3 +691,48 @@ release {
     pushReleaseVersionBranch = providers.gradleProperty("release.pushReleaseVersionBranch")
             .getOrElse(null)
 }
+
+/**********************************************************************************************************************\
+ * Formatting
+ **********************************************************************************************************************/
+tasks.register('setupHooks', Exec) {
+    commandLine 'git', 'config', 'core.hooksPath', '.hooks'
+    doLast { //need to be done in the do last however not done
+        exec {
+            commandLine 'chmod', '+x', '.hooks/pre-commit'
+        }
+    }
+
+    onlyIf {
+        !DefaultNativePlatform.currentOperatingSystem.isWindows()
+    }
+}
+tasks.named('build') {
+    dependsOn tasks.named('setupHooks')
+}
+
+subprojects {
+    if (it.name != 'platform') {
+        apply plugin: "com.diffplug.spotless"
+
+        spotless {
+            enforceCheck false
+            java {
+                toggleOffOn()
+                importOrderFile(rootProject.file('eclipse-kestra.importorder'))
+                removeUnusedImports()
+                eclipse().configFile(rootProject.file("eclipse-java-kestra-style.xml"))
+
+                suppressLintsFor {
+                    step = 'removeUnusedImports'
+                }
+
+
+                if (project.hasProperty('targetFile')) {
+                    target project.property('targetFile')
+                }
+            }
+        }
+    }
+}
+
