@@ -8,6 +8,7 @@ import io.kestra.core.server.ServiceInstance;
 import io.kestra.core.server.ServiceRegistry;
 import io.kestra.core.server.ServiceType;
 import io.kestra.core.server.WorkerTaskRestartStrategy;
+import io.kestra.executor.DefaultExecutor;
 import io.kestra.jdbc.repository.AbstractJdbcServiceInstanceRepository;
 import io.micronaut.context.annotation.Requires;
 import io.micronaut.context.annotation.Value;
@@ -37,7 +38,7 @@ public final class JdbcServiceLivenessCoordinator extends AbstractServiceLivenes
 
     private final static Logger log = LoggerFactory.getLogger(JdbcServiceLivenessCoordinator.class);
 
-    private final AtomicReference<JdbcExecutor> executor = new AtomicReference<>();
+    private final AtomicReference<DefaultExecutor> executor = new AtomicReference<>();
     private final AbstractJdbcServiceInstanceRepository serviceInstanceRepository;
     private final Duration purgeRetention;
 
@@ -89,7 +90,8 @@ public final class JdbcServiceLivenessCoordinator extends AbstractServiceLivenes
                     .toList();
                 if (!ids.isEmpty()) {
                     log.info("Trigger task restart for non-responding workers after termination grace period: {}.", ids);
-                    executor.get().reEmitWorkerJobsForWorkers(configuration, ids);
+                    // FIXME
+                    //executor.get().reEmitWorkerJobsForWorkers(configuration, ids);
                 }
             }
 
@@ -143,7 +145,8 @@ public final class JdbcServiceLivenessCoordinator extends AbstractServiceLivenes
 
             if (!workerIdsHavingTasksToRestart.isEmpty()) {
                 log.info("Trigger task restart for non-responding workers after timeout: {}.", workerIdsHavingTasksToRestart);
-                executor.get().reEmitWorkerJobsForWorkers(configuration, workerIdsHavingTasksToRestart);
+                // FIXME
+                //executor.get().reEmitWorkerJobsForWorkers(configuration, workerIdsHavingTasksToRestart);
             }
         });
     }
@@ -155,7 +158,7 @@ public final class JdbcServiceLivenessCoordinator extends AbstractServiceLivenes
     }
 
 
-    synchronized void setExecutor(final JdbcExecutor executor) {
+    synchronized void setExecutor(final DefaultExecutor executor) {
         this.executor.set(executor);
     }
 

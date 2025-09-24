@@ -19,8 +19,6 @@ public class QueueService {
             return ((SubflowExecution<?>) object).getExecution().getId();
         } else if (object.getClass() == SubflowExecutionResult.class) {
             return ((SubflowExecutionResult) object).getExecutionId();
-        } else if (object.getClass() == ExecutorState.class) {
-            return ((ExecutorState) object).getExecutionId();
         } else if (object.getClass() == Setting.class) {
             return ((Setting) object).getKey();
         } else if (object.getClass() == Executor.class) {
