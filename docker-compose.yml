@@ -20,6 +20,8 @@ services:
       retries: 10
 
   kestra:
+    env_file:
+      - kestra.env
     image: kestra/kestra:latest
     pull_policy: always
     # Note that this setup with a root user is intended for development purpose.
@@ -39,10 +41,10 @@ services:
             username: kestra
             password: k3str4
         kestra:
-          # server:
-          #   basicAuth:
-          #     username: admin@kestra.io # it must be a valid email address
-          #     password: Admin1234 # it must be at least 8 characters long with uppercase letter and a number
+          server:
+            basicAuth:
+              username: user@kestra.io
+              password: DemoDemo1
           repository:
             type: postgres
           storage:
