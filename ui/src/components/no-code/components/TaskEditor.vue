@@ -18,7 +18,7 @@
         </el-form-item>
     </el-form>
     <div @click="isPlugin && pluginsStore.updateDocumentation(taskObject as Parameters<typeof pluginsStore.updateDocumentation>[0])">
-        <TaskObject
+        <BlockObject
             v-loading="isLoading"
             v-if="(selectedTaskType || !isTaskDefinitionBasedOnType) && schema"
             name="root"
@@ -26,6 +26,7 @@
             @update:model-value="onTaskInput"
             :schema
             :properties
+            root=""
         />
     </div>
 </template>
@@ -34,7 +35,6 @@
     import {computed, inject, onActivated, provide, ref, toRaw, watch} from "vue";
     import {useI18n} from "vue-i18n";
     import * as YAML_UTILS from "@kestra-io/ui-libs/flow-yaml-utils";
-    import TaskObject from "./tasks/TaskObject.vue";
     import PluginSelect from "../../plugins/PluginSelect.vue";
     import {NoCodeElement, Schemas} from "../utils/types";
     import {
@@ -50,6 +50,7 @@
     import {getValueAtJsonPath, resolve$ref} from "../../../utils/utils";
     import PlaygroundRunTaskButton from "../../inputs/PlaygroundRunTaskButton.vue";
     import isEqual from "lodash/isEqual";
+    import BlockObject from "./tasks/BlockObject.vue";
 
     const {t} = useI18n();
 

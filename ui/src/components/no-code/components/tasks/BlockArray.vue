@@ -62,7 +62,7 @@
         schema: any;
         modelValue?: (string | number | boolean | undefined)[] | string | number | boolean;
         required?: boolean;
-        root?: string;
+        root: string;
     }>(), {
         modelValue: undefined,
         schema: () => ({}),

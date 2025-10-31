@@ -5,7 +5,7 @@
             <template v-for="[fieldKey, fieldSchema] in protectedRequiredProperties" :key="fieldKey">
                 <Wrapper :merge>
                     <template #tasks>
-                        <SubTaskObjectField v-bind="fieldProps(fieldKey, fieldSchema)" />
+                        <TaskObjectField v-bind="fieldProps(fieldKey, fieldSchema)" />
                     </template>
                 </Wrapper>
             </template>
@@ -15,7 +15,7 @@
                     <template v-for="[fieldKey, fieldSchema] in connectionProperties" :key="fieldKey">
                         <Wrapper>
                             <template #tasks>
-                                <SubTaskObjectField v-bind="fieldProps(fieldKey, fieldSchema)" />
+                                <TaskObjectField v-bind="fieldProps(fieldKey, fieldSchema)" />
                             </template>
                         </Wrapper>
                     </template>
@@ -24,7 +24,7 @@
                     <template v-for="[fieldKey, fieldSchema] in optionalProperties" :key="fieldKey">
                         <Wrapper>
                             <template #tasks>
-                                <SubTaskObjectField v-bind="fieldProps(fieldKey, fieldSchema)" />
+                                <TaskObjectField v-bind="fieldProps(fieldKey, fieldSchema)" />
                             </template>
                         </Wrapper>
                     </template>
@@ -34,7 +34,7 @@
                     <template v-for="[fieldKey, fieldSchema] in deprecatedProperties" :key="fieldKey">
                         <Wrapper>
                             <template #tasks>
-                                <SubTaskObjectField v-bind="fieldProps(fieldKey, fieldSchema)" />
+                                <TaskObjectField v-bind="fieldProps(fieldKey, fieldSchema)" />
                             </template>
                         </Wrapper>
                     </template>
@@ -59,9 +59,9 @@
 <script setup lang="ts">
     import {computed, inject, ref} from "vue";
     import {useI18n} from "vue-i18n";
-    import TaskDict from "./TaskDict.vue";
+    import TaskDict from "./BlockDict.vue";
     import Wrapper from "./Wrapper.vue";
-    import SubTaskObjectField from "./SubTaskObjectField.vue";
+    import TaskObjectField from "./TaskObjectField.vue";
     import {collapseEmptyValues} from "./MixinTask";
     import {DATA_TYPES_MAP_INJECTION_KEY} from "../../injectionKeys";
 
@@ -79,7 +79,7 @@
         modelValue?: Model;
         required?: boolean;
         schema?: Schema;
-        root?: string;
+        root: string;
     }>();
 
     const emit = defineEmits<{

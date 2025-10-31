@@ -1,7 +1,7 @@
 import {pascalCase} from "change-case";
 import {resolve$ref} from "../../../../utils/utils";
 
-const TasksComponents = import.meta.glob<{ default: any }>("./Task*.vue", {eager: true});
+const TasksComponents = import.meta.glob<{ default: any }>("./Block*.vue", {eager: true});
 
 export interface Schema{
     $ref?: string;
@@ -30,7 +30,7 @@ function getType(property: Schema, key: string | undefined, definitions: Record<
         }
 
         if (property.$ref.includes("tasks.runners.TaskRunner")) {
-            return "task-runner"
+            return "task"
         }
 
         if (property.$ref.includes("io.kestra.preload")) {
@@ -109,7 +109,7 @@ function getType(property: Schema, key: string | undefined, definitions: Record<
 export default function getTaskComponent(property: any, key: string, definitions: Record<string, Schema>): any {
     const typeString = getType(property, key, definitions);
     const type = pascalCase(typeString);
-    const component = TasksComponents[`./Task${type}.vue`]?.default;
+    const component = TasksComponents[`./Block${type}.vue`]?.default;
     if (component) {
         component.ksTaskName = typeString;
     }

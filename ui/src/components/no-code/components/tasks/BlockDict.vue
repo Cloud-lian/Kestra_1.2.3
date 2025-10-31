@@ -72,7 +72,7 @@
     import {DeleteOutline} from "../../utils/icons";
 
     import InputText from "../inputs/InputText.vue";
-    import TaskExpression from "./TaskExpression.vue";
+    import TaskExpression from "./BlockExpression.vue";
     import Add from "../Add.vue";
     
     import debounce from "lodash/debounce";
@@ -93,7 +93,7 @@
 
     const props = withDefaults(defineProps<{
         schema?: any;
-        root?: string;
+        root: string;
         disabled?: boolean;
     }>(), {
         disabled: false,
@@ -107,7 +107,7 @@
     // is necessary to avoid circular dependencies
     // RollDown might fix it down the road but as of now,
     // TaskDict.vue becomes empty in production builds without this lazy loading
-    const getTaskComponent = ref<(property: any, key?: string, definitions?: any) => any>(() => {
+    const getTaskComponent = ref<(property: any, key: string, definitions: any) => any>(() => {
         return h("div", "Loading...");
     });
 

@@ -42,7 +42,7 @@
     import {SCHEMA_DEFINITIONS_INJECTION_KEY} from "../../injectionKeys";
 
     const props = defineProps<{
-        root?: string,
+        root: string,
         schema: Schema,
         required?: boolean
     }>();

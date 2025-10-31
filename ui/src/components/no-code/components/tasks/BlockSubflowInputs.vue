@@ -40,7 +40,7 @@
     import Task from "./MixinTask";
     import Plus from "vue-material-design-icons/Plus.vue";
     import Minus from "vue-material-design-icons/Minus.vue";
-    import TaskExpression from "./TaskExpression.vue";
+    import TaskExpression from "./BlockExpression.vue";
     import {mapStores} from "pinia";
     import {useCoreStore} from "../../../../stores/core";
     import axios from "axios";

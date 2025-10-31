@@ -1,5 +1,5 @@
 import {computed, provide, ref} from "vue";
-import TaskDict from "../../../../../../src/components/no-code/components/tasks/TaskDict.vue";
+import TaskDict from "../../../../../../src/components/no-code/components/tasks/BlockDict.vue";
 import Wrapper from "../../../../../../src/components/no-code/components/tasks/Wrapper.vue";
 import {userEvent, waitFor, within, expect} from "storybook/internal/test";
 import {Meta, StoryObj} from "@storybook/vue3-vite";

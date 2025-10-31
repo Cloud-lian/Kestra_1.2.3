@@ -2,19 +2,21 @@
     <TaskObject
         :properties="computedProperties"
         :schema
+        :root
         merge
     />
 </template>
 
 <script lang="ts" setup>
     import {computed, inject, ref} from "vue";
-    import TaskObject from "./TaskObject.vue";
+    import TaskObject from "./BlockObject.vue";
     import {resolve$ref} from "../../../../utils/utils";
     import {FULL_SCHEMA_INJECTION_KEY} from "../../injectionKeys";
 
     const props = withDefaults(defineProps<{
         schema: any,
         properties?: Record<string, any>,
+        root: string
     }>(), {
         properties: undefined,
     });

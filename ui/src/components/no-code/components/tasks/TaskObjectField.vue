@@ -11,7 +11,7 @@
         <template #label>
             <div class="inline-wrapper">
                 <div class="inline-start">
-                    <SubTaskLabelWithBoolean
+                    <TaskLabelWithBoolean
                         :type="simpleType"
                         :isBoolean="isBoolean"
                         :componentProps="componentProps"
@@ -64,12 +64,13 @@
 </template>
 
 <script setup lang="ts">
-    import {computed, ref, useTemplateRef} from "vue";
+    import {computed, inject, ref, useTemplateRef} from "vue";
     import Help from "vue-material-design-icons/Information.vue";
     import Markdown from "../../../layout/Markdown.vue";
-    import SubTaskLabelWithBoolean from "./SubTaskLabelWithBoolean.vue";
+    import TaskLabelWithBoolean from "./TaskLabelWithBoolean.vue";
     import ClearButton from "./ClearButton.vue";
     import getTaskComponent from "./getTaskComponent";
+    import {SCHEMA_DEFINITIONS_INJECTION_KEY} from "../../injectionKeys";
 
     const props = defineProps<{
         schema: any;
@@ -134,8 +135,10 @@
         return type.value.ksTaskName;
     })
 
+    const definitions = inject(SCHEMA_DEFINITIONS_INJECTION_KEY, computed(() => ({})));
+
     const type = computed(() => {
-        return getTaskComponent(props.schema, props.fieldKey)
+        return getTaskComponent(props.schema, props.fieldKey, definitions.value)
     })
 </script>
 
