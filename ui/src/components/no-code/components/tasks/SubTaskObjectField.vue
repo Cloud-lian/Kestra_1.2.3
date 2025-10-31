@@ -11,7 +11,7 @@
         <template #label>
             <div class="inline-wrapper">
                 <div class="inline-start">
-                    <TaskLabelWithBoolean
+                    <SubTaskLabelWithBoolean
                         :type="simpleType"
                         :isBoolean="isBoolean"
                         :componentProps="componentProps"
@@ -67,7 +67,7 @@
     import {computed, ref, useTemplateRef} from "vue";
     import Help from "vue-material-design-icons/Information.vue";
     import Markdown from "../../../layout/Markdown.vue";
-    import TaskLabelWithBoolean from "./TaskLabelWithBoolean.vue";
+    import SubTaskLabelWithBoolean from "./SubTaskLabelWithBoolean.vue";
     import ClearButton from "./ClearButton.vue";
     import getTaskComponent from "./getTaskComponent";
 

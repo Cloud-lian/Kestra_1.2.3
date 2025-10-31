@@ -10,7 +10,7 @@
                     <template #tasks>
                         <TaskObjectField
                             v-bind="v"
-                            @update:model-value="(val) => onTaskUpdateField(v.fieldKey, val)"
+                            @update:model-value="(val: any) => onTaskUpdateField(v.fieldKey, val)"
                         />
                     </template>
                 </Wrapper>
@@ -19,7 +19,7 @@
 
                 <Wrapper :key="v.fieldKey" v-for="(v) in fieldsFromSchemaRest" :transparent="SECTIONS_IDS.includes(v.fieldKey)">
                     <template #tasks>
-                        <TaskObjectField
+                        <SubTaskObjectField
                             v-bind="v"
                             @update:model-value="(val) => onTaskUpdateField(v.fieldKey, val)"
                         />
@@ -38,7 +38,7 @@
 
     import Task from "./segments/Task.vue";
     import Wrapper from "./components/tasks/Wrapper.vue";
-    import TaskObjectField from "./components/tasks/TaskObjectField.vue";
+    import SubTaskObjectField from "./components/tasks/SubTaskObjectField.vue";
     import {
         BLOCK_SCHEMA_PATH_INJECTION_KEY,
         CLOSE_TASK_FUNCTION_INJECTION_KEY,

@@ -8,7 +8,7 @@
             <el-form v-else labelPosition="top">
                 <Wrapper :key="v.fieldKey" v-for="(v) in fieldsFromSchema" :transparent="v.fieldKey === 'inputs'" :merge="shouldMerge(v.schema)">
                     <template #tasks>
-                        <TaskObjectField
+                        <SubTaskObjectField
                             v-bind="v"
                             @update:model-value="(val: any) => onTaskUpdateField(v.fieldKey, val)"
                         />
@@ -22,7 +22,7 @@
     import {computed, onActivated, provide} from "vue";
     import Task from "../../no-code/segments/Task.vue";
     import Wrapper from "../../no-code/components/tasks/Wrapper.vue";
-    import TaskObjectField from "../../no-code/components/tasks/TaskObjectField.vue";
+    import SubTaskObjectField from "../../no-code/components/tasks/SubTaskObjectField.vue";
     import {useDashboardFields} from "../composables/useDashboardFields";
     import {useDashboardStore} from "../../../stores/dashboard";
     import {usePluginsStore} from "../../../stores/plugins";

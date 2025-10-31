@@ -47,7 +47,7 @@
     import Add from "../Add.vue";
     import getTaskComponent from "./getTaskComponent";
     import Wrapper from "./Wrapper.vue";
-    import {BLOCK_SCHEMA_PATH_INJECTION_KEY} from "../../injectionKeys";
+    import {BLOCK_SCHEMA_PATH_INJECTION_KEY, SCHEMA_DEFINITIONS_INJECTION_KEY} from "../../injectionKeys";
 
     defineOptions({inheritAttrs: false});
 
@@ -70,8 +70,10 @@
         root: undefined,
     });
 
+    const definitions = inject(SCHEMA_DEFINITIONS_INJECTION_KEY, computed(() => ({})));
+
     const componentType = computed(() => {
-        return getTaskComponent(props.schema.items, props.root);
+        return getTaskComponent(props.schema.items, props.root, definitions.value);
     });
 
     const needWrapper = computed(() => {

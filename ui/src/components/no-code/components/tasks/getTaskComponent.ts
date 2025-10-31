@@ -1,7 +1,5 @@
-import {inject} from "vue";
 import {pascalCase} from "change-case";
 import {resolve$ref} from "../../../../utils/utils";
-import {SCHEMA_DEFINITIONS_INJECTION_KEY} from "../../injectionKeys";
 
 const TasksComponents = import.meta.glob<{ default: any }>("./Task*.vue", {eager: true});
 
@@ -18,16 +16,15 @@ export interface Schema{
     items?: Schema;
     const?: string;
     format?: string;
+    enum?: string[];
 }
 
-function getType(property: any, key?: string): string {
-    const definitionsRef = inject(SCHEMA_DEFINITIONS_INJECTION_KEY);
-    const definitions = definitionsRef?.value;
+function getType(property: Schema, key: string | undefined, definitions: Record<string, Schema> | undefined): string {
     if (property.enum !== undefined) {
         return "enum";
     }
 
-    if (Object.prototype.hasOwnProperty.call(property, "$ref")) {
+    if (Object.prototype.hasOwnProperty.call(property, "$ref") && property.$ref) {
         if (property.$ref.includes("tasks.Task")) {
             return "task"
         }
@@ -43,14 +40,14 @@ function getType(property: any, key?: string): string {
         return "complex";
     }
 
-    if (Object.prototype.hasOwnProperty.call(property, "allOf")) {
+    if (Object.prototype.hasOwnProperty.call(property, "allOf") && property.allOf) {
         if (property.allOf.length === 2
             && property.allOf[0].$ref && !property.allOf[1].properties) {
             return "complex";
         }
     }
 
-    if (Object.prototype.hasOwnProperty.call(property, "anyOf")) {
+    if (Object.prototype.hasOwnProperty.call(property, "anyOf") && property.anyOf) {
         if (key === "labels" && property.anyOf.length === 2
             && property.anyOf[0].type === "array" && property.anyOf[1].type === "object") {
             return "dict";
@@ -61,10 +58,6 @@ function getType(property: any, key?: string): string {
             return "task"
         }
         return "any-of";
-    }
-
-    if (Object.prototype.hasOwnProperty.call(property, "additionalProperties")) {
-        return "dict";
     }
 
     if (property.type === "integer") {
@@ -89,13 +82,17 @@ function getType(property: any, key?: string): string {
         return "subflow-inputs";
     }
 
-    if (property.type === "array") {
+    if (property.type === "array" && property.items) {
         const items = definitions ? resolve$ref({definitions: definitions}, property.items) : property.items;
         if (items?.anyOf?.length === 0 || items?.anyOf?.length > 10 || key === "pluginDefaults" || key === "layout") {
             return "list";
         }
 
         return "array";
+    }
+
+    if (Object.prototype.hasOwnProperty.call(property, "additionalProperties")) {
+        return "dict";
     }
 
     if (property.const) {
@@ -106,11 +103,11 @@ function getType(property: any, key?: string): string {
         return "dict";
     }
 
-    return property.type || "expression";
+    return typeof property.type === "string" ? property.type : "expression";
 }
 
-export default function getTaskComponent(property: any, key?: string): any {
-    const typeString = getType(property, key);
+export default function getTaskComponent(property: any, key: string, definitions: Record<string, Schema>): any {
+    const typeString = getType(property, key, definitions);
     const type = pascalCase(typeString);
     const component = TasksComponents[`./Task${type}.vue`]?.default;
     if (component) {

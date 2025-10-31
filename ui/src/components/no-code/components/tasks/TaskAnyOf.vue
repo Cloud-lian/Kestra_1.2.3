@@ -42,6 +42,7 @@
     import {SCHEMA_DEFINITIONS_INJECTION_KEY} from "../../injectionKeys";
 
     const props = defineProps<{
+        root?: string,
         schema: Schema,
         required?: boolean
     }>();
@@ -162,7 +163,7 @@
     });
 
     const currentSchemaType = computed(() =>
-        delayedSelectedSchema.value ? getTaskComponent(currentSchema.value) : undefined
+        delayedSelectedSchema.value ? getTaskComponent(currentSchema.value, props.root, definitions.value) : undefined
     );
 
     const isSelectingPlugins = computed(() => schemas.value.length > 4);

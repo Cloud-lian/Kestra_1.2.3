@@ -67,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-    import {computed, ref, useTemplateRef, watch, onMounted, h} from "vue";
+    import {computed, ref, useTemplateRef, watch, onMounted, h, inject} from "vue";
     import {useI18n} from "vue-i18n";
     import {DeleteOutline} from "../../utils/icons";
 
@@ -77,6 +77,7 @@
     
     import debounce from "lodash/debounce";
     import Wrapper from "./Wrapper.vue";
+    import {SCHEMA_DEFINITIONS_INJECTION_KEY} from "../../injectionKeys";
 
     const {t, te} = useI18n();
 
@@ -100,11 +101,13 @@
         schema: () => ({type: "object"})
     });
 
+    const definitions = inject(SCHEMA_DEFINITIONS_INJECTION_KEY, computed(() => ({})));
+
     // this convoluted way of importing the getTaskComponent function
     // is necessary to avoid circular dependencies
     // RollDown might fix it down the road but as of now,
     // TaskDict.vue becomes empty in production builds without this lazy loading
-    const getTaskComponent = ref<(property: any, key?: string) => any>(() => {
+    const getTaskComponent = ref<(property: any, key?: string, definitions?: any) => any>(() => {
         return h("div", "Loading...");
     });
 
@@ -113,7 +116,11 @@
     });
 
     const componentType = computed(() => {
-        return props.schema?.additionalProperties ? getTaskComponent.value?.(props.schema.additionalProperties, props.root) : undefined;
+        return props.schema?.additionalProperties ? getTaskComponent.value?.(
+            props.schema.additionalProperties, 
+            props.root, 
+            definitions.value
+        ) : undefined;
     });
 
     const currentValue = ref<[string, any][]>([])

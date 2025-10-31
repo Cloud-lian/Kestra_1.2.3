@@ -5,7 +5,7 @@
             <template v-for="[fieldKey, fieldSchema] in protectedRequiredProperties" :key="fieldKey">
                 <Wrapper :merge>
                     <template #tasks>
-                        <TaskObjectField v-bind="fieldProps(fieldKey, fieldSchema)" />
+                        <SubTaskObjectField v-bind="fieldProps(fieldKey, fieldSchema)" />
                     </template>
                 </Wrapper>
             </template>
@@ -15,7 +15,7 @@
                     <template v-for="[fieldKey, fieldSchema] in connectionProperties" :key="fieldKey">
                         <Wrapper>
                             <template #tasks>
-                                <TaskObjectField v-bind="fieldProps(fieldKey, fieldSchema)" />
+                                <SubTaskObjectField v-bind="fieldProps(fieldKey, fieldSchema)" />
                             </template>
                         </Wrapper>
                     </template>
@@ -24,7 +24,7 @@
                     <template v-for="[fieldKey, fieldSchema] in optionalProperties" :key="fieldKey">
                         <Wrapper>
                             <template #tasks>
-                                <TaskObjectField v-bind="fieldProps(fieldKey, fieldSchema)" />
+                                <SubTaskObjectField v-bind="fieldProps(fieldKey, fieldSchema)" />
                             </template>
                         </Wrapper>
                     </template>
@@ -34,7 +34,7 @@
                     <template v-for="[fieldKey, fieldSchema] in deprecatedProperties" :key="fieldKey">
                         <Wrapper>
                             <template #tasks>
-                                <TaskObjectField v-bind="fieldProps(fieldKey, fieldSchema)" />
+                                <SubTaskObjectField v-bind="fieldProps(fieldKey, fieldSchema)" />
                             </template>
                         </Wrapper>
                     </template>
@@ -61,7 +61,7 @@
     import {useI18n} from "vue-i18n";
     import TaskDict from "./TaskDict.vue";
     import Wrapper from "./Wrapper.vue";
-    import TaskObjectField from "./TaskObjectField.vue";
+    import SubTaskObjectField from "./SubTaskObjectField.vue";
     import {collapseEmptyValues} from "./MixinTask";
     import {DATA_TYPES_MAP_INJECTION_KEY} from "../../injectionKeys";
 
