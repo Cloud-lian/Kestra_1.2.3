@@ -8,7 +8,7 @@
             <el-form v-else labelPosition="top">
                 <Wrapper :key="v.fieldKey" v-for="(v) in fieldsFromSchemaTop" :merge="shouldMerge(v.schema)" :transparent="v.fieldKey === 'inputs'">
                     <template #tasks>
-                        <TaskObjectField
+                        <SubTaskObjectField
                             v-bind="v"
                             @update:model-value="(val: any) => onTaskUpdateField(v.fieldKey, val)"
                         />
