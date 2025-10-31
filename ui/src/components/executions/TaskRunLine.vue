@@ -190,7 +190,7 @@
     import WorkerInfo from "./WorkerInfo.vue";
     import AiIcon from "../ai/AiIcon.vue";
     import {State} from "@kestra-io/ui-libs"
-    import FlowUtils from "../../utils/flowUtils";
+    import * as FlowUtils from "../../utils/flowUtils";
     import _groupBy from "lodash/groupBy";
     import {TaskIcon, SECTIONS} from "@kestra-io/ui-libs";
     import Duration from "../layout/Duration.vue";
