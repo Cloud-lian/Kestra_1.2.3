@@ -67,14 +67,14 @@
 </template>
 
 <script setup lang="ts">
-    import {computed, ref, useTemplateRef, watch} from "vue";
+    import {computed, ref, useTemplateRef, watch, onMounted, h} from "vue";
     import {useI18n} from "vue-i18n";
     import {DeleteOutline} from "../../utils/icons";
 
     import InputText from "../inputs/InputText.vue";
     import TaskExpression from "./TaskExpression.vue";
     import Add from "../Add.vue";
-    import getTaskComponent from "./getTaskComponent";
+    
     import debounce from "lodash/debounce";
     import Wrapper from "./Wrapper.vue";
 
@@ -86,20 +86,34 @@
 
     const valueComponent = useTemplateRef<any[]>("valueComponent");
 
+    const model = defineModel<Record<string, any>>({
+        default: () => ({}),
+    });
+
     const props = withDefaults(defineProps<{
-        modelValue?: Record<string, any>;
         schema?: any;
         root?: string;
         disabled?: boolean;
     }>(), {
         disabled: false,
-        modelValue: () => ({}),
         root: undefined,
         schema: () => ({type: "object"})
     });
 
+    // this convoluted way of importing the getTaskComponent function
+    // is necessary to avoid circular dependencies
+    // RollDown might fix it down the road but as of now,
+    // TaskDict.vue becomes empty in production builds without this lazy loading
+    const getTaskComponent = ref<(property: any, key?: string) => any>(() => {
+        return h("div", "Loading...");
+    });
+
+    onMounted(async () => {
+        getTaskComponent.value = (await import("./getTaskComponent")).default;
+    });
+
     const componentType = computed(() => {
-        return props.schema.additionalProperties ? getTaskComponent(props.schema.additionalProperties, props.root) : null;
+        return props.schema?.additionalProperties ? getTaskComponent.value?.(props.schema.additionalProperties, props.root) : undefined;
     });
 
     const currentValue = ref<[string, any][]>([])
@@ -109,7 +123,7 @@
     const localEdit = ref(false);
 
     watch(
-        () => props.modelValue,
+        model,
         (newValue) => {
             if(localEdit.value) {
                 return;
@@ -139,10 +153,8 @@
             return;
         }
         localEdit.value = true;
-        emit("update:modelValue", Object.fromEntries(currentValue.value.filter(pair => pair[0] !== "" && pair[1] !== undefined)));
+        model.value = Object.fromEntries(currentValue.value.filter(pair => pair[0] !== "" && pair[1] !== undefined));
     }, 200);
-
-    const emit = defineEmits(["update:modelValue"]);
 
     function getKey(key: string) {
         return props.root ? `${props.root}.${key}` : key;
