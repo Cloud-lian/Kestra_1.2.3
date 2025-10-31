@@ -209,10 +209,6 @@ export const usePluginsStore = defineStore("plugins", () => {
 
     const iconsLoaded = ref(false)
 
-    function wait(ms: number) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
     function fetchIcons() {
         if (iconsLoaded.value) {
             return Promise.resolve(icons.value);
@@ -225,14 +221,12 @@ export const usePluginsStore = defineStore("plugins", () => {
         const apiStore = useApiStore();
 
         const apiPromise = apiStore.pluginIcons().then(async response => {
-            await wait(2000);
             apiIcons.value = response.data ?? {};
             return response.data;
         });
 
         const iconsPromise =
             axios.get(`${apiUrlWithoutTenants()}/plugins/icons`, {}).then(async response => {
-                await wait(3100);
                 pluginsIcons.value = response.data ?? {};
                 return pluginsIcons.value;
             });
@@ -248,7 +242,6 @@ export const usePluginsStore = defineStore("plugins", () => {
     function groupIcons() {
         return axios.get(`${apiUrlWithoutTenants()}/plugins/icons/groups`, {})
         .then(async response => {
-            await wait(1000);
             return response.data;
         });
     }
