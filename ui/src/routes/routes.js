@@ -24,6 +24,17 @@ function maybeAddTimeRangeFilter(to) {
     return false;
 }
 
+function maybeAddDefaultFilters(to) {
+    const timeRangeChanged = maybeAddTimeRangeFilter(to);
+
+    const scopeChanged = to.name === "home" && !Object.keys(to.query).some((key) => key.startsWith("filters[scope]"));
+    if (scopeChanged) {
+        to.query["filters[scope][EQUALS]"] = "USER";
+    }
+
+    return timeRangeChanged || scopeChanged;
+}
+
 export default [
     //Initial
     {name: "root", path: "/", redirect: {name: "home"}, meta: {layout: {template: "<div />"}}},
@@ -35,7 +46,7 @@ export default [
         path: "/:tenant?/dashboards/:dashboard?",
         component: () => import("../components/dashboard/Dashboard.vue"),
         beforeEnter: (to, from, next) => {
-            if (maybeAddTimeRangeFilter(to)) {
+            if (maybeAddDefaultFilters(to)) {
                 next({
                     name: to.name,
                     params: to.params,
