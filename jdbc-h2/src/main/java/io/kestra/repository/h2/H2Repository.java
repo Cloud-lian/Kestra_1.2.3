@@ -76,7 +76,7 @@ public class H2Repository<T> extends io.kestra.jdbc.AbstractJdbcRepository<T> {
 
     public Condition fullTextCondition(List<String> fields, String query) {
         if (query == null || query.equals("*")) {
-            return DSL.trueCondition();
+            return DSL.noCondition();
         }
 
         if (fields.size() > 1) {
@@ -105,12 +105,12 @@ public class H2Repository<T> extends io.kestra.jdbc.AbstractJdbcRepository<T> {
                         .sort(select, pageable)
                         .asTable("page")
                     )
-                    .where(DSL.trueCondition()),
+                    .where(DSL.noCondition()),
                 pageable
             )
             .fetch();
 
-        Integer totalCount = results.size() > 0 ? results.getFirst().get("total_count", Integer.class) : 0;
+        Integer totalCount = !results.isEmpty() ? results.getFirst().get("total_count", Integer.class) : 0;
 
         List<E> map = results
             .map((Record record) -> mapper.map((R) record));

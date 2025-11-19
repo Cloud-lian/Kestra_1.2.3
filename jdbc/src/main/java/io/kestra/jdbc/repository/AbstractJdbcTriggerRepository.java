@@ -72,7 +72,7 @@ public abstract class AbstractJdbcTriggerRepository extends AbstractJdbcCrudRepo
 
     @Override
     public Optional<Trigger> findLast(TriggerContext trigger) {
-        return findOne(DSL.trueCondition(), field("key").eq(trigger.uid()));
+        return findOne(DSL.noCondition(), field("key").eq(trigger.uid()));
     }
 
     @Override
@@ -82,7 +82,7 @@ public abstract class AbstractJdbcTriggerRepository extends AbstractJdbcCrudRepo
 
     public List<Trigger> findByNextExecutionDateReadyForAllTenants(ZonedDateTime now, ScheduleContextInterface scheduleContextInterface) {
         JdbcSchedulerContext jdbcSchedulerContext = (JdbcSchedulerContext) scheduleContextInterface;
-        
+
         return jdbcSchedulerContext.getContext()
             .select(field("value"))
             .from(this.jdbcRepository.getTable())
@@ -98,9 +98,9 @@ public abstract class AbstractJdbcTriggerRepository extends AbstractJdbcCrudRepo
             .fetch()
             .map(r -> this.jdbcRepository.deserialize(r.get("value", String.class)));
     }
-    
+
     public List<Trigger> findByNextExecutionDateReadyButLockedTriggers(ZonedDateTime now) {
-        
+
         return this.jdbcRepository.getDslContextWrapper()
             .transactionResult(configuration -> DSL.using(configuration)
                 .select(field("value"))
@@ -115,7 +115,7 @@ public abstract class AbstractJdbcTriggerRepository extends AbstractJdbcCrudRepo
                 .fetch()
                 .map(r -> this.jdbcRepository.deserialize(r.get("value", String.class))));
     }
-    
+
     protected Temporal toNextExecutionTime(ZonedDateTime now) {
         return now.toOffsetDateTime();
     }
@@ -231,7 +231,7 @@ public abstract class AbstractJdbcTriggerRepository extends AbstractJdbcCrudRepo
     }
 
     protected Condition fullTextCondition(String query) {
-        return query == null ? DSL.trueCondition() : jdbcRepository.fullTextCondition(List.of("fulltext"), query);
+        return query == null ? DSL.noCondition() : jdbcRepository.fullTextCondition(List.of("fulltext"), query);
     }
 
     @Override
@@ -246,7 +246,7 @@ public abstract class AbstractJdbcTriggerRepository extends AbstractJdbcCrudRepo
 
     @Override
     protected Condition defaultFilter() {
-        return DSL.trueCondition();
+        return DSL.noCondition();
     }
 
     @Override

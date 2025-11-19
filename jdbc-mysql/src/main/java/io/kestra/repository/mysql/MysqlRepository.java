@@ -43,7 +43,7 @@ public class MysqlRepository<T> extends AbstractJdbcRepository<T> {
     @Override
     public Condition fullTextCondition(List<String> fields, String query) {
         if (query == null || query.equals("*")) {
-            return DSL.trueCondition();
+            return DSL.noCondition();
         }
 
         String match = Arrays

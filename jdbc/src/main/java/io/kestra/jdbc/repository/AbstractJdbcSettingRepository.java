@@ -34,12 +34,12 @@ public abstract class AbstractJdbcSettingRepository extends AbstractJdbcCrudRepo
 
     @Override
     public Optional<Setting> findByKey(String key) {
-        return findOne(DSL.trueCondition(), field("key").eq(key));
+        return findOne(DSL.noCondition(), field("key").eq(key));
     }
 
     @Override
     public List<Setting> findAll() {
-        return findAll(DSL.trueCondition());
+        return findAll(DSL.noCondition());
     }
 
     @Override
@@ -72,6 +72,6 @@ public abstract class AbstractJdbcSettingRepository extends AbstractJdbcCrudRepo
 
     @Override
     protected Condition defaultFilter() {
-        return DSL.trueCondition();
+        return DSL.noCondition();
     }
 }

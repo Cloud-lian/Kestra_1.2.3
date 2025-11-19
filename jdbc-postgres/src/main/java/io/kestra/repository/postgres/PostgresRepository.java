@@ -42,7 +42,7 @@ public class PostgresRepository<T> extends io.kestra.jdbc.AbstractJdbcRepository
     @Override
     public Condition fullTextCondition(List<String> fields, String query) {
         if (query == null || query.equals("*")) {
-            return DSL.trueCondition();
+            return DSL.noCondition();
         }
 
         if (fields.size() > 1) {
@@ -106,7 +106,7 @@ public class PostgresRepository<T> extends io.kestra.jdbc.AbstractJdbcRepository
                     .sort(select, pageable)
                     .asTable("page")
                 )
-                .where(DSL.trueCondition()),
+                .where(DSL.noCondition()),
             pageable
         )
             .fetch();

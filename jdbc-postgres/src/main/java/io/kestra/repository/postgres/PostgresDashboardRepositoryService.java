@@ -17,6 +17,6 @@ public abstract class PostgresDashboardRepositoryService {
             conditions.add(jdbcRepository.fullTextCondition(Collections.singletonList("fulltext"), query));
         }
 
-        return conditions.isEmpty() ? DSL.trueCondition() : DSL.and(conditions);
+        return conditions.isEmpty() ? DSL.noCondition() : DSL.and(conditions);
     }
 }

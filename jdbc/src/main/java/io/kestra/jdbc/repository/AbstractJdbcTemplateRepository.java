@@ -64,7 +64,7 @@ public abstract class AbstractJdbcTemplateRepository extends AbstractJdbcCrudRep
     }
 
     private Condition computeCondition(@Nullable String query, @Nullable String namespace) {
-        Condition condition = DSL.trueCondition();
+        Condition condition = DSL.noCondition();
 
         if (query != null) {
             condition = condition.and(this.findCondition(query));

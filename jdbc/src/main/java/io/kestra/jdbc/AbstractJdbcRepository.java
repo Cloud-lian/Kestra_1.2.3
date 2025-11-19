@@ -74,7 +74,7 @@ public abstract class AbstractJdbcRepository<T> {
             .of(io.kestra.jdbc.repository.AbstractJdbcRepository.field("value"), MAPPER.writeValueAsString(entity))
         );
     }
-    
+
     public int count(Condition condition) {
         return getDslContextWrapper()
             .transactionResult(configuration -> DSL
@@ -85,7 +85,7 @@ public abstract class AbstractJdbcRepository<T> {
                 .fetchOne(0, Integer.class)
             );
     }
-    
+
     public void persist(T entity) {
         this.persist(entity, null);
     }
@@ -223,8 +223,7 @@ public abstract class AbstractJdbcRepository<T> {
             .from(this
                 .sort(select, Pageable.from(Sort.of(Order.asc(orderField))))
                 .asTable("page")
-            )
-            .where(DSL.trueCondition());
+            );
     }
 
     @SneakyThrows

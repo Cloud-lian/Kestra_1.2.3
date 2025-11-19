@@ -770,18 +770,16 @@ public abstract class AbstractJdbcExecutionRepository extends AbstractJdbcCrudRe
                     .from(this.jdbcRepository.getTable())
                     .where(this.defaultFilter(tenantId))
                     .and(NORMAL_KIND_CONDITION)
-                    .and(DSL.or(
-                        ListUtils.emptyOnNull(flows).isEmpty() ?
-                            DSL.trueCondition()
+                    .and(ListUtils.isEmpty(flows) ?
+                        DSL.noCondition()
                         :
-                            DSL.or(
-                                flows.stream()
-                                    .map(flow -> DSL.and(
-                                        field("namespace").eq(flow.getNamespace()),
-                                        field("flow_id").eq(flow.getId())
-                                    ))
-                                    .toList()
-                            )
+                        DSL.or(
+                            flows.stream()
+                                .map(flow -> DSL.and(
+                                    field("namespace").eq(flow.getNamespace()),
+                                    field("flow_id").eq(flow.getId())
+                                ))
+                                .toList()
                         )
                     );
 

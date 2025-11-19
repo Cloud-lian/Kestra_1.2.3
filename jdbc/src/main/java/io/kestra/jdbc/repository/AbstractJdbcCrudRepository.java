@@ -21,7 +21,7 @@ import java.util.stream.Stream;
  * NOTE: it uses the <code>defaultFilter(tenantId)</code> for querying.
  * If the child repository uses a default filter, it should override it.
  * <p>
- * For example, to avoid supporting allowDeleted:
+ * For example, to avoid supporting the <code>deleted</code> column:
  * <pre>{@code
  * @Override
  * protected Condition defaultFilter(String tenantId) {
@@ -30,7 +30,7 @@ import java.util.stream.Stream;
  *
  * @Override
  * protected Condition defaultFilter() {
- *     return DSL.trueCondition();
+ *     return DSL.noCondition();
  * }
  * }</pre>
  *
