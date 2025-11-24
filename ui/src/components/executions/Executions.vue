@@ -814,7 +814,7 @@
                 }).finally(callback);
             },
             durationFrom(item) {
-                return (+new Date() - new Date(item.state.startDate).getTime()) / 1000
+                return +new Date() - new Date(item?.state?.startDate).getTime();
             },
             genericConfirmAction(toast, queryAction, byIdAction, success, showCancelButton = true) {
                 this.$toast().confirm(
