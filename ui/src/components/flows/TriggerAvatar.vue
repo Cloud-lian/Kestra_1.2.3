@@ -11,7 +11,7 @@
                     :hideAfter="0"
                 >
                     <template #reference>
-                        <el-button @click="copyLink(trigger)" size="small">
+                        <el-button class="trigger-icon" @click="copyLink(trigger)" size="small">
                             <TaskIcon :onlyIcon="true" :cls="trigger?.type" :icons="pluginsStore.icons" />
                         </el-button>
                     </template>
@@ -99,12 +99,18 @@
 <style scoped lang="scss">
     .trigger {
         max-width: 180px;
-        overflow-x: auto;
+        display: flex;
+        justify-content: center;
     }
 
-    .el-button {
+    .trigger-icon {
         display: inline-flex !important;
+        align-items: center;
         margin-right: .25rem;
+        border: none;
+        background-color: transparent;
+        padding: 2px;
+        cursor: default;
     }
 
     :deep(div.wrapper) {
