@@ -3,12 +3,14 @@
         <span v-for="trigger in triggers" :key="uid(trigger)" :id="uid(trigger)">
             <template v-if="trigger.disabled === undefined || trigger.disabled === false">
                 <el-popover
+                    :ref="(el: any) => setPopoverRef(el, trigger)"
                     placement="left"
                     :persistent="true"
                     :title="`${$t('trigger details')}: ${trigger ? trigger.id : ''}`"
                     :width="500"
                     transition=""
                     :hideAfter="0"
+                    @show="handlePopoverShow"
                 >
                     <template #reference>
                         <el-button class="trigger-icon" @click="copyLink(trigger)" size="small">
@@ -24,7 +26,7 @@
     </div>
 </template>
 <script setup lang="ts">
-    import {computed} from "vue";
+    import {computed, ref, nextTick} from "vue";
     import {useRoute} from "vue-router";
     import {usePluginsStore} from "../../stores/plugins";
     import Utils from "../../utils/utils";
@@ -61,6 +63,8 @@
     const pluginsStore = usePluginsStore();
     const route = useRoute();
 
+    const popoverRefs = ref<Map<string, any>>(new Map());
+
     const triggers = computed<Trigger[]>(() => {
         if (props.flow && props.flow.triggers) {
             return props.flow.triggers.filter(
@@ -75,6 +79,22 @@
 
     function uid(trigger: Trigger): string {
         return (props.flow ? props.flow.namespace + "-" + props.flow.id : props.execution?.id) + "-" + trigger.id;
+    }
+
+    function setPopoverRef(el: any, trigger: Trigger) {
+        if (el) {
+            popoverRefs.value.set(uid(trigger), el);
+        }
+    }
+
+    function handlePopoverShow() {
+        nextTick(() => {
+            popoverRefs.value.forEach((popover) => {
+                if (popover?.popperRef?.popperInstanceRef) {
+                    popover.popperRef.popperInstanceRef.update();
+                }
+            });
+        });
     }
 
     const {t} = useI18n();
