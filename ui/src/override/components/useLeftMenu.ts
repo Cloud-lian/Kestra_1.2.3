@@ -20,6 +20,8 @@ import ShieldKeyOutline from "vue-material-design-icons/ShieldKeyOutline.vue";
 import FlaskOutline from "vue-material-design-icons/FlaskOutline.vue";
 
 export type MenuItem = {
+    title: string,
+    routes?: string[],
     href?: {
         path?: string,
         name: string,
@@ -47,7 +49,8 @@ export function useLeftMenu() {
             .filter(
                 (r) => typeof r.name === "string" && r.name.startsWith(route),
             )
-            .map((r) => r.name);
+            .map((r) => r.name)
+            .filter((name) => typeof name === "string");
     }
 
     const flatMenuItems = (items: MenuItem[]): MenuItem[] => {

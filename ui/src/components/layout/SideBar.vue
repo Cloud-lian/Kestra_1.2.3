@@ -68,21 +68,27 @@
     function disabledCurrentRoute(items: MenuItem[]) {
         return items
             .map(r => {
+                const newR = r as MenuItem & {class:string};
+
+                const routeName = $route.name?.toString();
+
                 if (r.href?.path === $route.path) {
                     r.disabled = true;
                 }
 
                 // route hack is still needed for blueprints
-                if (r.href !== "/" && ($route.path.startsWith(r.href) || r.routes?.includes($route.name))) {
-                    r.class = "vsm--link_active";
+                if (r.href?.path && r.href.path !== "/" && ($route.path.startsWith(r.href.path) 
+                    || routeName && r.routes?.includes(routeName))) {
+                    newR.class = "vsm--link_active";
                 }
 
-                if (r.child && r.child.some(c => $route.path.startsWith(c.href) || c.routes?.includes($route.name))) {
-                    r.class = "vsm--link_active";
-                    r.child = disabledCurrentRoute(r.child);
+                if (r.child && r.child.some(c => c.href?.path && $route.path.startsWith(c.href.path) 
+                    || routeName && c.routes?.includes(routeName))) {
+                    newR.class = "vsm--link_active";
+                    newR.child = disabledCurrentRoute(r.child);
                 }
 
-                return r;
+                return newR;
             })
     }
 

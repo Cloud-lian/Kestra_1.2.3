@@ -1,5 +1,4 @@
 import {ComputedRef} from "vue";
-import type {JSONSchema} from "@kestra-io/ui-libs";
 import {YamlElement} from "@kestra-io/ui-libs";
 import * as YAML_UTILS from "@kestra-io/ui-libs/flow-yaml-utils";
 import {QUOTE, YamlAutoCompletion} from "../../services/autoCompletionProvider";
@@ -109,7 +108,7 @@ export class FlowAutoCompletion extends YamlAutoCompletion {
         const fetchTriggerVarsByType = await Promise.all(
             distinct(flowAsJs?.triggers?.map(trigger => trigger.type))
                 .map(async triggerType => {
-                    const triggerDoc: {schema: JSONSchema} | undefined = await this.pluginsStore.load({
+                    const triggerDoc = await this.pluginsStore.load({
                         cls: triggerType,
                         commit: false
                     });

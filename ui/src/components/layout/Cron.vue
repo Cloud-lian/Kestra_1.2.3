@@ -4,22 +4,16 @@
     </span>
 </template>
 
-<script>
+<script lang="ts" setup>
+    import {computed} from "vue";
     import Utils from "../../utils/utils";
     import cronstrue from "cronstrue";
     import "cronstrue/locales/fr";
+    const props = defineProps<{
+        cronExpression?: string
+    }>()
 
-    export default {
-        props: {
-            cronExpression: {
-                type: String,
-                default: undefined
-            }
-        },
-        computed: {
-            humanReadableCron() {
-                return cronstrue.toString(this.cronExpression, {locale: Utils.getLang()});
-            }
-        }
-    }
+    const humanReadableCron = computed(() => {
+        return props.cronExpression ? cronstrue.toString(props.cronExpression, {locale: Utils.getLang()}) : "";
+    });
 </script>

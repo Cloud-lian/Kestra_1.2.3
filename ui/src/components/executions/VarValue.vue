@@ -3,7 +3,7 @@
         <el-button
             type="primary"
             tag="a"
-            :href="itemUrl(value.toString())"
+            :href="value && itemUrl(value.toString())"
             target="_blank"
             size="small"
             :icon="Download"
@@ -11,7 +11,7 @@
         >
             {{ $t('download') }}
         </el-button>
-        <FilePreview v-if="isFile(value)" :value="value.toString()" :executionId="execution.id" />
+        <FilePreview v-if="isFile(value)" :value="value.toString()" :executionId="execution?.id" />
         <el-button disabled size="small" type="primary" v-if="humanSize">
             ({{ humanSize }})
         </el-button>

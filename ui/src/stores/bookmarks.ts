@@ -5,7 +5,7 @@ const LOCAL_STORAGE_KEY = "starred.bookmarks"
 const initialPages = localStorage.getItem(LOCAL_STORAGE_KEY) ?? "[]"
 interface Page {
     path: string;
-    label?: string;
+    label: string;
 }
 
 interface State {
@@ -25,7 +25,7 @@ export const useBookmarksStore = defineStore("bookmarks", {
                 this.updateAll(pages)
             }
         },
-        remove(page: Page) {
+        remove(page: Pick<Page, "path">) {
             const pages = this.pages
             const index = pages.findIndex(p => p.path === page.path)
             if (index > -1) {

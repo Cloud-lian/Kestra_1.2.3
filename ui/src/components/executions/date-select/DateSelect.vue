@@ -23,7 +23,7 @@
     import ClockOutline from "vue-material-design-icons/ClockOutline.vue";
 
     interface Option {
-        value: string;
+        value?: string;
         label: string;
     }
 

@@ -429,7 +429,7 @@
             elements: execution.value?.trigger,
             includeDebug: "trigger",
         },
-    ];
+    ] as const;
 
     const options = useValues("executions").VALUES.RELATIVE_DATE;
     const timerange = ref<string>("PT168H"); // Default to last 7 days

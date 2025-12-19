@@ -113,10 +113,10 @@
     provide(FULL_SOURCE_INJECTION_KEY, computed(() => dashboardStore.sourceCode ?? ""));
     provide(POSITION_INJECTION_KEY, props.position ?? "after");
     provide(ON_TASK_EDITOR_CLICK_INJECTION_KEY, (elt) => {
-        const type = elt?.type;
+        const cls = elt?.type;
         dashboardStore.loadChart(elt);
-        if(type){
-            pluginsStore.updateDocumentation({type});
+        if(cls){
+            pluginsStore.updateDocumentation({cls});
         }else{
             pluginsStore.updateDocumentation(); 
         }

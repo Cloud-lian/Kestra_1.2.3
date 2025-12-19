@@ -195,7 +195,7 @@
         return result;
     });
 
-    const namespaceLabel = (path) => {
+    const namespaceLabel = (path: string) => {
         const segments = path.split(".");
         return segments.length > 1 ? segments[segments.length - 1] : path;
     };
