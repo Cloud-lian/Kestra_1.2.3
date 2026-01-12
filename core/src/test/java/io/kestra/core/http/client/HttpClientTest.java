@@ -19,6 +19,7 @@ import io.kestra.core.queues.QueueInterface;
 import io.kestra.core.runners.RunContext;
 import io.kestra.core.serializers.JacksonMapper;
 import io.kestra.core.utils.IdUtils;
+import io.kestra.core.utils.RetryUtils;
 import io.kestra.core.utils.TestsUtils;
 import io.micronaut.context.ApplicationContext;
 import io.micronaut.http.HttpStatus;
@@ -111,7 +112,8 @@ class HttpClientTest {
         return builder.build();
     }
 
-    @RetryingTest(5) // Flaky on CI but never locally even with 100 repetitions
+    @RetryingTest(5)
+        // Flaky on CI but never locally even with 100 repetitions
     void getText() throws IllegalVariableEvaluationException, HttpClientException, IOException {
         Flow flow = TestsUtils.mockFlow();
         Execution execution = TestsUtils.mockExecution(flow, Map.of());
@@ -294,7 +296,7 @@ class HttpClientTest {
         Map<String, Object> multipart = Map.of(
             "ping", "pong",
             "int", 1,
-             "file", new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("logback.xml")).toURI()),
+            "file", new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("logback.xml")).toURI()),
             "inputStream", new ByteArrayInputStream(IOUtils.toString(
                     Objects.requireNonNull(this.getClass().getClassLoader().getResourceAsStream("logback.xml")),
                     StandardCharsets.UTF_8
@@ -312,8 +314,7 @@ class HttpClientTest {
             assertThat(response.getBody().get("ping")).isEqualTo("pong");
             assertThat(response.getBody().get("int")).isEqualTo("1");
             assertThat((String) response.getBody().get("file")).contains("logback");
-            // @FIXME: Request seems to be correct, but not returned by micronaut
-            // assertThat((String) response.getBody().get("inputStream"), containsString("logback"));
+            assertThat((String) response.getBody().get("inputStream")).contains("logback");
             assertThat(response.getHeaders().firstValue(HttpHeaders.CONTENT_TYPE).orElseThrow()).isEqualTo(MediaType.APPLICATION_JSON);
         }
     }
@@ -323,12 +324,14 @@ class HttpClientTest {
         try (HttpClient client = client()) {
             URI uri = URI.create("http://localhost:1234");
 
-            HttpClientRequestException e = assertThrows(HttpClientRequestException.class, () -> {
+            RetryUtils.RetryFailed retryFailed = assertThrows(RetryUtils.RetryFailed.class, () -> {
                 client.request(HttpRequest.of(uri));
             });
 
-            assertThat(e.getRequest().getUri()).isEqualTo(uri);
-            assertThat(e.getMessage()).contains("Connection refused");
+            Throwable cause = retryFailed.getCause();
+            assertThat(cause).isInstanceOf(org.apache.hc.client5.http.HttpHostConnectException.class);
+            var e = (org.apache.hc.client5.http.HttpHostConnectException) cause;
+            assertThat(e.getMessage()).contains("Connect to http://localhost:1234 failed");
         }
     }
 
