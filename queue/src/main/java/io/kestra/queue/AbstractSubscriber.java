@@ -172,7 +172,8 @@ public abstract class AbstractSubscriber<T extends Event> implements QueueSubscr
         return this.active.get();
     }
 
-    protected boolean isPaused() {
+    @Override
+    public boolean isPaused() {
         return this.paused.get();
     }
 
