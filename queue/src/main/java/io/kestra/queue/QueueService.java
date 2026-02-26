@@ -20,7 +20,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 
 @Slf4j
@@ -34,14 +33,15 @@ public class QueueService {
     private final int vNodeCount;
 
     @Getter
-    protected final ExecutorService executorService;
+    protected final ExecutorService subscriberExecutorService;
 
     @Getter
     protected final QueueConfiguration queueConfiguration;
 
     @Inject
     public QueueService(ExecutorsUtils executorsUtils, QueueConfiguration queueConfiguration, MetricRegistry metricRegistry, SchedulerConfiguration schedulerConfiguration) {
-        this.executorService = executorsUtils.cachedThreadPool("queue-" + queueConfiguration.getType());
+        // this executor service is used to execute subscribers, as subscribers can be CPU bound, it is not a good idea to use a virtual thread here
+        this.subscriberExecutorService = executorsUtils.cachedThreadPool("queue-" + queueConfiguration.getType());
         this.queueConfiguration = queueConfiguration;
         this.metricRegistry = metricRegistry;
         this.vNodeCount = schedulerConfiguration.vnodes();
@@ -49,11 +49,11 @@ public class QueueService {
 
     @PreDestroy
     void close() {
-        this.executorService.shutdown();
+        this.subscriberExecutorService.shutdown();
     }
 
     public void execute(Runnable runnable) {
-        this.executorService.execute(runnable);
+        this.subscriberExecutorService.execute(runnable);
     }
 
     public int computeVNode(String key) {

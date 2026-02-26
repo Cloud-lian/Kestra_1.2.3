@@ -1,10 +1,8 @@
 package io.kestra.queue;
 
 import io.kestra.core.metrics.MetricRegistry;
-import io.kestra.core.queues.DispatchQueueInterface;
 import io.kestra.core.queues.QueueException;
 import io.kestra.core.queues.VNodeDispatchQueueInterface;
-import io.kestra.core.queues.event.DispatchEvent;
 import io.kestra.core.queues.event.VNodeDispatchEvent;
 import io.kestra.core.utils.ExecutorsUtils;
 import static io.kestra.core.utils.Rethrow.throwFunction;
@@ -46,7 +44,7 @@ public abstract class AbstractVNodeDispatchQueue<T extends VNodeDispatchEvent> e
             } catch (QueueException e) {
                 throw new CompletionException(e);
             }
-        }, asyncPoolExecutor);
+        }, emitAsyncPoolExecutor);
     }
 
     @Override
@@ -57,7 +55,7 @@ public abstract class AbstractVNodeDispatchQueue<T extends VNodeDispatchEvent> e
             } catch (QueueException e) {
                 throw new CompletionException(e);
             }
-        }, asyncPoolExecutor);
+        }, emitAsyncPoolExecutor);
     }
 
     protected abstract void doEmit(byte[] message, String key) throws QueueException;
