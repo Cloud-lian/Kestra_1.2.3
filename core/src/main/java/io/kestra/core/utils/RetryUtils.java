@@ -70,80 +70,88 @@ public final class RetryUtils {
 
         private final Function<RetryFailed, E> failureFunction;
 
+        // NOTE: all the run/runRetryIf methods contains duplicated code to avoid too deep method call as those are called very often
+        //       those are not for performance but stack trace readability.
         public T run(Class<E> exception, CheckedSupplier<T> run) throws E {
-            return wrap(
-                Failsafe
-                    .with(this.exceptionFallback(this.failureFunction)
-                            .handle(exception)
-                            .build(),
-                        this.toPolicy(this.policy)
-                            .handle(exception)
-                            .build()
-                    ),
-                run
-            );
-        }
+            FailsafeExecutor<T> failsafeExecutor = Failsafe
+                .with(this.exceptionFallback(this.failureFunction)
+                        .handle(exception)
+                        .build(),
+                    this.toPolicy(this.policy)
+                        .handle(exception)
+                        .build()
+                );
 
-        public T run(List<Class<? extends Throwable>> list, CheckedSupplier<T> run) throws Throwable {
-            return wrap(
-                Failsafe
-                    .with(
-                        this.exceptionFallback(this.failureFunction)
-                            .handleIf((t, throwable) -> list.stream().anyMatch(cls -> cls.isInstance(throwable)))
-                            .build(),
-                        this.toPolicy(this.policy)
-                            .handleIf((t, throwable) -> list.stream().anyMatch(cls -> cls.isInstance(throwable)))
-                            .build()
-                    ),
-                run
-            );
-        }
-
-        public T runRetryIf(Predicate<Throwable> predicate, CheckedSupplier<T> run) {
-            return wrap(
-                Failsafe
-                    .with(
-                        this.exceptionFallback(this.failureFunction)
-                            .handleIf(predicate::test).build(),
-                        this.toPolicy(this.policy)
-                            .handleIf(predicate::test).build()
-                    ),
-                run
-            );
-        }
-
-        public T run(BiPredicate<T, Throwable> predicate, CheckedSupplier<T> run) throws E {
-            return wrap(
-                Failsafe
-                    .with(
-                        this.exceptionFallback(this.failureFunction)
-                            .handleIf(predicate::test).build(),
-                        this.toPolicy(this.policy)
-                            .handleIf(predicate::test).build()
-                    ),
-                run
-            );
-        }
-
-        public T run(Predicate<T> predicate, CheckedSupplier<T> run) throws E {
-            return wrap(
-                Failsafe
-                    .with(
-                        this.exceptionFallback(this.failureFunction)
-                            .handleResultIf(predicate::test).build(),
-                        this.toPolicy(this.policy)
-                            .handleResultIf(predicate::test).build()
-                    ),
-                run
-            );
-        }
-
-        @SuppressWarnings("unchecked")
-        private static <T, E extends Throwable> T wrap(FailsafeExecutor<T> failsafeExecutor, CheckedSupplier<T> run) throws E {
             try {
                 return failsafeExecutor.get(run::get);
             } catch (FailsafeException e) {
-                throw (E) e.getCause();
+                throw (RuntimeException) e.getCause();
+            }
+        }
+
+        public T run(List<Class<? extends Throwable>> list, CheckedSupplier<T> run) throws Throwable {
+            FailsafeExecutor<T> failsafeExecutor = Failsafe
+                .with(
+                    this.exceptionFallback(this.failureFunction)
+                        .handleIf((t, throwable) -> list.stream().anyMatch(cls -> cls.isInstance(throwable)))
+                        .build(),
+                    this.toPolicy(this.policy)
+                        .handleIf((t, throwable) -> list.stream().anyMatch(cls -> cls.isInstance(throwable)))
+                        .build()
+                );
+
+            try {
+                return failsafeExecutor.get(run::get);
+            } catch (FailsafeException e) {
+                throw e.getCause();
+            }
+        }
+
+        public T runRetryIf(Predicate<Throwable> predicate, CheckedSupplier<T> run) {
+            FailsafeExecutor<T> failsafeExecutor = Failsafe
+                .with(
+                    this.exceptionFallback(this.failureFunction)
+                        .handleIf(predicate::test).build(),
+                    this.toPolicy(this.policy)
+                        .handleIf(predicate::test).build()
+                );
+
+            try {
+                return failsafeExecutor.get(run::get);
+            } catch (FailsafeException e) {
+                throw (RuntimeException) e.getCause();
+            }
+        }
+
+        public T run(BiPredicate<T, Throwable> predicate, CheckedSupplier<T> run) throws E {
+            FailsafeExecutor<T> failsafeExecutor = Failsafe
+                .with(
+                    this.exceptionFallback(this.failureFunction)
+                        .handleIf(predicate::test).build(),
+                    this.toPolicy(this.policy)
+                        .handleIf(predicate::test).build()
+                );
+
+            try {
+                return failsafeExecutor.get(run::get);
+            } catch (FailsafeException e) {
+                throw (RuntimeException) e.getCause();
+            }
+        }
+
+        public T run(Predicate<T> predicate, CheckedSupplier<T> run) throws E {
+            FailsafeExecutor<T> failsafeExecutor = Failsafe
+                .with(
+                    this.exceptionFallback(this.failureFunction)
+                        .handleResultIf(predicate::test).build(),
+                    this.toPolicy(this.policy)
+                        .handleResultIf(predicate::test).build()
+                );
+
+            try {
+                return failsafeExecutor.get(run::get);
+            } catch (FailsafeException e) {
+                throw (RuntimeException) e.getCause();
             }
         }
 
