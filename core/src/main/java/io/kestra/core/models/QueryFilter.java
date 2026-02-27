@@ -130,7 +130,7 @@ public record QueryFilter(
         ASSET_ID("assetId") {
             @Override
             public List<Op> supportedOp() {
-                return List.of(Op.EQUALS, Op.NOT_EQUALS, Op.CONTAINS, Op.STARTS_WITH, Op.ENDS_WITH, Op.REGEX, Op.IN, Op.NOT_IN);
+                return List.of(Op.EQUALS, Op.NOT_EQUALS, Op.IN, Op.NOT_IN);
             }
         },
         TYPE("type") {
@@ -414,6 +414,7 @@ public record QueryFilter(
             public List<Field> supportedField() {
                 // ASSET_ID is not supported for now as it needs complex json parsing
                 return List.of(
+                    Field.ASSET_ID,
                     Field.NAMESPACE,
                     Field.FLOW_ID,
                     Field.FLOW_REVISION,
