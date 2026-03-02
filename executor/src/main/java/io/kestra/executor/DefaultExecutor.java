@@ -83,8 +83,6 @@ public class DefaultExecutor extends AbstractService implements Executor {
     @Inject
     private ExecutionService executionService;
     @Inject
-    private VariablesService variablesService;
-    @Inject
     private FlowTriggerService flowTriggerService;
     @Inject
     private SLAService slaService;
@@ -113,8 +111,6 @@ public class DefaultExecutor extends AbstractService implements Executor {
     @Inject
     private RunContextFactory runContextFactory;
 
-    @Inject
-    private ExecutionMessageHandler executionMessageHandler;
     @Inject
     private ExecutionCommandMessageHandler executionCommandMessageHandler;
     @Inject
@@ -315,8 +311,9 @@ public class DefaultExecutor extends AbstractService implements Executor {
             return;
         }
 
-        // TODO investigate calling the ExecutionEventMessageHandler here to avoid a loop inside the executor event queue
-        Optional<ExecutorContext> maybeExecutor = executionMessageHandler.handle(message);
+        var eventType = message.getState().isCreated() ? ExecutionEventType.CREATED : ExecutionEventType.UPDATED;
+        var executionEvent = new ExecutionEvent(message, eventType);
+        Optional<ExecutorContext> maybeExecutor = executionEventMessageHandler.handle(executionEvent);
         maybeExecutor.ifPresent(this::toExecution);
     }
 
