@@ -454,13 +454,13 @@ public class FlowableUtils {
         }
 
         // find all not created tasks
+        // to avoid nested loops, we pre-compute a per-uid task run map to fast retrieval
+        Map<String, TaskRun> taskRunMap = HashMap.newHashMap(resolvedTasks.size());
+        String parentTaskRunId = parentTaskRun != null ? parentTaskRun.getId() : null;
+        taskRuns.forEach(taskRun -> taskRunMap.put(IdUtils.fromParts(taskRun.getId(), parentTaskRunId, taskRun.getValue()), taskRun));
         List<ResolvedTask> notFinds = currentTasks
             .stream()
-            .filter(
-                resolvedTask -> taskRuns
-                    .stream()
-                    .noneMatch(taskRun -> FlowableUtils.isTaskRunFor(resolvedTask, taskRun, parentTaskRun))
-            )
+            .filter(resolvedTask -> taskRunMap.containsKey(resolvedTask.uid()))
             .toList();
 
         // first created, leave
