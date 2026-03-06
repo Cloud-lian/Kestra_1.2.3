@@ -64,7 +64,7 @@
     const schemaAtBlockPathInjected = computed(() => getValueAtJsonPath(fullSchema.value, blockSchemaPathInjected.value))
 
     const blockSchemaPath = computed(() => {
-        const rootParts = props.root ? props.root.split(".") : []
+        let rootParts = props.root ? props.root.split(".") : []
         if(rootParts.length > 1){
             // if second part is a property not defined in properties, 
             // it can only be defined by additionalProperties
@@ -72,7 +72,11 @@
             if(s && s.properties?.[rootParts[1]] === undefined && s.additionalProperties){
                 rootParts[1] = "additionalProperties"
             } else {
-                rootParts.splice(1, 0, "properties")
+                // only the last part of teh root is necessary as
+                // all other parts of the schemaPath are injected 
+                // as we go down the component tree 
+                // TODO: check if this still works inside an array of arrays
+                rootParts = [rootParts[rootParts.length - 1]]
             }
         }
         return [blockSchemaPathInjected.value, "properties", ...rootParts, "items"].join("/");
@@ -90,6 +94,10 @@
     const emits = defineEmits(["update:modelValue"]);
     const props = withDefaults(defineProps<{
         modelValue?: Task[],
+        // path of the value in the current
+        // editor tab 
+        // to get the absolute path in the yaml, 
+        // concatenate parentPath + root
         root: string;
         merge?: boolean;
     }>(), {
