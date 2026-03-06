@@ -73,7 +73,7 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
     Integer flowRevision;
 
     @With
-    List<TaskRun> taskRunList;
+    List<ExecutionTaskRun> executionTaskRuns;
 
     @With
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -127,6 +127,38 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
 
     @Nullable
     List<Breakpoint> breakpoints;
+
+    public Execution with(List<TaskRun> taskRunList) {
+        return new Execution(
+            this.tenantId,
+            this.id,
+            this.namespace,
+            this.flowId,
+            this.flowRevision,
+            taskRunList.stream().map(ExecutionTaskRun::of).collect(Collectors.toList()),
+            this.inputs,
+            this.outputs,
+            this.labels,
+            this.variables,
+            this.state,
+            this.parentId,
+            this.originalId,
+            this.trigger,
+            this.deleted,
+            this.metadata,
+            this.scheduleDate,
+            this.traceParent,
+            this.fixtures,
+            this.kind,
+            this.breakpoints
+        );
+    }
+
+    // FIXME remove it at some point
+    @JsonIgnore
+    public List<TaskRun> getTaskRunList() {
+        return ListUtils.emptyOnNull(this.executionTaskRuns).stream().map(it -> it.to(this)).toList();
+    }
 
     @Override
     @JsonIgnore
@@ -215,6 +247,32 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
         return id;
     }
 
+    public Execution withTaskRunList(List<TaskRun> taskRunList) {
+        return new Execution(
+            this.tenantId,
+            this.id,
+            this.namespace,
+            this.flowId,
+            this.flowRevision,
+            taskRunList.stream().map(ExecutionTaskRun::of).collect(Collectors.toList()),
+            this.inputs,
+            this.outputs,
+            this.labels,
+            this.variables,
+            this.state,
+            this.parentId,
+            this.originalId,
+            this.trigger,
+            this.deleted,
+            this.metadata,
+            this.scheduleDate,
+            this.traceParent,
+            this.fixtures,
+            this.kind,
+            this.breakpoints
+        );
+    }
+
 
     /**
      * Customization of Lombok-generated builder.
@@ -260,7 +318,7 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
             this.namespace,
             this.flowId,
             this.flowRevision,
-            this.taskRunList,
+            this.executionTaskRuns,
             this.inputs,
             this.outputs,
             this.labels,
@@ -286,7 +344,7 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
             this.namespace,
             this.flowId,
             this.flowRevision,
-            this.taskRunList,
+            this.executionTaskRuns,
             this.inputs,
             this.outputs,
             Label.deduplicate(labels),
@@ -306,17 +364,57 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
     }
 
     public Execution withTaskRun(TaskRun taskRun) throws InternalException {
-        List<TaskRun> newTaskRunList = this.taskRunList == null ? new ArrayList<>() : new ArrayList<>(this.taskRunList);
+        List<ExecutionTaskRun> newTaskRunList = this.executionTaskRuns == null ? new ArrayList<>() : new ArrayList<>(this.executionTaskRuns);
 
         boolean b = Collections.replaceAll(
             newTaskRunList,
-            this.findTaskRunByTaskRunId(taskRun.getId()),
-            taskRun
+            this.findExecutionTaskRunByTaskRunId(taskRun.getId()),
+            ExecutionTaskRun.of(taskRun)
         );
 
         if (!b) {
             throw new IllegalStateException(
                 "Can't replace taskRun '" + taskRun.getId() + "' on execution'" + this.getId()
+                    + "'");
+        }
+
+        return new Execution(
+            this.tenantId,
+            this.id,
+            this.namespace,
+            this.flowId,
+            this.flowRevision,
+            newTaskRunList,
+            this.inputs,
+            this.outputs,
+            this.labels,
+            this.variables,
+            this.state,
+            this.parentId,
+            this.originalId,
+            this.trigger,
+            this.deleted,
+            this.metadata,
+            this.scheduleDate,
+            this.traceParent,
+            this.fixtures,
+            this.kind,
+            this.breakpoints
+        );
+    }
+
+    public Execution withExecutionTaskRun(ExecutionTaskRun taskRun) throws InternalException {
+        List<ExecutionTaskRun> newTaskRunList = this.executionTaskRuns == null ? new ArrayList<>() : new ArrayList<>(this.executionTaskRuns);
+
+        boolean b = Collections.replaceAll(
+            newTaskRunList,
+            this.findExecutionTaskRunByTaskRunId(taskRun.id()),
+            taskRun
+        );
+
+        if (!b) {
+            throw new IllegalStateException(
+                "Can't replace taskRun '" + taskRun.id() + "' on execution'" + this.getId()
                     + "'");
         }
 
@@ -352,7 +450,7 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
             this.namespace,
             this.flowId,
             this.flowRevision,
-            this.taskRunList,
+            this.executionTaskRuns,
             this.inputs,
             this.outputs,
             this.labels,
@@ -388,7 +486,7 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
             this.namespace,
             this.flowId,
             this.flowRevision,
-            taskRunList,
+            taskRunList.stream().map(ExecutionTaskRun::of).collect(Collectors.toList()),
             this.inputs,
             this.outputs,
             this.labels,
@@ -408,21 +506,22 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
     }
 
     public List<TaskRun> findTaskRunsByTaskId(String id) {
-        if (this.taskRunList == null) {
+        if (this.executionTaskRuns == null) {
             return Collections.emptyList();
         }
 
-        return this.taskRunList
+        return this.executionTaskRuns
             .stream()
-            .filter(taskRun -> taskRun.getTaskId().equals(id))
+            .filter(taskRun -> taskRun.taskId().equals(id))
+            .map(taskRun -> taskRun.to(this))
             .toList();
     }
 
-    public TaskRun findTaskRunByTaskRunId(String id) throws InternalException {
-        Optional<TaskRun> find = (this.taskRunList == null ? Collections.<TaskRun>emptyList()
-            : this.taskRunList)
+    ExecutionTaskRun findExecutionTaskRunByTaskRunId(String id) throws InternalException {
+        Optional<ExecutionTaskRun> find = (this.executionTaskRuns == null ? Collections.<ExecutionTaskRun>emptyList()
+            : this.executionTaskRuns)
             .stream()
-            .filter(taskRun -> taskRun.getId().equals(id))
+            .filter(taskRun -> taskRun.id().equals(id))
             .findFirst();
 
         if (find.isEmpty()) {
@@ -434,13 +533,16 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
         return find.get();
     }
 
+    public TaskRun findTaskRunByTaskRunId(String id) throws InternalException {
+        return findExecutionTaskRunByTaskRunId(id).to(this);
+    }
+
     public TaskRun findTaskRunByTaskIdAndValue(String id, List<String> values)
         throws InternalException {
-        Optional<TaskRun> find = (this.taskRunList == null ? Collections.<TaskRun>emptyList()
-            : this.taskRunList)
+        Optional<ExecutionTaskRun> find = (this.executionTaskRuns == null ? Collections.<ExecutionTaskRun>emptyList()
+            : this.executionTaskRuns)
             .stream()
-            .filter(taskRun -> taskRun.getTaskId().equals(id) && findParentsValues(taskRun,
-                true).equals(values))
+            .filter(taskRun -> taskRun.taskId().equals(id) && findParentsValues(taskRun.to(this), true).equals(values))
             .findFirst();
 
         if (find.isEmpty()) {
@@ -449,7 +551,7 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
                     + "' on execution '" + this.id + "' " + this.toStringState());
         }
 
-        return find.get();
+        return find.get().to(this);
     }
 
     /**
@@ -511,8 +613,8 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
         resolvedErrors = removeDisabled(resolvedErrors);
         resolvedFinally = removeDisabled(resolvedFinally);
 
-        List<TaskRun> errorsFlow = this.findTaskRunByTasks(resolvedErrors, parentTaskRun);
-        List<TaskRun> finallyFlow = this.findTaskRunByTasks(resolvedFinally, parentTaskRun);
+        List<ExecutionTaskRun> errorsFlow = this.findExecutionTaskRunByTasks(resolvedErrors, parentTaskRun);
+        List<ExecutionTaskRun> finallyFlow = this.findExecutionTaskRunByTasks(resolvedFinally, parentTaskRun);
 
         // finally is already started, just continue these finally
         if (!finallyFlow.isEmpty()) {
@@ -561,41 +663,47 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
             .toList();
     }
 
-    public List<TaskRun> findTaskRunByTasks(List<ResolvedTask> resolvedTasks, TaskRun parentTaskRun) {
-        if (resolvedTasks == null || this.taskRunList == null) {
+    public List<ExecutionTaskRun> findExecutionTaskRunByTasks(List<ResolvedTask> resolvedTasks, TaskRun parentTaskRun) {
+        if (resolvedTasks == null || this.executionTaskRuns == null) {
             return Collections.emptyList();
         }
 
         return this
-            .getTaskRunList()
+            .executionTaskRuns
             .stream()
             .filter(t -> resolvedTasks
                 .stream()
                 .anyMatch(
-                    resolvedTask -> FlowableUtils.isTaskRunFor(resolvedTask, t, parentTaskRun))
+                    resolvedTask -> FlowableUtils.isExecutionTaskRunFor(resolvedTask, t, parentTaskRun))
             )
             .toList();
     }
 
+    public List<TaskRun> findTaskRunByTasks(List<ResolvedTask> resolvedTasks, TaskRun parentTaskRun) {
+        return findExecutionTaskRunByTasks(resolvedTasks, parentTaskRun).stream().map(t -> t.to(this)).toList();
+    }
+
     public Optional<TaskRun> findFirstByState(State.Type state) {
-        if (this.taskRunList == null) {
+        if (this.executionTaskRuns == null) {
             return Optional.empty();
         }
 
-        return this.taskRunList
+        return this.executionTaskRuns
             .stream()
-            .filter(t -> t.getState().getCurrent() == state)
+            .filter(t -> t.state().getCurrent() == state)
+            .map(t -> t.to(this))
             .findFirst();
     }
 
     public Optional<TaskRun> findFirstRunning() {
-        if (this.taskRunList == null) {
+        if (this.executionTaskRuns == null) {
             return Optional.empty();
         }
 
-        return this.taskRunList
+        return this.executionTaskRuns
             .stream()
-            .filter(t -> t.getState().isRunning())
+            .filter(t -> t.state().isRunning())
+            .map(t -> t.to(this))
             .findFirst();
     }
 
@@ -608,23 +716,24 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
      * See: @see <a href="https://github.com/kestra-io/kestra/pull/14385">KESTRA#14385</a>
      */
     public Optional<TaskRun> findLastNotTerminated() {
-        if (this.taskRunList == null) {
+        if (this.executionTaskRuns == null) {
             return Optional.empty();
         }
 
-        return this.taskRunList
+        return this.executionTaskRuns
             .reversed()
             .stream()
-            .filter(t -> !t.getState().isTerminated() || !t.getState().isPaused())
+            .filter(t -> !t.state().isTerminated() || !t.state().isPaused())
+            .map(t -> t.to(this))
             .findFirst();
     }
 
 
-    public Optional<TaskRun> findLastByState(List<TaskRun> taskRuns, State.Type state) {
+    Optional<ExecutionTaskRun> findLastByState(List<ExecutionTaskRun> taskRuns, State.Type state) {
         return taskRuns
             .reversed()
             .stream()
-            .filter(t -> t.getState().getCurrent() == state)
+            .filter(t -> t.state().getCurrent() == state)
             .findFirst();
     }
 
@@ -666,18 +775,18 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
 
     public boolean isTerminated(List<ResolvedTask> resolvedTasks, TaskRun parentTaskRun) {
         long terminatedCount = this
-            .findTaskRunByTasks(resolvedTasks, parentTaskRun)
+            .findExecutionTaskRunByTasks(resolvedTasks, parentTaskRun)
             .stream()
-            .filter(taskRun -> taskRun.getState().isTerminated())
+            .filter(taskRun -> taskRun.state().isTerminated())
             .count();
 
         return terminatedCount == resolvedTasks.size();
     }
 
     public boolean hasWarning() {
-        return this.taskRunList != null && this.taskRunList
+        return this.executionTaskRuns != null && this.executionTaskRuns
             .stream()
-            .anyMatch(taskRun -> taskRun.getState().getCurrent() == State.Type.WARNING);
+            .anyMatch(taskRun -> taskRun.state().getCurrent() == State.Type.WARNING);
     }
 
     public boolean hasWarning(List<ResolvedTask> resolvedTasks) {
@@ -685,15 +794,15 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
     }
 
     public boolean hasWarning(List<ResolvedTask> resolvedTasks, TaskRun parentTaskRun) {
-        return this.findTaskRunByTasks(resolvedTasks, parentTaskRun)
+        return this.findExecutionTaskRunByTasks(resolvedTasks, parentTaskRun)
             .stream()
-            .anyMatch(taskRun -> taskRun.getState().getCurrent() == State.Type.WARNING);
+            .anyMatch(taskRun -> taskRun.state().getCurrent() == State.Type.WARNING);
     }
 
     public boolean hasFailed() {
-        return this.taskRunList != null && this.taskRunList
+        return this.executionTaskRuns != null && this.executionTaskRuns
             .stream()
-            .anyMatch(taskRun -> taskRun.getState().isFailed());
+            .anyMatch(taskRun -> taskRun.state().isFailed());
     }
 
     public boolean hasFailed(List<ResolvedTask> resolvedTasks) {
@@ -701,34 +810,34 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
     }
 
     public boolean hasFailed(List<ResolvedTask> resolvedTasks, TaskRun parentTaskRun) {
-        return this.findTaskRunByTasks(resolvedTasks, parentTaskRun)
+        return this.findExecutionTaskRunByTasks(resolvedTasks, parentTaskRun)
             .stream()
-            .anyMatch(taskRun -> taskRun.getState().isFailed());
+            .anyMatch(taskRun -> taskRun.state().isFailed());
     }
 
     public boolean hasFailedNoRetry(List<ResolvedTask> resolvedTasks, TaskRun parentTaskRun) {
-        return this.findTaskRunByTasks(resolvedTasks, parentTaskRun)
+        return this.findExecutionTaskRunByTasks(resolvedTasks, parentTaskRun)
             .stream()
             // NOTE: we check on isFailed first to avoid the costly shouldBeRetried() method
-            .anyMatch(taskRun -> taskRun.getState().isFailed() && shouldNotBeRetried(resolvedTasks, parentTaskRun, taskRun));
+            .anyMatch(taskRun -> taskRun.state().isFailed() && shouldNotBeRetried(resolvedTasks, parentTaskRun, taskRun));
     }
 
-    private static boolean shouldNotBeRetried(List<ResolvedTask> resolvedTasks, TaskRun parentTaskRun, TaskRun taskRun) {
+    private static boolean shouldNotBeRetried(List<ResolvedTask> resolvedTasks, TaskRun parentTaskRun, ExecutionTaskRun taskRun) {
         ResolvedTask resolvedTask = resolvedTasks.stream()
-            .filter(t -> t.getTask().getId().equals(taskRun.getTaskId())).findFirst()
+            .filter(t -> t.getTask().getId().equals(taskRun.taskId())).findFirst()
             .orElse(null);
         if (resolvedTask == null) {
             log.warn("Can't find task for taskRun '{}' in parentTaskRun '{}'",
-                taskRun.getId(), parentTaskRun.getId());
+                taskRun.id(), parentTaskRun.getId());
             return false;
         }
         return !taskRun.shouldBeRetried(resolvedTask.getTask().getRetry());
     }
 
     public boolean hasCreated() {
-        return this.taskRunList != null && this.taskRunList
+        return this.executionTaskRuns != null && this.executionTaskRuns
             .stream()
-            .anyMatch(taskRun -> taskRun.getState().isCreated());
+            .anyMatch(taskRun -> taskRun.state().isCreated());
     }
 
     public boolean hasCreated(List<ResolvedTask> resolvedTasks) {
@@ -736,9 +845,9 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
     }
 
     public boolean hasCreated(List<ResolvedTask> resolvedTasks, TaskRun parentTaskRun) {
-        return this.findTaskRunByTasks(resolvedTasks, parentTaskRun)
+        return this.findExecutionTaskRunByTasks(resolvedTasks, parentTaskRun)
             .stream()
-            .anyMatch(taskRun -> taskRun.getState().isCreated());
+            .anyMatch(taskRun -> taskRun.state().isCreated());
     }
 
     public boolean hasRunning(List<ResolvedTask> resolvedTasks) {
@@ -746,9 +855,9 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
     }
 
     public boolean hasRunning(List<ResolvedTask> resolvedTasks, TaskRun parentTaskRun) {
-        return this.findTaskRunByTasks(resolvedTasks, parentTaskRun)
+        return this.findExecutionTaskRunByTasks(resolvedTasks, parentTaskRun)
             .stream()
-            .anyMatch(taskRun -> taskRun.getState().isRunning());
+            .anyMatch(taskRun -> taskRun.state().isRunning());
     }
 
     public State.Type guessFinalState(Flow flow) {
@@ -762,21 +871,21 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
 
     public State.Type guessFinalState(List<ResolvedTask> currentTasks, TaskRun parentTaskRun,
                                       boolean allowFailure, boolean allowWarning, State.Type terminalState) {
-        List<TaskRun> taskRuns = this.findTaskRunByTasks(currentTasks, parentTaskRun);
+        List<ExecutionTaskRun> taskRuns = this.findExecutionTaskRunByTasks(currentTasks, parentTaskRun);
         var state = this
             .findLastByState(taskRuns, State.Type.KILLED)
-            .map(taskRun -> taskRun.getState().getCurrent())
+            .map(taskRun -> taskRun.state().getCurrent())
             .or(() -> this
                 .findLastByState(taskRuns, State.Type.FAILED)
-                .map(taskRun -> taskRun.getState().getCurrent())
+                .map(taskRun -> taskRun.state().getCurrent())
             )
             .or(() -> this
                 .findLastByState(taskRuns, State.Type.WARNING)
-                .map(taskRun -> taskRun.getState().getCurrent())
+                .map(taskRun -> taskRun.state().getCurrent())
             )
             .or(() -> this
                 .findLastByState(taskRuns, State.Type.PAUSED)
-                .map(taskRun -> taskRun.getState().getCurrent())
+                .map(taskRun -> taskRun.state().getCurrent())
             )
             .orElse(terminalState);
 
@@ -794,11 +903,11 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
 
     @JsonIgnore
     public boolean hasTaskRunJoinable(TaskRun taskRun) {
-        if (this.taskRunList == null) {
+        if (this.executionTaskRuns == null) {
             return true;
         }
 
-        TaskRun current = this.taskRunList
+        ExecutionTaskRun current = this.executionTaskRuns
             .stream()
             .filter(r -> r.isSame(taskRun))
             .findFirst()
@@ -810,15 +919,15 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
 
         // attempts & retry need to be saved
         if (
-            (current.getAttempts() == null && taskRun.getAttempts() != null) ||
-                (current.getAttempts() != null && taskRun.getAttempts() != null
-                    && current.getAttempts().size() < taskRun.getAttempts().size())
+            (current.attempts() == null && taskRun.getAttempts() != null) ||
+                (current.attempts() != null && taskRun.getAttempts() != null
+                    && current.attempts().size() < taskRun.getAttempts().size())
         ) {
             return true;
         }
 
         // same status
-        if (current.getState().getCurrent() == taskRun.getState().getCurrent()) {
+        if (current.state().getCurrent() == taskRun.getState().getCurrent()) {
             return false;
         }
 
@@ -826,13 +935,13 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
         // don't have changed to failed but taskRunList will contain a failed
         // same for restart, the CREATED status is directly on execution taskrun
         // so we don't changed if current execution is terminated
-        if (current.getState().isTerminated() && !taskRun.getState().isTerminated()) {
+        if (current.state().isTerminated() && !taskRun.getState().isTerminated()) {
             return false;
         }
 
         // restart case mostly
         // execution contains more state than taskrun so workerTaskResult is outdated
-        if (current.getState().getHistories().size() > taskRun.getState().getHistories().size()) {
+        if (current.state().getHistories().size() > taskRun.getState().getHistories().size()) {
             return false;
         }
 
@@ -889,13 +998,13 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
             );
     }
 
-    public Optional<TaskFixture> getFixtureForTaskRun(TaskRun taskRun) {
+    public Optional<TaskFixture> getFixtureForTaskRun(ExecutionTaskRun taskRun) {
         if (this.fixtures == null) {
             return Optional.empty();
         }
 
         return this.fixtures.stream()
-            .filter(fixture -> Objects.equals(fixture.getId(), taskRun.getTaskId()) && Objects.equals(fixture.getValue(), taskRun.getValue()))
+            .filter(fixture -> Objects.equals(fixture.getId(), taskRun.taskId()) && Objects.equals(fixture.getValue(), taskRun.value()))
             .findFirst();
     }
 
@@ -982,7 +1091,7 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
      * @return List of parent {@link TaskRun}
      */
     public List<TaskRun> findParents(TaskRun taskRun) {
-        if (taskRun.getParentTaskRunId() == null || this.taskRunList == null) {
+        if (taskRun.getParentTaskRunId() == null || this.executionTaskRuns == null) {
             return Collections.emptyList();
         }
 
@@ -990,9 +1099,10 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
         boolean ended = false;
         while (!ended) {
             final TaskRun finalTaskRun = taskRun;
-            Optional<TaskRun> find = this.taskRunList
+            Optional<TaskRun> find = this.executionTaskRuns
                 .stream()
-                .filter(t -> t.getId().equals(finalTaskRun.getParentTaskRunId()))
+                .filter(t -> t.id().equals(finalTaskRun.getParentTaskRunId()))
+                .map(it -> it.to(this))
                 .findFirst();
 
             if (find.isPresent()) {
@@ -1011,9 +1121,10 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
     /**
      * Find all children of this {@link TaskRun}.
      */
-    public List<TaskRun> findChildren(TaskRun parentTaskRun) {
-        return taskRunList.stream()
-            .filter(taskRun -> parentTaskRun.getId().equals(taskRun.getParentTaskRunId()))
+    public List<TaskRun> findChildren(ExecutionTaskRun parentTaskRun) {
+        return executionTaskRuns.stream()
+            .filter(taskRun -> parentTaskRun.id().equals(taskRun.parentTaskRunId()))
+            .map(taskRun -> taskRun.to(this))
             .toList();
     }
 
@@ -1047,9 +1158,9 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
             "\n  taskRunList=" +
             "\n  [" +
             "\n    " +
-            (this.taskRunList == null ? "" : this.taskRunList
+            (this.executionTaskRuns == null ? "" : this.executionTaskRuns
                 .stream()
-                .map(t -> t.toString(true))
+                .map(t -> t.toPrettyString())
                 .collect(Collectors.joining(",\n    "))
             ) +
             "\n  ], " +
@@ -1063,9 +1174,9 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
             "\n  taskRunList=" +
             "\n  [" +
             "\n    " +
-            (this.taskRunList == null ? "" : this.taskRunList
+            (this.executionTaskRuns == null ? "" : this.executionTaskRuns
                 .stream()
-                .map(TaskRun::toStringState)
+                .map(ExecutionTaskRun::toStringState)
                 .collect(Collectors.joining(",\n    "))
             ) +
             "\n  ] " +

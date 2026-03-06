@@ -17,7 +17,7 @@ class ExecutionFixture {
             .flowRevision(1)
             .state(new State())
             .inputs(ImmutableMap.of("test", "value"))
-            .taskRunList(Collections.singletonList(
+            .executionTaskRuns(Collections.singletonList(
                 TaskRun.builder()
                     .id(IdUtils.create())
                     .namespace("io.kestra.unittest")
@@ -27,7 +27,7 @@ class ExecutionFixture {
                         TaskRunAttempt.builder()
                             .build()
                     ))
-                    .build()
+                    .build().to()
             ))
             .build();
     }
@@ -41,7 +41,7 @@ class ExecutionFixture {
             .flowRevision(1)
             .state(new State())
             .inputs(ImmutableMap.of("test", 1))
-            .taskRunList(Collections.singletonList(
+            .executionTaskRuns(Collections.singletonList(
                 TaskRun.builder()
                     .id(IdUtils.create())
                     .namespace("io.kestra.unittest")
@@ -51,7 +51,7 @@ class ExecutionFixture {
                         TaskRunAttempt.builder()
                             .build()
                     ))
-                    .build()
+                    .build().to()
             ))
             .build();
     }
@@ -66,7 +66,7 @@ class ExecutionFixture {
             .state(new State())
             .inputs(ImmutableMap.of("test", 1))
             .kind(ExecutionKind.TEST)
-            .taskRunList(Collections.singletonList(
+            .executionTaskRuns(Collections.singletonList(
                 TaskRun.builder()
                     .id(IdUtils.create())
                     .namespace("io.kestra.unittest")
@@ -76,7 +76,7 @@ class ExecutionFixture {
                         TaskRunAttempt.builder()
                             .build()
                     ))
-                    .build()
+                    .build().to()
             ))
             .build();
     }

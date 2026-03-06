@@ -8829,10 +8829,10 @@ components:
         flowRevision:
           type: integer
           format: int32
-        taskRunList:
+        executionTaskRuns:
           type: array
           items:
-            $ref: "#/components/schemas/TaskRun"
+            $ref: "#/components/schemas/ExecutionTaskRun"
         inputs:
           type: object
         outputs:
@@ -9012,6 +9012,35 @@ components:
           type: string
         state:
           $ref: "#/components/schemas/State"
+    ExecutionTaskRun:
+      required:
+      - id
+      - taskId
+      type: object
+      properties:
+        id:
+          type: string
+        taskId:
+          type: string
+        parentTaskRunId:
+          type: string
+        value:
+          type: string
+        attempts:
+          type: array
+          items:
+            $ref: "#/components/schemas/TaskRunAttempt"
+        assets:
+          $ref: "#/components/schemas/AssetsInOut"
+        state:
+          $ref: "#/components/schemas/State"
+        iteration:
+          type: integer
+          format: int32
+        dynamic:
+          type: boolean
+        forceExecution:
+          type: boolean
     ExecutionTrigger:
       required:
       - id
@@ -10766,47 +10795,6 @@ components:
           format: byte
         uri:
           type: string
-    TaskRun:
-      required:
-      - executionId
-      - flowId
-      - id
-      - namespace
-      - state
-      - taskId
-      type: object
-      properties:
-        id:
-          type: string
-        executionId:
-          type: string
-        namespace:
-          type: string
-        flowId:
-          type: string
-        taskId:
-          type: string
-        parentTaskRunId:
-          type: string
-        value:
-          type: string
-        attempts:
-          type: array
-          items:
-            $ref: "#/components/schemas/TaskRunAttempt"
-        assets:
-          nullable: true
-          allOf:
-          - $ref: "#/components/schemas/AssetsInOut"
-        state:
-          $ref: "#/components/schemas/State"
-        iteration:
-          type: integer
-          format: int32
-        dynamic:
-          type: boolean
-        forceExecution:
-          type: boolean
     TaskRunAttempt:
       required:
       - state

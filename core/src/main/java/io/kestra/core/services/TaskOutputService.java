@@ -126,13 +126,13 @@ public class TaskOutputService {
      * This method will read all outputs of the execution and compute the final outputs for each task run as needed for the RunContext variables.
      */
     public Map<String, Object> computeOutputs(Execution execution) {
-        if (execution == null || execution.getTaskRunList() == null) {
+        if (execution == null || execution.getExecutionTaskRuns() == null) {
             return Collections.emptyMap();
         }
 
         // we pre-compute the map of taskrun by id to avoid traversing the list of all taskrun for each taskrun
-        Map<String, TaskRun> byIds = execution.getTaskRunList().stream().collect(Collectors.toMap(
-            taskRun -> taskRun.getId(),
+        Map<String, ExecutionTaskRun> byIds = execution.getExecutionTaskRuns().stream().collect(Collectors.toMap(
+            taskRun -> taskRun.id(),
             taskRun -> taskRun
         ));
 
@@ -140,16 +140,16 @@ public class TaskOutputService {
         List<TaskOutput> allTaskOutputs = outputRepository.findByExecution(execution);
 
         Map<String, Object> result = new HashMap<>();
-        execution.getTaskRunList().stream()
-            .collect(Collectors.groupingBy(taskRun -> taskRun.getTaskId()))
+        execution.getExecutionTaskRuns().stream()
+            .collect(Collectors.groupingBy(taskRun -> taskRun.taskId()))
             .forEach((taskId, taskRuns) -> {
                 Map<String, Object> taskOutputs = new HashMap<>();
-                for (TaskRun current : taskRuns) {
-                    var outputs = allTaskOutputs.stream().filter(it -> it.taskRunId().equals(current.getId())).findAny();
+                for (ExecutionTaskRun current : taskRuns) {
+                    var outputs = allTaskOutputs.stream().filter(it -> it.taskRunId().equals(current.id())).findAny();
                     if (outputs.isPresent()) {
                         try {
-                            var outputMap = readOutput(current, outputs.get());
-                            if (current.getIteration() != null) {
+                            var outputMap = readOutput(execution, current, outputs.get());
+                            if (current.iteration() != null) {
                                 Map<String, Object> merged = MapUtils.merge(taskOutputs, outputs(current, outputMap, byIds));
                                 // If one of two of the map is null in the merge() method, we just return the other
                                 // And if the not null map is a Variables (= read-only), we cast it back to a simple
@@ -181,6 +181,14 @@ public class TaskOutputService {
         }
     }
 
+    private Map<String, Object> readOutput(Execution execution, ExecutionTaskRun taskRun, TaskOutput taskOutput) throws InternalException {
+        try {
+            return taskOutput.value() != null ? readFromValue(taskOutput) : readFromInternalStorage(taskRun.to(execution), taskOutput);
+        } catch (IOException e) {
+            throw new InternalException(e);
+        }
+    }
+
     private Map<String, Object> readFromValue(TaskOutput taskOutput) throws IOException {
         return ION_MAPPER.readValue(taskOutput.value(), JacksonMapper.MAP_TYPE_REFERENCE);
     }
@@ -197,31 +205,31 @@ public class TaskOutputService {
         }
     }
 
-    private Map<String, Object> outputs(TaskRun taskRun, Map<String, Object> outputs, Map<String, TaskRun> byIds) {
-        List<TaskRun> parents = findParents(taskRun, byIds)
+    private Map<String, Object> outputs(ExecutionTaskRun taskRun, Map<String, Object> outputs, Map<String, ExecutionTaskRun> byIds) {
+        List<ExecutionTaskRun> parents = findParents(taskRun, byIds)
             .stream()
-            .filter(r -> r.getValue() != null)
+            .filter(r -> r.value() != null)
             .toList();
 
         if (parents.isEmpty()) {
-            if (taskRun.getValue() == null) {
+            if (taskRun.value() == null) {
                 return outputs;
             } else {
-                return Map.of(taskRun.getValue(), outputs);
+                return Map.of(taskRun.value(), outputs);
             }
         }
 
         Map<String, Object> result = HashMap.newHashMap(1);
         Map<String, Object> current = result;
 
-        for (TaskRun t : parents) {
+        for (ExecutionTaskRun t : parents) {
             HashMap<String, Object> item = HashMap.newHashMap(1);
-            current.put(t.getValue(), item);
+            current.put(t.value(), item);
             current = item;
         }
 
-        if (taskRun.getValue() != null) {
-            current.put(taskRun.getValue(), outputs);
+        if (taskRun.value() != null) {
+            current.put(taskRun.value(), outputs);
         } else {
             current.putAll(outputs);
         }
@@ -234,16 +242,16 @@ public class TaskOutputService {
      * taskRun) but for performance reason, as it's called a lot, we pre-compute the map of taskrun
      * by ID and use it here.
      */
-    private List<TaskRun> findParents(TaskRun taskRun, Map<String, TaskRun> taskRunById) {
-        if (taskRun.getParentTaskRunId() == null || taskRunById.isEmpty()) {
+    private List<ExecutionTaskRun> findParents(ExecutionTaskRun taskRun, Map<String, ExecutionTaskRun> taskRunById) {
+        if (taskRun.parentTaskRunId() == null || taskRunById.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<TaskRun> result = new ArrayList<>();
+        List<ExecutionTaskRun> result = new ArrayList<>();
         boolean ended = false;
         while (!ended) {
-            final TaskRun finalTaskRun = taskRun;
-            TaskRun find = taskRunById.get(finalTaskRun.getParentTaskRunId());
+            final ExecutionTaskRun finalTaskRun = taskRun;
+            ExecutionTaskRun find = taskRunById.get(finalTaskRun.parentTaskRunId());
 
             if (find != null) {
                 result.add(find);

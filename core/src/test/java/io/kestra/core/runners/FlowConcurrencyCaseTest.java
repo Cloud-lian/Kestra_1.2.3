@@ -1,6 +1,5 @@
 package io.kestra.core.runners;
 
-import io.kestra.core.junit.annotations.LoadFlows;
 import io.kestra.core.models.executions.Execution;
 import io.kestra.core.models.executions.ExecutionKilled;
 import io.kestra.core.models.executions.ExecutionKilledExecution;
@@ -17,7 +16,6 @@ import io.kestra.core.queues.BroadcastQueueInterface;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileInputStream;

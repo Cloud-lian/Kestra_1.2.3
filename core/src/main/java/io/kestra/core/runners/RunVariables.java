@@ -248,7 +248,7 @@ public final class RunVariables {
 
                 builder.put("execution", executionMap.build());
 
-                if (execution.getTaskRunList() != null) {
+                if (execution.getExecutionTaskRuns() != null) {
                     if (!MapUtils.isEmpty(outputs)) {
                         if (decryptVariables) {
                             final Secret secret = new Secret(secretKey, logger);
@@ -262,20 +262,20 @@ public final class RunVariables {
 
                     Map<String, Object> tasksMap = new HashMap<>();
 
-                    execution.getTaskRunList().forEach(taskRun -> {
-                        if (taskRun.getState() != null) {
-                            if (taskRun.getValue() == null) {
-                                tasksMap.put(taskRun.getTaskId(), Map.of("state", taskRun.getState().getCurrent()));
+                    execution.getExecutionTaskRuns().forEach(taskRun -> {
+                        if (taskRun.state() != null) {
+                            if (taskRun.value() == null) {
+                                tasksMap.put(taskRun.taskId(), Map.of("state", taskRun.state().getCurrent()));
                             } else {
-                                if (tasksMap.containsKey(taskRun.getTaskId())) {
+                                if (tasksMap.containsKey(taskRun.taskId())) {
                                     @SuppressWarnings("unchecked")
-                                    Map<String, Object> taskRunMap = (Map<String, Object>) tasksMap.get(taskRun.getTaskId());
-                                    taskRunMap.put(taskRun.getValue(), Map.of("state", taskRun.getState().getCurrent()));
-                                    tasksMap.put(taskRun.getTaskId(), taskRunMap);
+                                    Map<String, Object> taskRunMap = (Map<String, Object>) tasksMap.get(taskRun.taskId());
+                                    taskRunMap.put(taskRun.value(), Map.of("state", taskRun.state().getCurrent()));
+                                    tasksMap.put(taskRun.taskId(), taskRunMap);
                                 } else {
                                     Map<String, Object> taskRunMap = new HashMap<>();
-                                    taskRunMap.put(taskRun.getValue(), Map.of("state", taskRun.getState().getCurrent()));
-                                    tasksMap.put(taskRun.getTaskId(), taskRunMap);
+                                    taskRunMap.put(taskRun.value(), Map.of("state", taskRun.state().getCurrent()));
+                                    tasksMap.put(taskRun.taskId(), taskRunMap);
                                 }
                             }
                         }

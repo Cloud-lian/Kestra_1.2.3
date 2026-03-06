@@ -782,7 +782,7 @@ public class ExecutionController {
         private final URI url;
 
         // This is not nice, but we cannot use @AllArgsConstructor as it would open a bunch of necessary changes on the Execution class.
-        ExecutionResponse(String tenantId, String id, String namespace, String flowId, Integer flowRevision, List<TaskRun> taskRunList, Map<String, Object> inputs, Map<String, Object> outputs, List<Label> labels, Map<String, Object> variables, State state, String parentId, String originalId, ExecutionTrigger trigger, boolean deleted, ExecutionMetadata metadata, Instant scheduleDate, String traceParent, List<TaskFixture> fixtures, ExecutionKind kind, List<Breakpoint> breakpoints, URI url) {
+        ExecutionResponse(String tenantId, String id, String namespace, String flowId, Integer flowRevision, List<ExecutionTaskRun> taskRunList, Map<String, Object> inputs, Map<String, Object> outputs, List<Label> labels, Map<String, Object> variables, State state, String parentId, String originalId, ExecutionTrigger trigger, boolean deleted, ExecutionMetadata metadata, Instant scheduleDate, String traceParent, List<TaskFixture> fixtures, ExecutionKind kind, List<Breakpoint> breakpoints, URI url) {
             super(tenantId, id, namespace, flowId, flowRevision, taskRunList, inputs, outputs, labels, variables, state, parentId, originalId, trigger, deleted, metadata, scheduleDate, traceParent, fixtures, kind, breakpoints);
 
             this.url = url;
@@ -795,7 +795,7 @@ public class ExecutionController {
                 execution.getNamespace(),
                 execution.getFlowId(),
                 execution.getFlowRevision(),
-                execution.getTaskRunList(),
+                execution.getExecutionTaskRuns(),
                 execution.getInputs(),
                 execution.getOutputs(),
                 execution.getLabels(),

@@ -14,7 +14,6 @@ import io.micronaut.core.annotation.NonNull;
 import io.kestra.core.junit.annotations.KestraTest;
 import io.micronaut.test.support.TestPropertyProvider;
 import jakarta.inject.Inject;
-import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 

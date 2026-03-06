@@ -51,6 +51,7 @@ public class TaskRun implements TenantInterface {
     @With
     List<TaskRunAttempt> attempts;
 
+    // FIXME Move it to the worker task result
     @With
     @Nullable
     AssetsInOut assets;
@@ -245,28 +246,6 @@ public class TaskRun implements TenantInterface {
     }
 
     /**
-     * This method is used when the retry is apply on a task
-     * but the retry type is NEW_EXECUTION
-     *
-     * @param retry     Contains the retry configuration
-     * @param execution Contains the attempt number and original creation date
-     * @return The next retry date, null if maxAttempt || maxDuration is reached
-     */
-    public Instant nextRetryDate(AbstractRetry retry, Execution execution) {
-        if (this.attempts == null || this.attempts.isEmpty() || retry.getMaxAttempts() != null && execution.getMetadata().getAttemptNumber() >= retry.getMaxAttempts()) {
-            return null;
-        }
-        Instant base = this.lastAttempt().getState().maxDate();
-        Instant nextDate = retry.nextRetryDate(execution.getMetadata().getAttemptNumber(), base);
-        if (retry.getMaxDuration() != null && nextDate.isAfter(execution.getMetadata().getOriginalCreatedDate().plus(retry.getMaxDuration()))) {
-
-            return null;
-        }
-
-        return nextDate;
-    }
-
-    /**
      * This method is used when the Retry definition comes from the flow
      *
      * @param retry The retry configuration
@@ -320,5 +299,9 @@ public class TaskRun implements TenantInterface {
         }
         this.attempts.add(attempt);
         return this;
+    }
+
+    public ExecutionTaskRun to() {
+        return ExecutionTaskRun.of(this);
     }
 }

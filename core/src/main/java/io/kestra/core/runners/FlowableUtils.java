@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.kestra.core.exceptions.IllegalVariableEvaluationException;
 import io.kestra.core.models.executions.Execution;
+import io.kestra.core.models.executions.ExecutionTaskRun;
 import io.kestra.core.models.executions.NextTaskRun;
 import io.kestra.core.models.executions.TaskRun;
 import io.kestra.core.models.flows.State;
@@ -572,6 +573,16 @@ public class FlowableUtils {
             ) &&
             (
                 resolvedTask.getValue() == null || resolvedTask.getValue().equals(taskRun.getValue())
+            );
+    }
+
+    public static boolean isExecutionTaskRunFor(ResolvedTask resolvedTask, ExecutionTaskRun taskRun, TaskRun parentTaskRun) {
+        return resolvedTask.getTask().getId().equals(taskRun.taskId()) &&
+            (
+                parentTaskRun == null || parentTaskRun.getId().equals(taskRun.parentTaskRunId())
+            ) &&
+            (
+                resolvedTask.getValue() == null || resolvedTask.getValue().equals(taskRun.value())
             );
     }
 }

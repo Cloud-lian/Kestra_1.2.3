@@ -11,10 +11,7 @@ import io.kestra.core.models.QueryFilter.Field;
 import io.kestra.core.models.QueryFilter.Op;
 import io.kestra.core.models.dashboards.AggregationType;
 import io.kestra.core.models.dashboards.ColumnDescriptor;
-import io.kestra.core.models.executions.Execution;
-import io.kestra.core.models.executions.ExecutionKind;
-import io.kestra.core.models.executions.ExecutionTrigger;
-import io.kestra.core.models.executions.TaskRun;
+import io.kestra.core.models.executions.*;
 import io.kestra.core.models.executions.statistics.DailyExecutionStatistics;
 import io.kestra.core.models.flows.FlowScope;
 import io.kestra.core.models.flows.State;
@@ -85,35 +82,35 @@ public abstract class AbstractExecutionRepositoryTest {
             .state(finalState);
 
 
-        List<TaskRun> taskRuns = Arrays.asList(
+        List<ExecutionTaskRun> taskRuns = Arrays.asList(
             TaskRun.of(execution.build(), ResolvedTask.of(
                     Return.builder().id("first").type(Return.class.getName()).format(Property.ofValue("test")).build())
                 )
-                .withState(State.Type.SUCCESS),
+                .withState(State.Type.SUCCESS).to(),
             spyTaskRun(TaskRun.of(execution.build(), ResolvedTask.of(
                         Return.builder().id("second").type(Return.class.getName()).format(Property.ofValue("test")).build())
                     )
-                    .withState(state),
+                    .withState(state).to(),
                 state
             ),
             TaskRun.of(execution.build(), ResolvedTask.of(
-                Return.builder().id("third").type(Return.class.getName()).format(Property.ofValue("test")).build())).withState(state)
+                Return.builder().id("third").type(Return.class.getName()).format(Property.ofValue("test")).build())).withState(state).to()
         );
 
         if (flowId == null) {
-            return execution.taskRunList(List.of(taskRuns.getFirst(), taskRuns.get(1), taskRuns.get(2)));
+            return execution.executionTaskRuns(List.of(taskRuns.getFirst(), taskRuns.get(1), taskRuns.get(2)));
         }
 
-        return execution.taskRunList(List.of(taskRuns.getFirst(), taskRuns.get(1)));
+        return execution.executionTaskRuns(List.of(taskRuns.getFirst(), taskRuns.get(1)));
     }
 
 
-    static TaskRun spyTaskRun(TaskRun taskRun, State.Type state) {
-        TaskRun spy = spy(taskRun);
+    static ExecutionTaskRun spyTaskRun(ExecutionTaskRun taskRun, State.Type state) {
+        ExecutionTaskRun spy = spy(taskRun);
 
         doReturn(randomDuration(state))
             .when(spy)
-            .getState();
+            .state();
 
         return spy;
     }
@@ -588,7 +585,7 @@ public abstract class AbstractExecutionRepositoryTest {
             .labels(Label.from(Map.of("country", "FR")))
             .state(new State(Type.SUCCESS,
                 List.of(new State.History(State.Type.CREATED, executionCreateDate), new State.History(Type.SUCCESS, executionCreateDate.plus(executionDuration)))))
-            .taskRunList(List.of())
+            .executionTaskRuns(List.of())
             .build();
         execution = executionRepository.save(execution);
 
@@ -602,7 +599,7 @@ public abstract class AbstractExecutionRepositoryTest {
             .labels(Label.from(Map.of("country", "FR")))
             .state(new State(Type.SUCCESS,
                 List.of(new State.History(State.Type.CREATED, executionCreateDate), new State.History(Type.SUCCESS, executionCreateDate.plus(executionDuration)))))
-            .taskRunList(List.of())
+            .executionTaskRuns(List.of())
             .kind(ExecutionKind.TEST)
             .build();
         executionRepository.save(testExecution);
@@ -642,7 +639,7 @@ public abstract class AbstractExecutionRepositoryTest {
             .labels(Label.from(Map.of("country", "FR")))
             .state(new State(Type.SUCCESS,
                 List.of(new State.History(State.Type.CREATED, executionCreateDate), new State.History(Type.SUCCESS, executionCreateDate.plus(executionDuration)))))
-            .taskRunList(List.of())
+            .executionTaskRuns(List.of())
             .build();
         executionRepository.save(execution);
 
@@ -656,7 +653,7 @@ public abstract class AbstractExecutionRepositoryTest {
             .labels(Label.from(Map.of("country", "FR")))
             .state(new State(Type.SUCCESS,
                 List.of(new State.History(State.Type.CREATED, executionCreateDate), new State.History(Type.SUCCESS, executionCreateDate.plus(executionDuration)))))
-            .taskRunList(List.of())
+            .executionTaskRuns(List.of())
             .kind(ExecutionKind.TEST)
             .build();
         executionRepository.save(testExecution);
@@ -689,7 +686,7 @@ public abstract class AbstractExecutionRepositoryTest {
             .labels(Label.from(Map.of("country", "FR")))
             .state(new State(Type.SUCCESS,
                 List.of(new State.History(State.Type.CREATED, executionCreateDate), new State.History(Type.SUCCESS, executionCreateDate.plus(executionDuration)))))
-            .taskRunList(List.of())
+            .executionTaskRuns(List.of())
             .build();
 
         execution = executionRepository.save(execution);
@@ -705,7 +702,7 @@ public abstract class AbstractExecutionRepositoryTest {
             .labels(Label.from(Map.of("country", "US")))
             .state(new State(Type.SUCCESS,
                 List.of(new State.History(State.Type.CREATED, executionCreateDateOld), new State.History(Type.SUCCESS, executionCreateDateOld.plus(executionDuration)))))
-            .taskRunList(List.of())
+            .executionTaskRuns(List.of())
             .build();
 
         executionRepository.save(executionOld);
@@ -741,7 +738,7 @@ public abstract class AbstractExecutionRepositoryTest {
             .flowRevision(1)
             .state(new State(State.Type.CREATED, List.of(new State.History(State.Type.CREATED, instant))))
             .inputs(ImmutableMap.of("test", "value"))
-            .taskRunList(List.of())
+            .executionTaskRuns(List.of())
             .build();
     }
 
@@ -1112,7 +1109,7 @@ inject(tenant);
             .flowId(FLOW)
             .flowRevision(1)
             .state(finishedState)
-            .taskRunList(List.of())
+            .executionTaskRuns(List.of())
             .build();
         executionRepository.save(finished);
 
@@ -1132,7 +1129,7 @@ inject(tenant);
             .flowId(FLOW)
             .flowRevision(1)
             .state(runningState)
-            .taskRunList(List.of())
+            .executionTaskRuns(List.of())
             .build();
         executionRepository.save(running);
 
@@ -1155,7 +1152,7 @@ inject(tenant);
             .flowId("flowA")
             .flowRevision(1)
             .state(new State())
-            .taskRunList(List.of())
+            .executionTaskRuns(List.of())
             .build();
 
         Execution execB = Execution.builder()
@@ -1165,7 +1162,7 @@ inject(tenant);
             .flowId("flowB")
             .flowRevision(1)
             .state(new State())
-            .taskRunList(List.of())
+            .executionTaskRuns(List.of())
             .build();
 
         Execution savedA = executionRepository.save(execA);

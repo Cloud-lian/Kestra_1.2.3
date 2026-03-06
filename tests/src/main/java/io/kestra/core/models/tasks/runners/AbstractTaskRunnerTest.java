@@ -235,7 +235,7 @@ public abstract class AbstractTaskRunnerTest {
             .tasks(List.of(task))
             .build();
         Execution execution = Execution.builder().flowId("flow").namespace("namespace").id("execution")
-            .taskRunList(List.of(taskRun))
+            .executionTaskRuns(List.of(taskRun.to()))
             .state(new State().withState(State.Type.RUNNING))
             .build();
 

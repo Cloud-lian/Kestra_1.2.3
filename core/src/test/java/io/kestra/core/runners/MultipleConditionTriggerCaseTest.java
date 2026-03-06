@@ -2,14 +2,11 @@ package io.kestra.core.runners;
 
 import io.kestra.core.models.flows.State.Type;
 import io.kestra.core.queues.QueueException;
-import io.kestra.core.repositories.ArrayListTotal;
 import io.kestra.core.repositories.ExecutionRepositoryInterface;
 import io.micronaut.context.ApplicationContext;
 import io.kestra.core.models.executions.Execution;
 import io.kestra.core.models.flows.State;
 import io.kestra.core.repositories.FlowRepositoryInterface;
-
-import io.micronaut.data.model.Pageable;
 
 import java.time.Duration;
 import java.util.List;

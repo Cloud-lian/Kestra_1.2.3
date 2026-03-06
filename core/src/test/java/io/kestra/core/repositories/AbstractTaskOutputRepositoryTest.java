@@ -1,6 +1,7 @@
 package io.kestra.core.repositories;
 
 import io.kestra.core.models.executions.Execution;
+import io.kestra.core.models.executions.ExecutionTaskRun;
 import io.kestra.core.models.executions.TaskOutput;
 import io.kestra.core.models.executions.TaskRun;
 import io.kestra.core.models.flows.State;
@@ -21,8 +22,8 @@ public abstract class AbstractTaskOutputRepositoryTest {
     protected TaskOutputRepositoryInterface taskOutputRepository;
 
     private Execution createExecution(String tenant, String executionId, String... taskRunId) {
-        List<TaskRun> taskRuns = taskRunId == null ? Collections.emptyList() : Arrays.asList(taskRunId).stream()
-            .map(id -> TaskRun.builder().id(id).build())
+        List<ExecutionTaskRun> taskRuns = taskRunId == null ? Collections.emptyList() : Arrays.asList(taskRunId).stream()
+            .map(id -> TaskRun.builder().id(id).build().to())
             .toList();
         return Execution.builder()
             .id(executionId)
@@ -31,7 +32,7 @@ public abstract class AbstractTaskOutputRepositoryTest {
             .flowId("test-flow")
             .flowRevision(1)
             .state(new State())
-            .taskRunList(taskRuns)
+            .executionTaskRuns(taskRuns)
             .build();
     }
 

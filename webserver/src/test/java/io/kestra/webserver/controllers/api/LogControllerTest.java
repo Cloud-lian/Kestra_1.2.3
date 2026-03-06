@@ -138,7 +138,7 @@ class LogControllerTest {
             .flowId("full")
             .flowRevision(1)
             .state(new State().withState(State.Type.RUNNING).withState(State.Type.SUCCESS))
-            .taskRunList(Collections.singletonList(
+            .executionTaskRuns(Collections.singletonList(
                 TaskRun.builder()
                     .id(IdUtils.create())
                     .namespace("io.kestra.unittest")
@@ -148,7 +148,7 @@ class LogControllerTest {
                         TaskRunAttempt.builder()
                             .build()
                     ))
-                    .build()
+                    .build().to()
             ))
             .build());
         LogEntry log2 = log1.toBuilder().message("another message").build();

@@ -243,7 +243,7 @@ class ScriptServiceTest {
             .tasks(List.of(task))
             .build();
         Execution execution = Execution.builder().flowId("flowId").namespace(namespace).id("executionId")
-            .taskRunList(List.of(taskRun))
+            .executionTaskRuns(List.of(taskRun.to()))
             .state(new State().withState(State.Type.RUNNING))
             .build();
         return runContextFactory.of(flow, task, execution, taskRun);

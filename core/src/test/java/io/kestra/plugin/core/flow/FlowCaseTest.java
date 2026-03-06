@@ -12,7 +12,6 @@ import java.util.Map;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
-import static io.kestra.core.tenant.TenantService.MAIN_TENANT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Singleton

@@ -17,10 +17,10 @@ class ExecutionTest {
     @Test
     void hasTaskRunJoinableTrue() {
         Execution execution = Execution.builder()
-            .taskRunList(Collections.singletonList(TaskRun.builder()
+            .executionTaskRuns(Collections.singletonList(TaskRun.builder()
                 .id("test")
                 .state(new State(State.Type.RUNNING, new State()))
-                .build())
+                .build().to())
             )
             .build();
 
@@ -36,10 +36,10 @@ class ExecutionTest {
     @Test
     void hasTaskRunJoinableSameState() {
         Execution execution = Execution.builder()
-            .taskRunList(Collections.singletonList(TaskRun.builder()
+            .executionTaskRuns(Collections.singletonList(TaskRun.builder()
                 .id("test")
                 .state(new State())
-                .build())
+                .build().to())
             )
             .build();
 
@@ -53,12 +53,12 @@ class ExecutionTest {
     @Test
     void hasTaskRunJoinableFailedExecutionFromExecutor() {
         Execution execution = Execution.builder()
-            .taskRunList(Collections.singletonList(TaskRun.builder()
+            .executionTaskRuns(Collections.singletonList(TaskRun.builder()
                 .id("test")
                 .state(new State(State.Type.FAILED, new State()
                     .withState(State.Type.RUNNING)
                 ))
-                .build())
+                .build().to())
             )
             .build();
 
@@ -72,13 +72,13 @@ class ExecutionTest {
     @Test
     void hasTaskRunJoinableRestartFailed() {
         Execution execution = Execution.builder()
-            .taskRunList(Collections.singletonList(TaskRun.builder()
+            .executionTaskRuns(Collections.singletonList(TaskRun.builder()
                 .id("test")
                 .state(new State(State.Type.CREATED, new State()
                     .withState(State.Type.RUNNING)
                     .withState(State.Type.FAILED)
                 ))
-                .build())
+                .build().to())
             )
             .build();
 
@@ -94,13 +94,13 @@ class ExecutionTest {
     @Test
     void hasTaskRunJoinableRestartSuccess() {
         Execution execution = Execution.builder()
-            .taskRunList(Collections.singletonList(TaskRun.builder()
+            .executionTaskRuns(Collections.singletonList(TaskRun.builder()
                 .id("test")
                 .state(new State(State.Type.CREATED, new State()
                     .withState(State.Type.RUNNING)
                     .withState(State.Type.SUCCESS)
                 ))
-                .build())
+                .build().to())
             )
             .build();
 
@@ -117,13 +117,13 @@ class ExecutionTest {
     @Test
     void hasTaskRunJoinableAfterRestart() {
         Execution execution = Execution.builder()
-            .taskRunList(Collections.singletonList(TaskRun.builder()
+            .executionTaskRuns(Collections.singletonList(TaskRun.builder()
                 .id("test")
                 .state(new State(State.Type.CREATED, new State()
                     .withState(State.Type.RUNNING)
                     .withState(State.Type.FAILED)
                 ))
-                .build())
+                .build().to())
             )
             .build();
 

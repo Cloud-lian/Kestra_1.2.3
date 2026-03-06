@@ -6,7 +6,6 @@ import io.kestra.core.queues.BroadcastQueueInterface;
 import io.kestra.core.queues.QueueSubscriber;
 import io.kestra.core.repositories.ExecutionRepositoryInterface;
 import io.kestra.core.runners.FollowExecutionEvent;
-import io.kestra.core.services.ExecutionService;
 import io.kestra.core.utils.ListUtils;
 import io.kestra.core.utils.MapUtils;
 import io.micronaut.http.sse.Event;
@@ -131,7 +130,7 @@ public class ExecutionStreamingService {
      */
     public boolean isStopFollow(Flow flow, Execution execution) {
         return executionService.isTerminated(flow, execution) &&
-            ListUtils.emptyOnNull(execution.getTaskRunList()).stream().allMatch(taskRun -> taskRun.getState().isTerminated());
+            ListUtils.emptyOnNull(execution.getExecutionTaskRuns()).stream().allMatch(taskRun -> taskRun.state().isTerminated());
     }
 
     @PreDestroy

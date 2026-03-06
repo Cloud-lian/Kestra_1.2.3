@@ -4,7 +4,6 @@ import io.kestra.core.exceptions.IllegalConditionEvaluation;
 import io.kestra.core.exceptions.InternalException;
 import io.kestra.core.models.annotations.Example;
 import io.kestra.core.models.annotations.Plugin;
-import io.kestra.core.models.annotations.PluginProperty;
 import io.kestra.core.models.conditions.Condition;
 import io.kestra.core.models.conditions.ConditionContext;
 import io.kestra.core.models.flows.State;
@@ -40,12 +39,12 @@ import jakarta.validation.Valid;
             code = """
                 id: flow_condition_hasretryattempt
                 namespace: company.team
-    
+
                 tasks:
                   - id: log_message
                     type: io.kestra.plugin.core.log.Log
                     message: "This flow will execute when any flow task on retry enters a specific state(s)."
-    
+
                 triggers:
                   - id: flow_condition
                     type: io.kestra.plugin.core.trigger.Flow
