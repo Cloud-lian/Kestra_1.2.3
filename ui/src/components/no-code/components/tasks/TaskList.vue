@@ -90,11 +90,10 @@
     const emits = defineEmits(["update:modelValue"]);
     const props = withDefaults(defineProps<{
         modelValue?: Task[],
-        root?: string;
+        root: string;
         merge?: boolean;
     }>(), {
         modelValue: () => [],
-        root: undefined,
         merge: false,
     });
 
@@ -141,7 +140,7 @@
                         ? `[${refPath}]`
                         : undefined,
             ].filter(Boolean).join(""),
-            section.value
+            props.root
         ].filter(p => p.length).join(".")}`;
     });
 

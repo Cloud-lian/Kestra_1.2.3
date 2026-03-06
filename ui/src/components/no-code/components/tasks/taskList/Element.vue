@@ -70,14 +70,14 @@
     const identifier = computed(() => {
         return props.element.id
             ?? props.element[props.typeFieldSchema]
-            ?? `<${t("no_code.unnamed")} ${props.elementIndex}>`;
+            ?? (isTask.value ? `${t("task")} ${props.elementIndex}`: `<${t("no_code.unnamed")} ${props.elementIndex}>`);
     });
 
     const handleClick = () => {
         editTask(
-            props.parentPathComplete,
-            props.blockSchemaPath,
-            props.elementIndex
+            props.parentPathComplete, // path for placing the value in the final yaml (without the final index)
+            props.blockSchemaPath, // path in the JSON schema to define the block being opened
+            props.elementIndex, // What index is this element in the list (if relevant for the path)
         );
     };
 </script>
