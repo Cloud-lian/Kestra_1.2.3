@@ -21,9 +21,9 @@
                 </li>
                 <li>
                     <router-link :to="{name: 'templates/create'}">
-                        <el-button :icon="Plus" type="primary" size="large">
+                        <ks-button :icon="Plus" type="primary" size="large">
                             {{ $t('create') }}
-                        </el-button>
+                        </ks-button>
                     </router-link>
                 </li>
             </ul>
@@ -72,12 +72,12 @@
                                 @update:select-all="toggleAllSelection"
                                 @unselect="toggleAllUnselected"
                             >
-                                <el-button v-if="canRead" :icon="Download" @click="exportTemplates()">
+                                <ks-button v-if="canRead" :icon="Download" @click="exportTemplates()">
                                     {{ $t('export') }}
-                                </el-button>
-                                <el-button v-if="canDelete" @click="deleteTemplates" :icon="TrashCan">
+                                </ks-button>
+                                <ks-button v-if="canDelete" @click="deleteTemplates" :icon="TrashCan">
                                     {{ $t('delete') }}
-                                </el-button>
+                                </ks-button>
                             </BulkSelect>
                         </template>
                         <template #default>

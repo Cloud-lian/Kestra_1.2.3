@@ -29,10 +29,10 @@
             :schema="schema"
         />
         <div class="flex-shrink-1">
-            <el-button-group class="d-flex flex-nowrap">
-                <el-button :icon="Plus" @click="addItem" />
-                <el-button :icon="Minus" @click="removeItem(inputWithValue[0])" />
-            </el-button-group>
+            <ks-button-group class="d-flex flex-nowrap">
+                <ks-button :icon="Plus" @click="addItem" />
+                <ks-button :icon="Minus" @click="removeItem(inputWithValue[0])" />
+            </ks-button-group>
         </div>
     </div>
 </template>
