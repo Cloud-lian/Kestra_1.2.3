@@ -39,6 +39,9 @@ ui/.frontend-gradle-plugin
 ui/test-report.junit.xml
 *storybook.log
 storybook-static
+ui-design-system/node_modules
+ui-design-system/dist
+ui-design-system/coverage
 
 ### Docker
 /.env
