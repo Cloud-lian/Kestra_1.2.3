@@ -1,7 +1,7 @@
 <template>
-    <el-alert type="warning" class="mb-3" :closable="false">
+    <ks-alert type="warning" class="mb-3" :closable="false">
         <span v-html="$t('templates deprecated')" />
-    </el-alert>
+    </ks-alert>
 </template>
 <script setup>
 </script>

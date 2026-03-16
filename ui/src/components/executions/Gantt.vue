@@ -14,7 +14,7 @@
             @search="search = $event"
             @filter="onFilterChange"
         />
-        <el-card
+        <ks-card
             id="gantt"
             data-onboarding-target="execution-gantt"
             shadow="never"
@@ -53,7 +53,7 @@
                                         <ChevronRight v-if="!selectedTaskRuns.includes(item.id)" />
                                         <ChevronDown v-else />
                                     </div>
-                                    <el-tooltip placement="top-start" :persistent="false" transition="el-fade-in-linear" :autoClose="2000" effect="light">
+                                    <ks-tooltip placement="top-start" :persistent="false" transition="el-fade-in-linear" :autoClose="2000" effect="light">
                                         <template #content>
                                             <code>{{ item.name }}</code>
                                             <small v-if="item.task && item.task.value"><br>{{ item.task.value }}</small>
@@ -66,17 +66,17 @@
                                             <code>{{ item.name }}</code>
                                             <small v-if="item.task && item.task.value"> {{ item.task.value }}</small>
                                         </span>
-                                    </el-tooltip>
+                                    </ks-tooltip>
                                     <div>
-                                        <el-tooltip v-if="item.attempts > 1" placement="right" :persistent="false" transition="el-fade-in-linear" :autoClose="2000" effect="light">
+                                        <ks-tooltip v-if="item.attempts > 1" placement="right" :persistent="false" transition="el-fade-in-linear" :autoClose="2000" effect="light">
                                             <template #content>
                                                 <span>{{ $t("this_task_has") }} {{ item.attempts }} {{ $t("attempts").toLowerCase() }}.</span>
                                             </template>
                                             <Warning class="attempt_warn me-3" />
-                                        </el-tooltip>
+                                        </ks-tooltip>
                                     </div>
                                     <div :style="'width: ' + (100 / (dates.length + 1)) * dates.length + '%'">
-                                        <el-tooltip placement="top" :persistent="false" transition="el-fade-in-linear" :autoClose="2000" effect="light">
+                                        <ks-tooltip placement="top" :persistent="false" transition="el-fade-in-linear" :autoClose="2000" effect="light">
                                             <template #content>
                                                 <span style="white-space: pre-wrap;">
                                                     {{ item.tooltip }}
@@ -95,7 +95,7 @@
                                                     />
                                                 </div>
                                             </div>
-                                        </el-tooltip>
+                                        </ks-tooltip>
                                     </div>
                                 </div>
                                 <div v-if="selectedTaskRuns.includes(item.id)" class="p-2">
@@ -114,7 +114,7 @@
                     </template>
                 </TypedDynamicScroller>
             </template>
-        </el-card>
+        </ks-card>
     </template>
 </template>
 
@@ -564,10 +564,10 @@
 </script>
 
 <style scoped lang="scss">
-    .el-card {
+    .kel-card {
         padding: 0;
 
-        :deep(.el-card__header) {
+        :deep(.kel-card__header) {
             padding: 0;
             font-size: var(--font-size-sm);
             background-color: var(--bs-gray-200);
@@ -602,7 +602,7 @@
             }
         }
 
-        :deep(.el-card__body) {
+        :deep(.kel-card__body) {
             padding: 0;
 
             .vue-recycle-scroller {
