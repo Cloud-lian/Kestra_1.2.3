@@ -1,30 +1,29 @@
 package io.kestra.core.validations;
 
+import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.core.models.assets.AssetIdentifier;
 import io.kestra.core.models.assets.AssetsDeclaration;
 import io.kestra.core.models.flows.Flow;
 import io.kestra.core.models.flows.FlowSource;
 import io.kestra.core.models.flows.GenericFlow;
 import io.kestra.core.models.validations.ModelValidator;
+import io.kestra.core.models.validations.ValidateConstraintViolation;
 import io.kestra.core.serializers.YamlParser;
+import io.kestra.core.services.FlowService;
 import io.kestra.core.tenant.TenantService;
 import io.kestra.core.utils.TestsUtils;
-import io.kestra.core.junit.annotations.KestraTest;
 import io.kestra.plugin.core.log.Log;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolation;
-import org.junit.jupiter.api.Test;
-import io.kestra.core.models.validations.ValidateConstraintViolation;
-import io.kestra.core.services.FlowService;
 import jakarta.validation.ConstraintViolationException;
+import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonLocation;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.util.List;
 import java.io.File;
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -201,6 +200,44 @@ class FlowValidationTest {
         // Then
         assertThat(validate.isPresent()).isEqualTo(true);
         assertThat(validate.get().getMessage()).contains("Inputs with a default value cannot also have a prefill.");
+    }
+
+    @Test
+    void scheduledFlowInputDefaults_valid() {
+        // Given
+        Flow flow = this.parse("flows/valids/scheduled-inputs-defaults.yaml");
+
+        // When
+        Optional<ConstraintViolationException> validate = modelValidator.isValid(flow);
+
+        // Then
+        assertThat(validate).isEmpty();
+    }
+
+    @Test
+    void scheduledFlowMissingInputDefaults_failValidation() {
+        // Given
+        Flow flow = this.parse("flows/invalids/scheduled-missing-inputs-defaults.yaml");
+
+        // When
+        Optional<ConstraintViolationException> validate = modelValidator.isValid(flow);
+
+        // Then
+        assertThat(validate).isPresent();
+        assertThat(validate.get().getMessage()).contains("Missing inputs for Schedule Trigger 'every_minute', missing inputs: 'user2'");
+    }
+
+    @Test
+    void scheduledFlowMissingInputDefaults2_failValidation() {
+        // Given
+        Flow flow = this.parse("flows/invalids/scheduled-missing-inputs-defaults-2.yaml");
+
+        // When
+        Optional<ConstraintViolationException> validate = modelValidator.isValid(flow);
+
+        // Then
+        assertThat(validate).isPresent();
+        assertThat(validate.get().getMessage()).contains("Missing inputs for Schedule Trigger 'every_minute', missing inputs: 'user2'");
     }
 
     @Test
