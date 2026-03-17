@@ -91,6 +91,83 @@ class ScriptServiceTest {
     }
 
     @Test
+    void replaceInternalStorageSpecialChars() throws IOException {
+        String tenant = IdUtils.create();
+        var runContext = runContextFactory.of("id", "namespace", tenant);
+
+        List<String> fileNames = List.of(
+            "file,test",
+            "file:name",
+            "file;name",
+            "file🐸test"
+        );
+
+        for (String fileName : fileNames) {
+            Path path = createFile(tenant, fileName);
+            String internalStorageUri = "kestra://some/" + fileName + ".txt";
+
+            File localFile = null;
+            try {
+                var command = ScriptService.replaceInternalStorage(runContext, "my command with an internal storage file: " + internalStorageUri, false);
+
+                Matcher matcher = COMMAND_PATTERN_CAPTURE_LOCAL_PATH.matcher(command);
+                assertThat(matcher.matches()).isTrue();
+                Path absoluteLocalFilePath = Path.of(matcher.group(1));
+                localFile = absoluteLocalFilePath.toFile();
+                assertThat(localFile.exists()).isTrue();
+            } finally {
+                if (localFile != null) {
+                    //noinspection ResultOfMethodCallIgnored
+                    localFile.delete();
+                }
+                //noinspection ResultOfMethodCallIgnored
+                path.toFile().delete();
+            }
+        }
+    }
+
+    @Test
+    void replaceInternalStorageWrappedWithPunctuation() throws IOException {
+        String tenant = IdUtils.create();
+        var runContext = runContextFactory.of("id", "namespace", tenant);
+
+        Path path = createFile(tenant, "file");
+
+        String baseUri = "kestra://some/file.txt";
+        try {
+            // common punctuation wrappers seen in logs/templates
+            for (String wrapped : List.of(baseUri + ",", "(" + baseUri + ")", baseUri + ")", baseUri + ".")) {
+                String command = ScriptService.replaceInternalStorage(runContext, "my command with an internal storage file: " + wrapped, false);
+
+                Matcher matcher = COMMAND_PATTERN_CAPTURE_LOCAL_PATH.matcher(command);
+                assertThat(matcher.matches()).isTrue();
+                File localFile = Path.of(matcher.group(1)).toFile();
+                assertThat(localFile.exists()).isTrue();
+                //noinspection ResultOfMethodCallIgnored
+                localFile.delete();
+            }
+        } finally {
+            //noinspection ResultOfMethodCallIgnored
+            path.toFile().delete();
+        }
+    }
+
+    @Test
+    void replaceInternalStorageInvalidUriIsLeftUnchanged() throws IOException {
+        String tenant = IdUtils.create();
+        var runContext = runContextFactory.of("id", "namespace", tenant);
+
+        String withDotDot = "kestra://some/../file.txt";
+        String withControl = "kestra://some/file.txt\u0007";
+
+        assertThat(ScriptService.replaceInternalStorage(runContext, "my command with an internal storage file: " + withDotDot, false))
+            .isEqualTo("my command with an internal storage file: " + withDotDot);
+
+        assertThat(ScriptService.replaceInternalStorage(runContext, "my command with an internal storage file: " + withControl, false))
+            .isEqualTo("my command with an internal storage file: " + withControl);
+    }
+
+    @Test
     void uploadInputFiles() throws IOException {
         String tenant = IdUtils.create();
         var runContext = runContextFactory.of("id", "namespace", tenant);
@@ -141,12 +218,15 @@ class ScriptServiceTest {
         String tenant = IdUtils.create();
         var runContext = runContextFactory.of("id", "namespace", tenant);
         Path path = createFile(tenant, "file");
+        Path dotFilePath = createFile(tenant, ".hidden");
 
         var outputFiles = ScriptService.uploadOutputFiles(runContext, Path.of("/tmp/unittest/%s".formatted(tenant)));
         assertThat(outputFiles, not(anEmptyMap()));
         assertThat(outputFiles.get("file.txt")).isEqualTo(URI.create("kestra:///file.txt"));
+        assertThat(outputFiles).doesNotContainKey(".hidden.txt");
 
         path.toFile().delete();
+        dotFilePath.toFile().delete();
     }
 
     @Test
@@ -251,8 +331,9 @@ class ScriptServiceTest {
 
     private static Path createFile(String tenant, String fileName) throws IOException {
         Path path = Path.of("/tmp/unittest/%s/%s.txt".formatted(tenant, fileName));
+        Path tenantDir = Path.of("/tmp/unittest/%s".formatted(tenant));
+        Files.createDirectories(tenantDir);
         if (!path.toFile().exists()) {
-            Files.createDirectory(Path.of("/tmp/unittest/%s".formatted(tenant)));
             Files.createFile(path);
         }
         return path;
