@@ -3,34 +3,34 @@
         <nav v-if="!isDiff && navbar" class="top-nav">
             <slot name="nav">
                 <div class="text-nowrap">
-                    <el-button-group>
-                        <el-tooltip
+                    <ks-button-group>
+                        <ks-tooltip
                             effect="light"
                             :content="$t('Fold content lines')"
                             :persistent="false"
                             transition=""
                             :hideAfter="0"
                         >
-                            <el-button
+                            <ks-button
                                 :icon="icon.UnfoldLessHorizontal"
                                 @click="autoFold(true)"
                                 size="small"
                             />
-                        </el-tooltip>
-                        <el-tooltip
+                        </ks-tooltip>
+                        <ks-tooltip
                             effect="light"
                             :content="$t('Unfold content lines')"
                             :persistent="false"
                             transition=""
                             :hideAfter="0"
                         >
-                            <el-button
+                            <ks-button
                                 :icon="icon.UnfoldMoreHorizontal"
                                 @click="unfoldAll"
                                 size="small"
                             />
-                        </el-tooltip>
-                    </el-button-group>
+                        </ks-tooltip>
+                    </ks-button-group>
                     <slot name="extends-navbar" />
                 </div>
             </slot>

@@ -4,7 +4,7 @@
             <div class="options-left">
                 <div v-if="filter.tableOptions.value?.chart?.shown !== false" class="option-item">
                     <span class="option-label">{{ $t("filter.show chart") }}</span>
-                    <el-switch 
+                    <ks-switch 
                         v-model="localChartVisible"
                     />
                 </div>
@@ -12,7 +12,7 @@
 
             <div class="options-right">
                 <div class="option-item">
-                    <el-switch 
+                    <ks-switch 
                         v-model="periodicRefreshEnabled"
                     />
                     <Kicon :tooltip="refreshTooltip" placement="top">
@@ -20,7 +20,7 @@
                     </Kicon>
                 </div>
 
-                <el-popover
+                <ks-popover
                     v-if="filter.tableOptions.value?.columns?.shown !== false"
                     v-model:visible="isColumnsPanelVisible"
                     placement="bottom-end"
@@ -31,11 +31,11 @@
                     @hide="isColumnsPanelVisible = false"
                 >
                     <template #reference>
-                        <el-button size="default" class="columns-button" :icon="CogOutline">
-                            <el-tooltip :content="$t('filter.customize columns')" placement="top" effect="light">
+                        <ks-button size="default" class="columns-button" :icon="CogOutline">
+                            <ks-tooltip :content="$t('filter.customize columns')" placement="top" effect="light">
                                 <span>{{ $t("filter.columns") }}</span>
-                            </el-tooltip>
-                        </el-button>
+                            </ks-tooltip>
+                        </ks-button>
                     </template>
 
                     <CustomColumns
@@ -45,7 +45,7 @@
                         @update-columns="filter.updateProperties"
                         @close="isColumnsPanelVisible = false"
                     />
-                </el-popover>
+                </ks-popover>
             </div>
         </div>
     </div>

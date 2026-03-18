@@ -1,10 +1,10 @@
 <template>
     <div class="trigger-flow-wrapper">
-        <el-button v-if="playgroundStore.enabled" id="run-all-button" :icon="icon.Play" class="el-button--playground" :disabled="isDisabled() || !playgroundStore.readyToStart" @click="playgroundStore.runUntilTask()">
+        <ks-button v-if="playgroundStore.enabled" id="run-all-button" :icon="icon.Play" class="el-button--playground" :disabled="isDisabled() || !playgroundStore.readyToStart" @click="playgroundStore.runUntilTask()">
             {{ $t("playground.run_all_tasks") }}
-        </el-button>
+        </ks-button>
         <span v-else data-onboarding-target="flow-execute-button">
-            <el-button
+            <ks-button
                 id="execute-button"
                 :icon="icon.Play"
                 :type="type"
@@ -12,9 +12,9 @@
                 @click="onClick()"
             >
                 {{ $t("execute") }}
-            </el-button>
+            </ks-button>
         </span>
-        <el-dialog
+        <ks-dialog
             id="execute-flow-dialog"
             v-model="isOpen"
             destroyOnClose
@@ -27,8 +27,8 @@
                 <span v-html="$t('execute the flow', {id: flowId})" />
             </template>
             <FlowRun @execution-trigger="handleExecutionStart" :redirect="!playgroundStore.enabled" />
-        </el-dialog>
-        <el-dialog
+        </ks-dialog>
+        <ks-dialog
             v-if="isSelectFlowOpen"
             v-model="isSelectFlowOpen"
             destroyOnClose
@@ -36,44 +36,44 @@
             :appendToBody="true"
             :width="dialogWidth"
         >
-            <el-form
+            <ks-form
                 labelPosition="top"
             >
-                <el-form-item :label="$t('namespace')">
-                    <el-select
+                <ks-form-item :label="$t('namespace')">
+                    <ks-select
                         v-model="localNamespace"
                     >
-                        <el-option
+                        <ks-option
                             v-for="np in executionsStore.namespaces"
                             :key="np"
                             :label="np"
                             :value="np"
                         />
-                    </el-select>
-                </el-form-item>
-                <el-form-item
+                    </ks-select>
+                </ks-form-item>
+                <ks-form-item
                     v-if="localNamespace && executionsStore.flowsExecutable.length > 0"
                     :label="$t('flow')"
                 >
-                    <el-select
+                    <ks-select
                         v-model="localFlow"
                         valueKey="id"
                     >
-                        <el-option
+                        <ks-option
                             v-for="exFlow in executionsStore.flowsExecutable"
                             :key="exFlow.id"
                             :label="exFlow.id"
                             :value="exFlow"
                         />
-                    </el-select>
-                </el-form-item>
-                <el-form-item v-if="localFlow" :label="$t('inputs')">
+                    </ks-select>
+                </ks-form-item>
+                <ks-form-item v-if="localFlow" :label="$t('inputs')">
                     <div class="w-100">
                         <FlowRun @execution-trigger="handleExecutionStart" :redirect="!playgroundStore.enabled" />
                     </div>
-                </el-form-item>
-            </el-form>
-        </el-dialog>
+                </ks-form-item>
+            </ks-form>
+        </ks-dialog>
     </div>
 </template>
 

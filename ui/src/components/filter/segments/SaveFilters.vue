@@ -1,15 +1,15 @@
 <template>
-    <el-tooltip :content="$t('filter.save filter tooltip')" placement="top" effect="light">
-        <el-button
+    <ks-tooltip :content="$t('filter.save filter tooltip')" placement="top" effect="light">
+        <ks-button
             type="default"
             :disabled="disabled"
             @click="showSaveDialog = true"
             :icon="ContentSaveOutline"
             class="no-bg-border"
         />
-    </el-tooltip>
+    </ks-tooltip>
 
-    <el-dialog
+    <ks-dialog
         v-model="showSaveDialog"
         :title="isEditMode ? $t('filter.edit filter') : $t('filter.save filter')"
         class="custom-dialog"
@@ -17,15 +17,15 @@
         @close="closeSaveDialog"
     >
         <div class="save-form">
-            <el-alert v-if="hasDuplicate" type="error" showIcon :closable="false">
+            <ks-alert v-if="hasDuplicate" type="error" showIcon :closable="false">
                 {{ $t("filter.save duplicate") }}
                 <template #icon>
                     <CloseCircleOutline />
                 </template>
-            </el-alert>
+            </ks-alert>
             <div>
                 <label>{{ $t("filter.name") }}</label>
-                <el-input
+                <ks-input
                     v-model="filterName"
                     :placeholder="$t('filter.enter name')"
                     clearable
@@ -34,7 +34,7 @@
 
             <div>
                 <label>{{ $t("filter.description") }}</label>
-                <el-input
+                <ks-input
                     v-model="filterDescription"
                     type="textarea"
                     :placeholder="$t('filter.enter description')"
@@ -62,20 +62,20 @@
 
         <template #footer>
             <div>
-                <el-button @click="closeSaveDialog">
+                <ks-button @click="closeSaveDialog">
                     {{ $t("filter.cancel") }}
-                </el-button>
-                <el-button
+                </ks-button>
+                <ks-button
                     type="primary"
                     @click="saveFilter"
                     :disabled="!filterName.trim() || hasDuplicate"
                     :icon="ContentSaveOutline"
                 >
                     {{ isEditMode ? $t("filter.update") : $t("filter.save") }}
-                </el-button>
+                </ks-button>
             </div>
         </template>
-    </el-dialog>
+    </ks-dialog>
 </template>
 
 <script setup lang="ts">
@@ -212,8 +212,8 @@
     border: none;
 }
 
-:deep(.el-input__inner::placeholder),
-:deep(.el-textarea__inner::placeholder) {
+:deep(.kel-input__inner::placeholder),
+:deep(.kel-textarea__inner::placeholder) {
     color: var(--ks-content-tertiary);
     font-size: 0.875rem;
 }

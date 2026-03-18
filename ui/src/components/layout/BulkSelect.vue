@@ -1,22 +1,22 @@
 <template>
     <div class="bulk-select">
-        <el-checkbox
+        <ks-checkbox
             :modelValue="selections.length > 0"
             @change="toggle"
             :indeterminate="partialCheck"
         >
             <span v-html="$t('selection.selected', {count: selectAll && total !== undefined ? total : selections.length})" />
-        </el-checkbox>
-        <el-button-group>
-            <el-button
+        </ks-checkbox>
+        <ks-button-group>
+            <ks-button
                 :type="selectAll ? 'primary' : 'default'"
                 @click="toggleAll"
                 v-if="total !== undefined && selections.length < total"
             >
                 <span v-html="$t('selection.all', {count: total})" />
-            </el-button>
+            </ks-button>
             <slot />
-        </el-button-group>
+        </ks-button-group>
     </div>
 </template>
 <script setup lang="ts">

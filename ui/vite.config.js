@@ -37,6 +37,9 @@ export default defineConfig({
                 ws: true,
                 changeOrigin: true
             }
+        },
+        fs: {
+            allow: [".", "../ui-design-system"]
         }
     },
     resolve: {
@@ -91,7 +94,8 @@ export default defineConfig({
             "nprogress"
         ],
         exclude: [
-            "* > @kestra-io/ui-libs"
+            "* > @kestra-io/ui-libs",
+            "@kestra-io/ui-design-system"
         ]
     },
 })

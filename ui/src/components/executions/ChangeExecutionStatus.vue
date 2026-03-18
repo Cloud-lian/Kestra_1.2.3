@@ -1,13 +1,13 @@
 <template>
-    <el-button
+    <ks-button
         :disabled="!enabled"
         :icon="SwapHorizontal"
         @click="visible = !visible"
     >
         {{ $t('change state') }}
-    </el-button>
+    </ks-button>
 
-    <el-dialog v-if="enabled && visible" v-model="visible" :id="uuid" destroyOnClose :appendToBody="true">
+    <ks-dialog v-if="enabled && visible" v-model="visible" :id="uuid" destroyOnClose :appendToBody="true">
         <template #header>
             <h5>{{ $t("confirmation") }}</h5>
         </template>
@@ -19,12 +19,12 @@
                 {{ $t("change state current state") }} <Status size="small" class="me-1" :status="execution.state.current" />
             </p>
 
-            <el-select
+            <ks-select
                 :required="true"
                 v-model="selectedStatus"
                 :persistent="false"
             >
-                <el-option
+                <ks-option
                     v-for="item in states"
                     :key="item.code"
                     :value="item.code"
@@ -34,23 +34,23 @@
                         <Status size="small" :label="true" class="me-1" :status="item.code" />
                         <span v-html="item.label" />
                     </template>
-                </el-option>
-            </el-select>
+                </ks-option>
+            </ks-select>
         </template>
 
         <template #footer>
-            <el-button @click="visible = false">
+            <ks-button @click="visible = false">
                 {{ $t('cancel') }}
-            </el-button>
-            <el-button
+            </ks-button>
+            <ks-button
                 type="primary"
                 @click="changeStatus()"
                 :disabled="selectedStatus === execution.state.current || selectedStatus === null"
             >
                 {{ $t('ok') }}
-            </el-button>
+            </ks-button>
         </template>
-    </el-dialog>
+    </ks-dialog>
 </template>
 
 <script setup lang="ts">

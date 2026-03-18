@@ -2,22 +2,22 @@
     <div class="d-flex pagination" :class="{'top': top}">
         <slot name="search" />
         <div class="flex-grow-1 d-sm-none d-md-inline-block page-size">
-            <el-select
+            <ks-select
                 v-if="!top"
                 size="small"
                 :modelValue="internalSize"
                 @update:model-value="pageSizeChange"
             >
-                <el-option
+                <ks-option
                     v-for="item in pageOptions"
                     :key="item.value"
                     :label="item.text"
                     :value="item.value"
                 />
-            </el-select>
+            </ks-select>
         </div>
         <div v-if="isPaginationDisplayed">
-            <el-pagination
+            <ks-pagination
                 v-model:currentPage="internalPage"
                 v-model:pageSize="internalSize"
                 size="small"
@@ -119,7 +119,7 @@
         },
         {immediate: true}
     );
-    
+
     // Watch for prop changes to keep pagination controls synchronized
     watch(() => props.page, (newPage) => {
         internalPage.value = newPage ?? 1;
@@ -140,7 +140,7 @@
             margin-top: 0;
         }
 
-        .el-select {
+        .kel-select {
             width: 105px;
         }
 
@@ -158,7 +158,7 @@
             white-space: nowrap;
         }
 
-        :deep(.el-pagination .el-pager li) {
+        :deep(.kel-pagination .kel-pager li) {
             background-color: var(--ks-button-background-secondary);
             border: 1px solid var(--ks-border-primary);
             color: var(--ks-content-primary);

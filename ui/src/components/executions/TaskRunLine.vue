@@ -1,7 +1,7 @@
 <template>
     <div class="taskrun-header">
         <div>
-            <el-icon
+            <ks-icon
                 v-if="!taskRunId && shouldDisplayChevron(currentTaskRun)"
                 type="default"
                 @click.stop="() => $emit('toggleShowAttempt',(attemptUid(currentTaskRun.id, selectedAttemptNumberByTaskRunId[currentTaskRun.id])))"
@@ -10,7 +10,7 @@
                     v-if="shownAttemptsUid.includes(attemptUid(currentTaskRun.id, selectedAttemptNumberByTaskRunId[currentTaskRun.id]))"
                 />
                 <ChevronRight v-else />
-            </el-icon>
+            </ks-icon>
         </div>
         <div class="task-icon d-none d-md-inline-block me-1">
             <TaskIcon
@@ -25,7 +25,7 @@
             class="task-id flex-grow-1"
             :id="`attempt-${selectedAttemptNumberByTaskRunId[currentTaskRun.id]}-${currentTaskRun.id}`"
         >
-            <el-tooltip :persistent="false" transition="" :hideAfter="0" effect="light">
+            <ks-tooltip :persistent="false" transition="" :hideAfter="0" effect="light">
                 <template #content>
                     {{ $t("from") }} :
                     {{ $filters.date(selectedAttempt(currentTaskRun).state.startDate) }}
@@ -43,7 +43,7 @@
                         {{ currentTaskRun.value }}
                     </small>
                 </span>
-            </el-tooltip>
+            </ks-tooltip>
         </div>
 
         <div class="task-duration d-none d-md-inline-block">
@@ -58,13 +58,13 @@
 
         <slot name="buttons" />
 
-        <el-dropdown trigger="click">
-            <el-button type="default" class="task-run-buttons">
+        <ks-dropdown trigger="click">
+            <ks-button type="default" class="task-run-buttons">
                 <DotsVertical title="" />
-            </el-button>
+            </ks-button>
             <template #dropdown>
-                <el-dropdown-menu>
-                    <el-dropdown-item
+                <ks-dropdown-menu>
+                    <ks-dropdown-item
                         v-if="selectedAttempt(currentTaskRun).state.current === 'FAILED'"
                         @click="fixErrorWithAi(currentTaskRun)"
                     >
@@ -72,7 +72,7 @@
                             <AiIcon class="me-1" />
                             <span>{{ $t('fix_with_ai') }}</span>
                         </span>
-                    </el-dropdown-item>
+                    </ks-dropdown-item>
                     <SubFlowLink
                         v-if="isSubflow(currentTaskRun)"
                         component="el-dropdown-item"
@@ -117,48 +117,48 @@
                         :revision="followedExecution.flowRevision"
                         :flowSource="flow?.source"
                     />
-                    <el-dropdown-item
+                    <ks-dropdown-item
                         :icon="Download"
                         @click="downloadContent(currentTaskRun.id)"
                     >
                         {{ $t("download logs") }}
-                    </el-dropdown-item>
-                    <el-dropdown-item
+                    </ks-dropdown-item>
+                    <ks-dropdown-item
                         :icon="Copy"
                         @click="copyContent(currentTaskRun.id)"
                     >
                         {{ $t("copy logs") }}
-                    </el-dropdown-item>
-                    <el-dropdown-item
+                    </ks-dropdown-item>
+                    <ks-dropdown-item
                         :icon="Delete"
                         @click="deleteLogs(currentTaskRun.id)"
                     >
                         {{ $t("delete logs") }}
-                    </el-dropdown-item>
+                    </ks-dropdown-item>
                     <WorkerInfo
                         component="el-dropdown-item"
                         v-if="hasWorkerId(currentTaskRun) !== null"
                         :taskRun="currentTaskRun"
                         @follow="$emit('follow', $event)"
                     />
-                </el-dropdown-menu>
+                </ks-dropdown-menu>
             </template>
-        </el-dropdown>
+        </ks-dropdown>
     </div>
     <div class="attempt-header">
-        <el-select
+        <ks-select
             class="d-none d-md-inline-block attempt-select"
             :modelValue="selectedAttemptNumberByTaskRunId[currentTaskRun.id]"
             @change="$emit('swapDisplayedAttempt', {taskRunId: currentTaskRun.id, attemptNumber: $event})"
             :disabled="!currentTaskRun.attempts || currentTaskRun.attempts?.length <= 1"
         >
-            <el-option
+            <ks-option
                 v-for="(_, index) in attempts(currentTaskRun)"
                 :key="`attempt-${index}-${currentTaskRun.id}`"
                 :value="index"
                 :label="`${$t('attempt')} ${index + 1}`"
             />
-        </el-select>
+        </ks-select>
 
         <div class="task-status">
             <Status size="small" :status="selectedAttempt(currentTaskRun).state.current" />
@@ -273,7 +273,7 @@
                 let indexedLogs = this?.logs
                     .filter(logLine => (logLine?.message ?? "").toLowerCase().includes(this.filter) || this.isSubflow(this.taskRunById[logLine.taskRunId]))
                     .map((logLine, index) => ({...logLine, index}));
-            
+
                 // Remove duplicate logs based on taskRunId and attemptNumber, keeping the one with the highest index (most recent)
                 indexedLogs = Array.from(new Set(indexedLogs))
 
@@ -473,12 +473,12 @@
     }
 
     .attempt-header {
-        .el-select {
+        .kel-select {
             width: 10rem;
             height: 24px;
             margin-top: 0.35rem;
 
-            :deep(.el-select__wrapper) {
+            :deep(.kel-select__wrapper) {
                 height: 24px;
                 min-height: 24px;
             }
@@ -494,7 +494,7 @@
 </style>
 
 <style lang="scss">
-.attempt-select > .el-select__wrapper {
+.attempt-select > .kel-select__wrapper {
     height: 100%;
 }
 </style>

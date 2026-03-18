@@ -39,6 +39,7 @@ import {createPinia} from "pinia";
 import Toast from "./toast";
 import filters from "./filters";
 import ElementPlus from "element-plus";
+import KestraDesignSystem from "../../../ui-design-system/src";
 import createUnsavedChanged from "./unsavedChange";
 import createEventsRouter from "./eventsRouter";
 import "./global"
@@ -149,6 +150,8 @@ export default async (app, routes, _stores, translations, additionalTranslations
 
     // element-plus
     app.use(ElementPlus)
+    // kestra design system (registers KsSelect, etc. globally)
+    app.use(KestraDesignSystem)
 
     // navigation guard
     createUnsavedChanged(app, router);

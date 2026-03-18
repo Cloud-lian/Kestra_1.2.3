@@ -4,7 +4,7 @@
             {{ $t("worker information") }}
         </span>
 
-        <el-dialog
+        <ks-dialog
             v-if="visible"
             v-model="visible"
             :id="uuid"
@@ -24,11 +24,11 @@
             </template>
 
             <template #footer>
-                <el-button @click="visible = false">
+                <ks-button @click="visible = false">
                     {{ $t("close") }}
-                </el-button>
+                </ks-button>
             </template>
-        </el-dialog>
+        </ks-dialog>
     </component>
 </template>
 

@@ -3,12 +3,12 @@
         <TimeRangeSwitch v-if="filterKey?.key === 'timeRange'" v-model="local.timeRangeMode" />
 
         <div v-if="local.timeRangeMode === 'predefined'" class="section">
-            <el-select
+            <ks-select
                 v-model="local.value"
                 :placeholder="placeholder ?? $t('filter.select_option')"
                 :showArrow="false"
             >
-                <el-option
+                <ks-option
                     v-for="option in options"
                     :key="option.value"
                     :label="option.label"
@@ -21,14 +21,14 @@
                         />
                         {{ option.label }}
                     </span>
-                </el-option>
-            </el-select>
+                </ks-option>
+            </ks-select>
         </div>
 
         <div v-else class="section">
             <div class="date-field">
                 <label class="form-label">{{ $t("filter.start_date") }}</label>
-                <el-date-picker
+                <ks-date-picker
                     v-model="local.startDateValue"
                     type="datetime"
                     :placeholder="$t('filter.select_start_date')"
@@ -36,7 +36,7 @@
             </div>
             <div class="date-field">
                 <label class="form-label">{{ $t("filter.end_date") }}</label>
-                <el-date-picker
+                <ks-date-picker
                     v-model="local.endDateValue"
                     type="datetime"
                     :placeholder="$t('filter.select_end_date')"
@@ -114,18 +114,18 @@
 }
 
 :deep(.el-date-editor) {
-    .el-input__inner::placeholder {
+    .kel-input__inner::placeholder {
         color: var(--ks-content-tertiary);
         font-size: 14px;
     }
 
-    .el-input__prefix .el-input__icon {
+    .kel-input__prefix .kel-input__icon {
         color: var(--ks-content-tertiary);
         font-size: 16px;
     }
 }
 
-.el-select-dropdown__item {
+.kel-select-dropdown__item {
     font-size: 14px;
 }
 

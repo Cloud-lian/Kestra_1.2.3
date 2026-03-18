@@ -1,11 +1,11 @@
 <template>
     <div v-if="shouldShowComparator" class="comp-container">
         <label class="label">{{ $t("filter.operator") }}</label>
-        <el-select
+        <ks-select
             v-model="comparatorModel"
             class="select"
         >
-            <el-option
+            <ks-option
                 v-for="comparator in filterKey.comparators"
                 :key="comparator"
                 :label="getLabel(comparator)"
@@ -19,8 +19,8 @@
                         {{ getDescription(comparator) }}
                     </div>
                 </div>
-            </el-option>
-        </el-select>
+            </ks-option>
+        </ks-select>
     </div>
 </template>
 
@@ -87,7 +87,7 @@
     }
 }
 
-.el-select-dropdown__item {
+.kel-select-dropdown__item {
     height: fit-content;
     padding: 4px 12px;
 }

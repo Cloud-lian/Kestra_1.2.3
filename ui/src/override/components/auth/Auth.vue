@@ -1,5 +1,5 @@
 <template>
-    <el-select
+    <ks-select
         placement="right-end"
         :popperOffset="20"
         :showArrow="false"
@@ -11,40 +11,40 @@
             <img src="../../../assets/ks-logo-small.svg" width="40" alt="Kestra" class="user-avatar">
         </template>
         <template #header>
-            <el-option :value="{}" class=" list-unstyled">
+            <ks-option :value="{}" class=" list-unstyled">
                 <div class="menu-item">
                     <img src="../../../assets/ks-logo-small.svg" width="40" alt="Kestra">
                     {{ $t("kestra") }}
                 </div>
-            </el-option>
+            </ks-option>
         </template>
-        <el-option label="welcome" value="welcome">
+        <ks-option label="welcome" value="welcome">
             <RouterLink :to="{name: 'welcome'}" class="menu-item">
                 <RocketLaunchOutline class="menu-icon" />
                 {{ $t("welcome.menu") }}
             </RouterLink>
-        </el-option>
-        <el-option label="Settings" value="settings">
+        </ks-option>
+        <ks-option label="Settings" value="settings">
             <RouterLink :to="{name: 'settings'}" class="menu-item">
                 <CogOutline class="menu-icon" />
                 {{ $t("settings.label") }}
             </RouterLink>
-        </el-option>
-        <el-option label="slack" value="slack">
+        </ks-option>
+        <ks-option label="slack" value="slack">
             <a href="https://kestra.io/slack" target="_blank" class="menu-item">
                 <Slack class="menu-icon" />
                 {{ $t("join_slack") }}
             </a>
-        </el-option>
+        </ks-option>
         <template #footer>
-            <el-option class="list-unstyled" :value="'logout'" @click="logout">
+            <ks-option class="list-unstyled" :value="'logout'" @click="logout">
                 <div class="menu-item">
                     <Logout class="menu-icon" />
                     {{ $t("setup.logout") }}
                 </div>
-            </el-option>
+            </ks-option>
         </template>
-    </el-select>
+    </ks-select>
 </template>
 
 <script setup lang="ts">
@@ -85,7 +85,7 @@
 
 <style lang="scss">
 .user-select  {
-    &.el-select-dropdown {
+    &.kel-select-dropdown {
         width: 328px;
         background: var(--ks-select-background);
         box-shadow: 2px 3px 3px var(--ks-card-shadow);
@@ -93,7 +93,7 @@
         border: 1px solid var(--ks-border-primary) !important;
         margin-bottom: -2px;
 
-        .el-select-dropdown__item {
+        .kel-select-dropdown__item {
             min-height: 34px;
             height: fit-content;
             padding: 10px 16px 8px 16px;
@@ -102,8 +102,8 @@
             font-weight: 700;
         }
 
-        .el-select-dropdown__header {
-            .el-select-dropdown__item {
+        .kel-select-dropdown__header {
+            .kel-select-dropdown__item {
                 padding: 0;
                 margin: 0;
                 background: none;
@@ -114,24 +114,24 @@
             }
         }
 
-        .el-select-dropdown__footer {
+        .kel-select-dropdown__footer {
             padding: 5px 0;
-            .el-select-dropdown__item {
+            .kel-select-dropdown__item {
                 margin: 0 !important;
             }
         }
     }
 }
 
-.el-select {
-    >.el-select__wrapper {
+.kel-select {
+    >.kel-select__wrapper {
         padding: 2px 8px;
         padding-left: 6px !important;
     }
 }
 
 html.menu-collapsed {
-    .el-select__suffix {
+    .kel-select__suffix {
         display: none;
     }
 }

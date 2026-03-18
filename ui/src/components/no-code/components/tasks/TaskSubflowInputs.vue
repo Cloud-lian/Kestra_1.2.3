@@ -5,7 +5,7 @@
         v-for="inputWithValue in Object.entries(inputsWithValue)"
         :key="inputWithValue[0]"
     >
-        <el-select
+        <ks-select
             class="flex-fill flex-grow-1 w-100 me-2"
             :modelValue="inputWithValue[0]"
             @update:model-value="onSelectedInputChange(inputWithValue[0], $event)"
@@ -14,13 +14,13 @@
             :placeholder="task.namespace && task.flowId ? 'Select' : 'Select namespace and flowId first'"
             :disabled="!task.namespace || !task.flowId"
         >
-            <el-option
+            <ks-option
                 v-for="item in filteredInputs(inputWithValue[0])"
                 :key="item"
                 :label="item"
                 :value="item"
             />
-        </el-select>
+        </ks-select>
         <TaskExpression
             class="flex-fill flex-grow-1 w-100 me-2"
             :modelValue="inputWithValue[1]"
@@ -29,10 +29,10 @@
             :schema="schema"
         />
         <div class="flex-shrink-1">
-            <el-button-group class="d-flex flex-nowrap">
-                <el-button :icon="Plus" @click="addItem" />
-                <el-button :icon="Minus" @click="removeItem(inputWithValue[0])" />
-            </el-button-group>
+            <ks-button-group class="d-flex flex-nowrap">
+                <ks-button :icon="Plus" @click="addItem" />
+                <ks-button :icon="Minus" @click="removeItem(inputWithValue[0])" />
+            </ks-button-group>
         </div>
     </div>
 </template>

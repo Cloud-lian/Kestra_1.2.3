@@ -1,6 +1,6 @@
 <template>
     <div class="filter-container" :class="{'filter-grow': filter.searchInputFullWidth?.value}">
-        <el-popover
+        <ks-popover
             v-if="filter.hasFilterKeys?.value"
             v-model:visible="isCustomizeFiltersVisible"
             placement="bottom-start"
@@ -12,21 +12,21 @@
             @hide="isCustomizeFiltersVisible = false"
         >
             <template #reference>
-                <el-button
+                <ks-button
                     :icon="FilterOutline"
                     size="default"
                     class="customize-button"
                     :disabled="filter.readOnly?.value"
                 >
-                    <el-tooltip
+                    <ks-tooltip
                         placement="top"
                         effect="light"
                         :content="$t('filter.customize tooltip')"
                         :disabled="filter.readOnly?.value"
                     >
                         <span>{{ $t("filter.customize") }}</span>
-                    </el-tooltip>
-                </el-button>
+                    </ks-tooltip>
+                </ks-button>
             </template>
 
             <CustomizeFilters
@@ -36,7 +36,7 @@
                 @remove-filter="filter.removeFilter"
                 @close="isCustomizeFiltersVisible = false"
             />
-        </el-popover>
+        </ks-popover>
 
         <div
             v-if="filter.showSearchInput?.value"
@@ -69,22 +69,22 @@
             @update="filter.updateFilter"
         />
 
-        <el-tooltip
+        <ks-tooltip
             v-if="filter.hasFilterKeys?.value"
             placement="top"
             effect="light"
             :content="$t('filter.reset_all')"
             :disabled="filter.readOnly?.value"
         >
-            <el-button
+            <ks-button
                 link
                 class="refresh-btn"
                 @click="handleReset"
                 :disabled="!canReset || filter.readOnly?.value"
             >
                 {{ $t("filter.reset") }}
-            </el-button>
-        </el-tooltip>
+            </ks-button>
+        </ks-tooltip>
     </div>
 </template>
 

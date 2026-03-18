@@ -1,5 +1,5 @@
 <template>
-    <el-select
+    <ks-select
         class="fit-text"
         v-model="modelValue"
         :multiple
@@ -15,7 +15,7 @@
         :suffixIcon="readOnly ? Lock : undefined"
     >
         <template #tag>
-            <el-tag
+            <ks-tag
                 v-for="(value, index) in validValues"
                 :key="index"
                 class="namespace-tag"
@@ -24,15 +24,15 @@
             >
                 <FolderOpenOutline class="tag-icon" />
                 {{ value }}
-            </el-tag>
+            </ks-tag>
         </template>
-        <el-option
+        <ks-option
             v-for="item in options"
             :key="item.id"
             :label="item.label"
             :value="item.id"
         />
-    </el-select>
+    </ks-select>
 </template>
 
 <script setup lang="ts">
@@ -101,13 +101,13 @@
         border: 1px solid var(--ks-log-border-debug);
         padding: 0 6px;
 
-        :deep(.el-tag__content) {
+        :deep(.kel-tag__content) {
             display: flex;
             align-items: center;
             gap: 4px;
         }
 
-        :deep(.el-tag__close) {
+        :deep(.kel-tag__close) {
             color: var(--ks-log-content-debug);
 
             &:hover {

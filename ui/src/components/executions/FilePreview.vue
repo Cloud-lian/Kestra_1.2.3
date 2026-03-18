@@ -1,5 +1,5 @@
 <template>
-    <el-button
+    <ks-button
         size="small"
         type="primary"
         :icon="EyeOutline"
@@ -7,7 +7,7 @@
         :disabled="isZipFile"
     >
         {{ $t("preview.label") }}
-    </el-button>
+    </ks-button>
     <Drawer
         v-if="selectedPreview === value && preview"
         v-model="isPreviewOpen"
@@ -16,12 +16,12 @@
             {{ $t("preview.label") }}
         </template>
         <template #default>
-            <el-alert v-if="preview.truncated" showIcon type="warning" :closable="false" class="mb-2">
+            <ks-alert v-if="preview.truncated" showIcon type="warning" :closable="false" class="mb-2">
                 {{ $t('file preview truncated') }}
-            </el-alert>
-            <el-form class="ks-horizontal max-size mt-3">
-                <el-form-item :label="$t('row count')">
-                    <el-select
+            </ks-alert>
+            <ks-form class="ks-horizontal max-size mt-3">
+                <ks-form-item :label="$t('row count')">
+                    <ks-select
                         v-model="maxPreview"
                         filterable
                         clearable
@@ -29,16 +29,16 @@
                         :persistent="false"
                         @change="getFilePreview"
                     >
-                        <el-option
+                        <ks-option
                             v-for="item in maxPreviewOptions"
                             :key="item"
                             :label="item"
                             :value="item"
                         />
-                    </el-select>
-                </el-form-item>
-                <el-form-item :label="$t('encoding')">
-                    <el-select
+                    </ks-select>
+                </ks-form-item>
+                <ks-form-item :label="$t('encoding')">
+                    <ks-select
                         v-model="encoding"
                         filterable
                         clearable
@@ -46,23 +46,23 @@
                         :persistent="false"
                         @change="getFilePreview"
                     >
-                        <el-option
+                        <ks-option
                             v-for="item in encodingOptions"
                             :key="item.value"
                             :label="item.label"
                             :value="item.value"
                         />
-                    </el-select>
-                </el-form-item>
-                <el-form-item :label="($t('preview.view'))">
-                    <el-switch
+                    </ks-select>
+                </ks-form-item>
+                <ks-form-item :label="($t('preview.view'))">
+                    <ks-switch
                         v-model="forceEditor"
                         class="ml-3"
                         :activeText="$t('preview.force-editor')"
                         :inactiveText="$t('preview.auto-view')"
                     />
-                </el-form-item>
-            </el-form>
+                </ks-form-item>
+            </ks-form>
             <ListPreview v-if="!forceEditor && preview.type === 'LIST'" :value="preview.content" />
             <img v-else-if="!forceEditor && preview.type === 'IMAGE'" :src="imageContent" alt="Image output preview">
             <PdfPreview v-else-if="!forceEditor && preview.type === 'PDF'" :source="preview.content" />
@@ -81,17 +81,17 @@
                 <template #absolute>
                     <CopyToClipboard :text="!forceEditor ? preview.content : JSON.stringify(preview.content, null, 2)">
                         <template #right>
-                            <el-tooltip
+                            <ks-tooltip
                                 :content="$t('toggle_word_wrap')"
                                 placement="bottom"
                                 :autoClose="2000"
                             >
-                                <el-button
+                                <ks-button
                                     :icon="Wrap"
                                     type="default"
                                     @click="wordWrap = !wordWrap"
                                 />
-                            </el-tooltip>
+                            </ks-tooltip>
                         </template>
                     </CopyToClipboard>
                 </template>

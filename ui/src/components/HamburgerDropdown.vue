@@ -1,14 +1,14 @@
 <template>
-    <el-dropdown>
-        <el-button>
+    <ks-dropdown>
+        <ks-button>
             <DotsVertical />
-        </el-button>
+        </ks-button>
         <template #dropdown>
-            <el-dropdown-menu>
+            <ks-dropdown-menu>
                 <slot />
-            </el-dropdown-menu>
+            </ks-dropdown-menu>
         </template>
-    </el-dropdown>
+    </ks-dropdown>
 </template>
 
 <script setup lang="ts">

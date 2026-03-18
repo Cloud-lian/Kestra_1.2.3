@@ -1,13 +1,13 @@
 <template>
-    <el-card class="edition-card">
+    <ks-card class="edition-card">
         <template #header>
             <div class="header-content">
-                <el-text class="title">
+                <ks-text class="title">
                     {{ name }}
-                </el-text>
-                <el-text class="price" v-if="price">
+                </ks-text>
+                <ks-text class="price" v-if="price">
                     {{ price }}
-                </el-text>
+                </ks-text>
             </div>
         </template>
         <div class="features-container">
@@ -20,22 +20,22 @@
                     <CheckBold class="check-icon" />
                 </div>
                 <div class="feature-column">
-                    <el-text>
+                    <ks-text>
                         {{ feature }}
-                    </el-text>
+                    </ks-text>
                 </div>
             </div>
         </div>
 
         <a v-if="button?.href" class="button-link" :href="button.href">
-            <el-button type="primary" class="action-button">
+            <ks-button type="primary" class="action-button">
                 {{ button.text }}
-            </el-button>
+            </ks-button>
         </a>
-        <el-button v-else-if="button" class="action-button disabled" disabled>
+        <ks-button v-else-if="button" class="action-button disabled" disabled>
             {{ button.text }}
-        </el-button>
-    </el-card>
+        </ks-button>
+    </ks-card>
 </template>
 
 <script setup lang="ts">
@@ -66,7 +66,7 @@
     box-shadow: 0 2px 4px var(--ks-card-shadow);
 
 
-    :deep(.el-card__header) {
+    :deep(.kel-card__header) {
         border-bottom: 0;
         padding: 0;
 
@@ -83,7 +83,7 @@
         }
     }
 
-    :deep(.el-card__body) {
+    :deep(.kel-card__body) {
         flex: 1;
         display: flex;
         flex-direction: column;
@@ -118,7 +118,7 @@
                 flex: 1;
                 min-width: 0;
 
-                .el-text {
+                .kel-text {
                     line-height: 1.4;
                     word-wrap: break-word;
                     overflow-wrap: break-word;

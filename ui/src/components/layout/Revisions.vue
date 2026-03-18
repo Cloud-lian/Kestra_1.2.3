@@ -1,21 +1,21 @@
 <template>
     <div class="revision" v-if="revisions && revisions.length > 1">
         <div class="d-flex justify-content-end">
-            <el-select v-model="sideBySide" class="mb-3 display-select">
-                <el-option
+            <ks-select v-model="sideBySide" class="mb-3 display-select">
+                <ks-option
                     v-for="item in displayTypes"
                     :key="item.value"
                     :label="item.text"
                     :value="item.value"
                 />
-            </el-select>
+            </ks-select>
         </div>
-        <el-row :gutter="15" class="mb-2">
-            <el-col :span="12" v-if="revisionLeftIndex !== undefined">
+        <ks-row :gutter="15" class="mb-2">
+            <ks-col :span="12" v-if="revisionLeftIndex !== undefined">
                 <div class="revision-select-row">
                     <div class="revision-select">
-                        <el-select v-model="revisionLeftIndex" @change="addQuery">
-                            <el-option
+                        <ks-select v-model="revisionLeftIndex" @change="addQuery">
+                            <ks-option
                                 v-for="item in leftOptions"
                                 :key="item.value"
                                 :label="$t('revision') + ' '+ item.text"
@@ -31,27 +31,27 @@
                                         v-if="item.value !== undefined && currentRevision !== revisionNumber(item.value)"
                                     />
                                 </div>
-                            </el-option>
-                        </el-select>
-                        <el-button-group>
-                            <el-button
+                            </ks-option>
+                        </ks-select>
+                        <ks-button-group>
+                            <ks-button
                                 :icon="Restore"
                                 :disabled="revisionLeftText === currentRevisionWithSource.source"
                                 @click="restoreRevision(revisionLeftIndex, revisionLeftText)"
                                 data-testid="restore-left"
                             >
                                 <span class="d-none d-lg-inline-block">&nbsp;{{ $t("restore") }}</span>
-                            </el-button>
-                        </el-button-group>
+                            </ks-button>
+                        </ks-button-group>
                     </div>
                     <slot name="crud" :revision="revisionNumber(revisionLeftIndex)" />
                 </div>
-            </el-col>
-            <el-col :span="12" v-if="revisionRightIndex !== undefined">
+            </ks-col>
+            <ks-col :span="12" v-if="revisionRightIndex !== undefined">
                 <div class="revision-select-row m">
                     <div class="revision-select">
-                        <el-select v-model="revisionRightIndex" @change="addQuery">
-                            <el-option
+                        <ks-select v-model="revisionRightIndex" @change="addQuery">
+                            <ks-option
                                 v-for="item in rightOptions"
                                 :key="item.value"
                                 :label="$t('revision') + ' '+ item.text"
@@ -67,23 +67,23 @@
                                         v-if="item.value !== undefined && currentRevision !== revisionNumber(item.value)"
                                     />
                                 </div>
-                            </el-option>
-                        </el-select>
-                        <el-button-group>
-                            <el-button
+                            </ks-option>
+                        </ks-select>
+                        <ks-button-group>
+                            <ks-button
                                 :icon="Restore"
                                 :disabled="revisionRightText === currentRevisionWithSource.source"
                                 @click="restoreRevision(revisionRightIndex, revisionRightText)"
                                 data-testid="restore-right"
                             >
                                 <span class="d-none d-lg-inline-block">&nbsp;{{ $t("restore") }}</span>
-                            </el-button>
-                        </el-button-group>
+                            </ks-button>
+                        </ks-button-group>
                     </div>
                     <slot name="crud" :revision="revisionNumber(revisionRightIndex)" />
                 </div>
-            </el-col>
-        </el-row>
+            </ks-col>
+        </ks-row>
 
         <Editor
             class="mt-1"
@@ -101,9 +101,9 @@
         </div>
     </div>
     <div v-else>
-        <el-alert class="mb-0" showIcon :closable="false">
+        <ks-alert class="mb-0" showIcon :closable="false">
             {{ $t("no revisions found") }}
-        </el-alert>
+        </ks-alert>
     </div>
 </template>
 

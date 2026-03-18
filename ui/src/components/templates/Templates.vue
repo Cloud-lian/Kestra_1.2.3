@@ -21,9 +21,9 @@
                 </li>
                 <li>
                     <router-link :to="{name: 'templates/create'}">
-                        <el-button :icon="Plus" type="primary" size="large">
+                        <ks-button :icon="Plus" type="primary" size="large">
                             {{ $t('create') }}
-                        </el-button>
+                        </ks-button>
                     </router-link>
                 </li>
             </ul>
@@ -38,16 +38,16 @@
                 :total="templateStore.total"
             >
                 <template #navbar>
-                    <el-form-item>
+                    <ks-form-item>
                         <SearchField />
-                    </el-form-item>
-                    <el-form-item>
+                    </ks-form-item>
+                    <ks-form-item>
                         <NamespaceSelect
                             data-type="flow"
                             :value="$route.query.namespace"
                             @update:model-value="onDataTableValue('namespace', $event)"
                         />
-                    </el-form-item>
+                    </ks-form-item>
                 </template>
 
                 <template #table>
@@ -72,16 +72,16 @@
                                 @update:select-all="toggleAllSelection"
                                 @unselect="toggleAllUnselected"
                             >
-                                <el-button v-if="canRead" :icon="Download" @click="exportTemplates()">
+                                <ks-button v-if="canRead" :icon="Download" @click="exportTemplates()">
                                     {{ $t('export') }}
-                                </el-button>
-                                <el-button v-if="canDelete" @click="deleteTemplates" :icon="TrashCan">
+                                </ks-button>
+                                <ks-button v-if="canDelete" @click="deleteTemplates" :icon="TrashCan">
                                     {{ $t('delete') }}
-                                </el-button>
+                                </ks-button>
                             </BulkSelect>
                         </template>
                         <template #default>
-                            <el-table-column
+                            <ks-table-column
                                 prop="id"
                                 sortable="custom"
                                 :sortOrders="['ascending', 'descending']"
@@ -99,9 +99,9 @@
                                         :title="scope.row.namespace + '.' + scope.row.id"
                                     />
                                 </template>
-                            </el-table-column>
+                            </ks-table-column>
 
-                            <el-table-column
+                            <ks-table-column
                                 prop="namespace"
                                 sortable="custom"
                                 :sortOrders="['ascending', 'descending']"
@@ -109,7 +109,7 @@
                                 :formatter="(_, __, cellValue) => $filters.invisibleSpace(cellValue)"
                             />
 
-                            <el-table-column columnKey="action" className="row-action">
+                            <ks-table-column columnKey="action" className="row-action">
                                 <template #default="scope">
                                     <IconButton
                                         :tooltip="$t('details')"
@@ -118,7 +118,7 @@
                                         <TextSearch />
                                     </IconButton>
                                 </template>
-                            </el-table-column>
+                            </ks-table-column>
                         </template>
                     </SelectTable>
                 </template>

@@ -1,6 +1,6 @@
 <template>
-    <el-form labelPosition="top">
-        <el-form-item
+    <ks-form labelPosition="top">
+        <ks-form-item
             :key="index"
             :required="isRequired(key)"
             v-for="(schema, key, index) in properties"
@@ -19,10 +19,10 @@
                             .join(" ")
                     }}
                 </span>
-                <el-tag disableTransitions size="small" class="ms-2 type-tag">
+                <ks-tag disableTransitions size="small" class="ms-2 type-tag">
                     {{ getTaskComponent(schema, key, properties).ksTaskName }}
-                </el-tag>
-                <el-tooltip
+                </ks-tag>
+                <ks-tooltip
                     v-if="hasTooltip(schema)"
                     :persistent="false"
                     :hideAfter="0"
@@ -35,7 +35,7 @@
                         />
                     </template>
                     <Help class="ms-2" />
-                </el-tooltip>
+                </ks-tooltip>
             </template>
             <component
                 :is="getBlockComponent(schema, key, properties)"
@@ -46,8 +46,8 @@
                 :required="isRequired(key)"
                 :min="getExclusiveMinimum(key)"
             />
-        </el-form-item>
-    </el-form>
+        </ks-form-item>
+    </ks-form>
 </template>
 <script setup>
     import Help from "vue-material-design-icons/HelpBox.vue";

@@ -5,14 +5,14 @@
         :key="index"
     >
         <div class="flex-grow-1 d-flex align-items-center">
-            <el-input
+            <ks-input
                 class="form-control me-2"
                 :placeholder="$t('key')"
                 v-model="label.key"
                 :disabled="localExisting.includes(label.key || '')"
                 @update:model-value="update(index, $event, 'key')"
             />
-            <el-input
+            <ks-input
                 class="form-control me-2"
                 :placeholder="$t('value')"
                 v-model="label.value"
@@ -20,10 +20,10 @@
             />
         </div>
         <div class="flex-shrink-1">
-            <el-button-group class="d-flex">
-                <el-button :icon="Plus" @click="addItem" />
-                <el-button :icon="Minus" @click="removeItem(index)" />
-            </el-button-group>
+            <ks-button-group class="d-flex">
+                <ks-button :icon="Plus" @click="addItem" />
+                <ks-button :icon="Minus" @click="removeItem(index)" />
+            </ks-button-group>
         </div>
     </div>
 </template>

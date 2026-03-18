@@ -1,5 +1,5 @@
 <template>
-    <el-drawer
+    <ks-drawer
         v-model="modelValue"
         destroyOnClose
         lockScroll
@@ -14,9 +14,9 @@
                 {{ title }}
                 <slot name="header" />
             </span>
-            <el-button link class="full-screen">
+            <ks-button link class="full-screen">
                 <Fullscreen :title="$t('toggle fullscreen')" @click="toggleFullScreen" />
-            </el-button>
+            </ks-button>
         </template>
 
         <template #footer>
@@ -26,7 +26,7 @@
         <template #default>
             <slot />
         </template>
-    </el-drawer>
+    </ks-drawer>
 </template>
 
 <script setup lang="ts">

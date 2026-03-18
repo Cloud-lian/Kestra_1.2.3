@@ -14,11 +14,11 @@
                         {{ $t("onboarding.welcome.headline") }}
                     </h2>
                     <div v-if="canCreate" class="welcome-actions">
-                        <el-card class="action-card primary" @click="startGuided">
+                        <ks-card class="action-card primary" @click="startGuided">
                             <div class="action-card-content">
-                                <el-icon size="26">
+                                <ks-icon size="26">
                                     <component :is="Compass" />
-                                </el-icon>
+                                </ks-icon>
                                 <div>
                                     <h5>
                                         {{ $t("onboarding.welcome.guided_title") }}
@@ -28,37 +28,37 @@
                                     <span class="meta-time">{{ $t("onboarding.welcome.guided_duration") }}</span>
                                 </div>
                             </div>
-                        </el-card>
-                        <el-card class="action-card" @click="startSelfServe">
+                        </ks-card>
+                        <ks-card class="action-card" @click="startSelfServe">
                             <div class="action-card-content">
-                                <el-icon size="26">
+                                <ks-icon size="26">
                                     <component :is="Plus" />
-                                </el-icon>
+                                </ks-icon>
                                 <div>
                                     <h5>{{ $t("onboarding.welcome.self_serve_title") }}</h5>
                                     <p>{{ $t("onboarding.welcome.self_serve_description") }}</p>
                                     <span class="meta-time">{{ $t("onboarding.welcome.self_serve_note") }}</span>
                                 </div>
                             </div>
-                        </el-card>
+                        </ks-card>
                     </div>
                 </div>
-                <el-divider>
+                <ks-divider>
                     {{ $t("onboarding.welcome.additional_help") }}
-                </el-divider>
+                </ks-divider>
                 <div class="resources">
-                    <el-link href="https://kestra.io/docs" target="_blank">
+                    <ks-link href="https://kestra.io/docs" target="_blank">
                         {{ $t("onboarding.welcome.docs") }}
-                    </el-link>
-                    <el-link href="https://kestra.io/docs/tutorial" target="_blank">
+                    </ks-link>
+                    <ks-link href="https://kestra.io/docs/tutorial" target="_blank">
                         {{ $t("onboarding.welcome.tutorial") }}
-                    </el-link>
-                    <el-link href="https://kestra.io/blueprints" target="_blank">
+                    </ks-link>
+                    <ks-link href="https://kestra.io/blueprints" target="_blank">
                         {{ $t("onboarding.welcome.blueprints") }}
-                    </el-link>
-                    <el-link href="https://kestra.io/slack" target="_blank">
+                    </ks-link>
+                    <ks-link href="https://kestra.io/slack" target="_blank">
                         {{ $t("onboarding.welcome.slack") }}
-                    </el-link>
+                    </ks-link>
                 </div>
             </div>
         </div>
@@ -253,7 +253,7 @@
         }
     }
 
-    :deep(.el-divider__text) {
+    :deep(.kel-divider__text) {
         color: var(--ks-content-secondary);
         white-space: nowrap;
         font-size: var(--el-font-size-extra-small);

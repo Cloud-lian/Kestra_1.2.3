@@ -1,11 +1,11 @@
 <template>
-    <el-select
+    <ks-select
         v-model="modelValue"
         :placeholder="$te(`no_code.select.${blockType}`) ? $t(`no_code.select.${blockType}`) : $t('no_code.select.default')"
         filterable
         clearable
     >
-        <el-option
+        <ks-option
             v-for="item in taskModels"
             :key="item.cls"
             :label="item.cls"
@@ -25,7 +25,7 @@
                     </div>
                 </div>
             </span>
-        </el-option>
+        </ks-option>
 
         <template #prefix>
             <TaskIcon
@@ -35,7 +35,7 @@
                 :icons="pluginsStore.icons"
             />
         </template>
-    </el-select>
+    </ks-select>
 </template>
 
 <script setup lang="ts">
@@ -100,7 +100,7 @@
 
             if (consolidatedType?.enum) {
                 const val = consolidatedType.enum[0];
-                    
+
                 acc.set(val, def.title ?? val);
             }
             return acc
@@ -136,18 +136,18 @@
         margin-right: 1rem;
     }
 
-    :deep(.el-input__prefix-inner) {
+    :deep(.kel-input__prefix-inner) {
         .wrapper {
             top: 0;
             margin-right: 0;
         }
     }
 
-    :deep(.el-select__suffix) {
+    :deep(.kel-select__suffix) {
         display: flex !important;
     }
 
-    .el-select-dropdown__item {
+    .kel-select-dropdown__item {
         height: fit-content;
         line-height: normal;
         padding: 8px 12px;

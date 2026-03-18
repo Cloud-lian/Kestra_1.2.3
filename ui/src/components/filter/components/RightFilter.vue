@@ -3,7 +3,7 @@
         class="filter-container"
         :class="{'filter-shrink': filter.searchInputFullWidth.value}"
     >
-        <el-button
+        <ks-button
             v-if="filter.tableOptions.value?.refresh?.shown"
             @click="filter.refreshData"
             :icon="Refresh"
@@ -11,7 +11,7 @@
             class="refresh-button"
         >
             {{ $t("filter.refresh") }}
-        </el-button>
+        </ks-button>
 
         <SaveFilters
             v-if="!filter.searchInputFullWidth.value"
@@ -26,7 +26,7 @@
             @close-edit="filter.closeEditFilter"
         />
 
-        <el-popover
+        <ks-popover
             v-if="filter.buttons.value?.savedFilters?.shown !== false"
             v-model:visible="isSavedFiltersVisible"
             placement="bottom-end"
@@ -38,19 +38,19 @@
             @hide="isSavedFiltersVisible = false"
         >
             <template #reference>
-                <el-button type="default" size="default" class="saved-btn" :icon="BookmarkCheckOutline" :disabled="filter.readOnly.value">
-                    <el-tooltip :content="$t('filter.saved tooltip')" placement="top" effect="light">
+                <ks-button type="default" size="default" class="saved-btn" :icon="BookmarkCheckOutline" :disabled="filter.readOnly.value">
+                    <ks-tooltip :content="$t('filter.saved tooltip')" placement="top" effect="light">
                         <span class="saved-content">
                             {{ $t("filter.saved") }}
-                            <el-tag type="primary" effect="light" class="saved-count">
+                            <ks-tag type="primary" effect="light" class="saved-count">
                                 {{ filter.savedFilters.value.length }}
-                            </el-tag>
-                            <el-icon class="el-icon--right">
+                            </ks-tag>
+                            <ks-icon class="el-icon--right">
                                 <ChevronDown />
-                            </el-icon>
+                            </ks-icon>
                         </span>
-                    </el-tooltip>
-                </el-button>
+                    </ks-tooltip>
+                </ks-button>
             </template>
 
             <SavedFilters
@@ -60,22 +60,22 @@
                 @delete="filter.deleteSavedFilter"
                 @close="isSavedFiltersVisible = false"
             />
-        </el-popover>
+        </ks-popover>
 
-        <el-tooltip
+        <ks-tooltip
             v-if="filter.buttons.value?.tableOptions?.shown !== false"
             :content="$t('filter.show data options tooltip')"
             placement="top"
             effect="light"
         >
-            <el-button
+            <ks-button
                 type="default"
                 size="default"
                 @click="filter.toggleOptions"
                 class="options-btn"
                 :icon="VerticalSliders"
             />
-        </el-tooltip>
+        </ks-tooltip>
 
         <slot name="extra" />
     </div>

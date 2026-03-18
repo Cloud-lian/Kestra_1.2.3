@@ -1,9 +1,9 @@
 <template>
     <div class="outputs">
-        <el-splitter :layout="isMobile ? 'vertical' : 'horizontal'">
-            <el-splitter-panel v-model:size="leftWidth" :min="'30%'" :max="'70%'" class="outputs-top">
+        <ks-splitter :layout="isMobile ? 'vertical' : 'horizontal'">
+            <ks-splitter-panel v-model:size="leftWidth" :min="'30%'" :max="'70%'" class="outputs-top">
                 <div class="d-flex flex-column overflow-auto left">
-                    <el-cascader-panel
+                    <ks-cascader-panel
                         ref="cascader"
                         v-model="selected"
                         :options="outputs"
@@ -51,10 +51,10 @@
                                 </code>
                             </div>
                         </template>
-                    </el-cascader-panel>
+                    </ks-cascader-panel>
                 </div>
-            </el-splitter-panel>
-            <el-splitter-panel>
+            </ks-splitter-panel>
+            <ks-splitter-panel>
                 <div class="right wrapper">
                     <div
                         v-if="multipleSelected || selectedValue"
@@ -66,11 +66,11 @@
                             </code>
                         </div>
 
-                        <el-collapse
+                        <ks-collapse
                             v-model="debugCollapse"
                             class="mb-3 debug bordered"
                         >
-                            <el-collapse-item name="debug">
+                            <ks-collapse-item name="debug">
                                 <template #title>
                                     <span>{{ $t("eval.title") }}</span>
                                 </template>
@@ -88,17 +88,17 @@
                                         class="w-100"
                                     />
 
-                                    <el-button
+                                    <ks-button
                                         type="primary"
                                         @click="
                                             onDebugExpression(
                                                 editorValue.length > 0 ? editorValue : computedDebugValue,
                                             )
                                         "
-                                        class="mt-3 el-button--wrap"
+                                        class="mt-3 button-wrap"
                                     >
                                         {{ $t("eval.title") }}
-                                    </el-button>
+                                    </ks-button>
 
                                     <Editor
                                         v-if="debugExpression"
@@ -112,10 +112,10 @@
                                         class="mt-3"
                                     />
                                 </div>
-                            </el-collapse-item>
-                        </el-collapse>
+                            </ks-collapse-item>
+                        </ks-collapse>
 
-                        <el-alert
+                        <ks-alert
                             v-if="debugError"
                             type="error"
                             :closable="false"
@@ -134,7 +134,7 @@
                             <pre class="mb-0" style="overflow: scroll">{{
                                 debugStackTrace
                             }}</pre>
-                        </el-alert>
+                        </ks-alert>
 
                         <VarValue
                             v-if="displayVarValue()"
@@ -147,8 +147,8 @@
                         />
                     </div>
                 </div>
-            </el-splitter-panel>
-        </el-splitter>
+            </ks-splitter-panel>
+        </ks-splitter>
     </div>
 </template>
 
@@ -531,7 +531,7 @@
         height: 100%;
     }
 
-    & .el-cascader-node {
+    & .kel-cascader-node {
         height: 36px;
         line-height: 36px;
         font-size: var(--el-font-size-small);
@@ -562,7 +562,7 @@
             & .task-label {
                 width: 100%;
                 max-width: 100%;
-                
+
                 & .task-iteration-value {
                     display: inline-block;
                     width: 80px;
@@ -597,6 +597,21 @@
     z-index: 0;
 }
 
+.button-wrap {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+
+    > span {
+        display: inline-block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+}
+
+
 /* Hide the visual scrollbar on the right panel but keep scrolling usable */
 .content-container {
     -ms-overflow-style: none; /* IE and Edge */
@@ -611,7 +626,7 @@
         max-height: none !important;
     }
 
-    .el-collapse-item__content {
+    .kel-collapse-item__content {
         word-wrap: break-word;
         word-break: break-word;
     }

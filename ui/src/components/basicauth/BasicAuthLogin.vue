@@ -4,10 +4,10 @@
             <Logo class="logo" />
         </div>
 
-        <el-form @submit.prevent :model="credentials" ref="form" :rules="rules" :showMessage="false">
+        <ks-form @submit.prevent :model="credentials" ref="form" :rules="rules" :showMessage="false">
             <input type="hidden" name="from" :value="redirectPath">
-            <el-form-item prop="username">
-                <el-input
+            <ks-form-item prop="username">
+                <ks-input
                     name="username"
                     size="large"
                     id="input-username"
@@ -19,14 +19,14 @@
                         <Account />
                     </template>
                     <template #suffix v-if="getFieldError('username')">
-                        <el-tooltip placement="top" :content="getFieldError('username')">
+                        <ks-tooltip placement="top" :content="getFieldError('username')">
                             <InformationOutline class="validation-icon error" />
-                        </el-tooltip>
+                        </ks-tooltip>
                     </template>
-                </el-input>
-            </el-form-item>
-            <el-form-item prop="password">
-                <el-input
+                </ks-input>
+            </ks-form-item>
+            <ks-form-item prop="password">
+                <ks-input
                     v-model="credentials.password"
                     size="large"
                     name="password"
@@ -40,14 +40,14 @@
                         <Lock />
                     </template>
                     <template #suffix v-if="getFieldError('password')">
-                        <el-tooltip placement="top" :content="getFieldError('password')">
+                        <ks-tooltip placement="top" :content="getFieldError('password')">
                             <InformationOutline class="validation-icon error" />
-                        </el-tooltip>
+                        </ks-tooltip>
                     </template>
-                </el-input>
-            </el-form-item>
-            <el-form-item>
-                <el-button
+                </ks-input>
+            </ks-form-item>
+            <ks-form-item>
+                <ks-button
                     type="primary"
                     class="w-100"
                     size="large"
@@ -57,19 +57,19 @@
                     :loading="isLoading"
                 >
                     {{ $t("setup.login") }}
-                </el-button>
-            </el-form-item>
-            <el-form-item>
-                <el-button
+                </ks-button>
+            </ks-form-item>
+            <ks-form-item>
+                <ks-button
                     type="default"
                     class="w-100"
                     size="large"
                     @click="openTroubleshootingGuide"
                 >
                     {{ $t("setup.troubleshooting") }}
-                </el-button>
-            </el-form-item>
-        </el-form>
+                </ks-button>
+            </ks-form-item>
+        </ks-form>
     </div>
 </template>
 
@@ -308,12 +308,12 @@
             }
         }
 
-        .el-form-item {
-            .el-input {
+        .kel-form-item {
+            .kel-input {
                 height: 54px;
             }
 
-            .el-input-group__prepend {
+            .kel-input-group__prepend {
                 .material-design-icon {
                     .material-design-icon__svg {
                         width: 1.5em;

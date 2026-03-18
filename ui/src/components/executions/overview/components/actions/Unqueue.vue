@@ -1,13 +1,13 @@
 <template>
-    <el-button
+    <ks-button
         v-if="enabled"
         :icon="QueueFirstInLastOut"
         @click="isDrawerOpen = !isDrawerOpen"
     >
         {{ $t('unqueue') }}
-    </el-button>
+    </ks-button>
 
-    <el-dialog v-if="isDrawerOpen" v-model="isDrawerOpen" destroyOnClose :appendToBody="true">
+    <ks-dialog v-if="isDrawerOpen" v-model="isDrawerOpen" destroyOnClose :appendToBody="true">
         <template #header>
             <span v-html="$t('unqueue')" />
         </template>
@@ -15,12 +15,12 @@
         <template #default>
             <p v-html="$t('unqueue title', {id: execution.id})" />
 
-            <el-select
+            <ks-select
                 :required="true"
                 v-model="selectedStatus"
                 :persistent="false"
             >
-                <el-option
+                <ks-option
                     v-for="item in states"
                     :key="item.code"
                     :value="item.code"
@@ -29,16 +29,16 @@
                         <Status size="small" :label="true" class="me-1" :status="item.code" />
                         <span v-html="item.label" />
                     </template>
-                </el-option>
-            </el-select>
+                </ks-option>
+            </ks-select>
         </template>
 
         <template #footer>
-            <el-button :icon="QueueFirstInLastOut" type="primary" @click="unqueue()" nativeType="submit">
+            <ks-button :icon="QueueFirstInLastOut" type="primary" @click="unqueue()" nativeType="submit">
                 {{ $t('unqueue') }}
-            </el-button>
+            </ks-button>
         </template>
-    </el-dialog>
+    </ks-dialog>
 </template>
 
 <script setup lang="ts">

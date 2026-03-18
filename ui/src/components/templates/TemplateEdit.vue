@@ -3,14 +3,14 @@
         <template #additional-right v-if="canSave || canDelete">
             <ul>
                 <li>
-                    <el-button :icon="Delete" size="large" type="default" v-if="canDelete" @click="deleteFile">
+                    <ks-button :icon="Delete" size="large" type="default" v-if="canDelete" @click="deleteFile">
                         {{ $t('delete') }}
-                    </el-button>
+                    </ks-button>
 
                     <template v-if="canSave">
-                        <el-button :icon="ContentSave" @click="save" type="primary" size="large">
+                        <ks-button :icon="ContentSave" @click="save" type="primary" size="large">
                             {{ $t('save') }}
-                        </el-button>
+                        </ks-button>
                     </template>
                 </li>
             </ul>

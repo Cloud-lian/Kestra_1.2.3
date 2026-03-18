@@ -1,6 +1,6 @@
 <template>
     <div class="d-flex gap-2 w-100">
-        <el-input
+        <ks-input
             class="flex-grow-1"
             :class="hidden || disabled ? 'secret-value' : ''"
             v-model="modelValue"
@@ -10,7 +10,7 @@
             required
             :disabled="disabled"
         />
-        <el-button v-if="!disabled && modelValue" :icon="hidden ? EyeOffOutline : EyeOutline" @click="hidden = !hidden" />
+        <ks-button v-if="!disabled && modelValue" :icon="hidden ? EyeOffOutline : EyeOutline" @click="hidden = !hidden" />
     </div>
 </template>
 

@@ -1,22 +1,22 @@
 <template>
-    <el-button
+    <ks-button
         :disabled="!enabled"
         :icon="Pause"
         @click="click"
     >
         {{ $t('pause') }}
-    </el-button>
+    </ks-button>
 
-    <el-dialog v-if="isDrawerOpen" v-model="isDrawerOpen" destroyOnClose :appendToBody="true">
+    <ks-dialog v-if="isDrawerOpen" v-model="isDrawerOpen" destroyOnClose :appendToBody="true">
         <template #header>
             <span v-html="$t('pause title', {id: execution.id})" />
         </template>
         <template #footer>
-            <el-button :icon="Pause" type="primary" @click="pause()" nativeType="submit">
+            <ks-button :icon="Pause" type="primary" @click="pause()" nativeType="submit">
                 {{ $t('pause') }}
-            </el-button>
+            </ks-button>
         </template>
-    </el-dialog>
+    </ks-dialog>
 </template>
 
 <script setup lang="ts">

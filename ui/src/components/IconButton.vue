@@ -1,5 +1,5 @@
 <template>
-    <el-tooltip
+    <ks-tooltip
         v-if="tooltip"
         effect="light"
         :content="tooltip"
@@ -10,7 +10,7 @@
         transition=""
         :hideAfter="0"
     >
-        <el-button
+        <ks-button
             v-bind="buttonAttrs"
             class="ks-icon-button"
             :disabled="disabled"
@@ -21,9 +21,9 @@
             :nativeType="nativeType"
         >
             <slot />
-        </el-button>
-    </el-tooltip>
-    <el-button
+        </ks-button>
+    </ks-tooltip>
+    <ks-button
         v-else
         v-bind="buttonAttrs"
         class="ks-icon-button"
@@ -35,7 +35,7 @@
         :nativeType="nativeType"
     >
         <slot />
-    </el-button>
+    </ks-button>
 </template>
 
 <script setup lang="ts">

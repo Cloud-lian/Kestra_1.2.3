@@ -9,30 +9,30 @@
             <div class="d-flex align-items-center gap-2" v-if="(isAllowedEdit || isAllowedTrigger) && $route.params.tab !== 'audit-logs'">
                 <ul class="d-none d-xl-flex align-items-center">
                     <li v-if="isAllowedEdit" data-onboarding-target="execution-edit-flow-button">
-                        <el-button
+                        <ks-button
                             class="execution-edit-flow-button"
                             :icon="Pencil"
                             @click="editFlow"
                         >
                             {{ $t("edit flow") }}
-                        </el-button>
+                        </ks-button>
                     </li>
                 </ul>
     
-                <el-dropdown class="d-flex d-xl-none align-items-center">
-                    <el-button>
-                        <el-icon><DotsVerticalIcon /></el-icon>
+                <ks-dropdown class="d-flex d-xl-none align-items-center">
+                    <ks-button>
+                        <ks-icon><DotsVerticalIcon /></ks-icon>
                         <span class="d-none d-lg-inline-block">{{ $t("more_actions") }}</span>
-                    </el-button>
+                    </ks-button>
                     <template #dropdown>
-                        <el-dropdown-menu>
-                            <el-dropdown-item v-if="isAllowedEdit" @click="editFlow">
-                                <el-icon><Pencil /></el-icon>
+                        <ks-dropdown-menu>
+                            <ks-dropdown-item v-if="isAllowedEdit" @click="editFlow">
+                                <ks-icon><Pencil /></ks-icon>
                                 {{ $t("edit flow") }}
-                            </el-dropdown-item>
-                        </el-dropdown-menu>
+                            </ks-dropdown-item>
+                        </ks-dropdown-menu>
                     </template>
-                </el-dropdown>
+                </ks-dropdown>
     
                 <div v-if="isAllowedTrigger">
                     <TriggerFlow
