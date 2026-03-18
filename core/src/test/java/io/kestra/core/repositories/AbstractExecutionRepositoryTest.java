@@ -35,9 +35,11 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
+import lombok.Builder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.FieldSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.event.Level;
 
@@ -53,6 +55,7 @@ import java.util.stream.Stream;
 
 import static io.kestra.core.models.flows.FlowScope.SYSTEM;
 import static io.kestra.core.models.flows.FlowScope.USER;
+import static io.kestra.core.models.flows.State.Type.SUCCESS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -1270,6 +1273,129 @@ inject(tenant);
             executionRepository.delete(savedA);
             executionRepository.delete(savedB);
         }
+    }
+
+    @ParameterizedTest
+    @FieldSource("filtersTestCases")
+    void findWithFilters(FiltersTestCase filtersTestCase) {
+        // Given
+        var tenant = TestsUtils.randomTenant(this.getClass().getSimpleName());
+        filtersTestCase.executions().forEach(exec -> {
+            executionRepository.save(
+                exec.toBuilder().tenantId(tenant)
+                    .namespace("namespace")
+                    .flowId("flowId")
+                    .state(State.of(Type.SUCCESS, List.of(
+                        new State.History(Type.RUNNING, Instant.now().minusMillis(1000)),
+                        new State.History(Type.CREATED, Instant.now().minusMillis(2000))
+                    )))
+                    .build()
+            );
+        });
+
+        // When
+        ArrayListTotal<Execution> results = executionRepository.find(Pageable.UNPAGED, tenant, List.of(filtersTestCase.queryFilter()));
+
+        //Then
+        assertThat(filtersTestCase.expectedExecutions())
+            .usingRecursiveFieldByFieldElementComparatorOnFields("id")
+            .containsExactlyInAnyOrderElementsOf(results);
+    }
+
+    private static final Map<String, Object> ioValue = Map.of("key", "value");
+    private static final Map<String, Object> ioOtherValue = Map.of("key", "other");
+
+    private static final Execution executionWithInputValue = Execution.builder()
+        .id(IdUtils.create())
+        .inputs(ioValue)
+        .build();
+
+    private static final Execution executionWithInputOtherValue = Execution.builder()
+        .id(IdUtils.create())
+        .inputs(ioOtherValue)
+        .build();
+
+    private static final Execution executionWithOutputValue = Execution.builder()
+        .id(IdUtils.create())
+        .outputs(ioValue)
+        .build();
+
+    private static final Execution executionWithOutputOtherValue = Execution.builder()
+        .id(IdUtils.create())
+        .outputs(ioOtherValue)
+        .build();
+
+    private static final List<Execution> allInputExecutions = List.of(
+        executionWithInputValue,
+        executionWithInputOtherValue
+    );
+
+    private static final List<Execution> allOutputExecutions = List.of(
+        executionWithOutputValue,
+        executionWithOutputOtherValue
+    );
+
+    private static final List<FiltersTestCase> filtersTestCases = List.of(
+        FiltersTestCase.builder()
+            .executions(allInputExecutions)
+            .expectedExecutions(List.of(executionWithInputValue))
+            .queryFilter(QueryFilter.builder().field(Field.INPUT).value(ioValue).operation(QueryFilter.Op.EQUALS).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(allInputExecutions)
+            .expectedExecutions(List.of(executionWithInputOtherValue))
+            .queryFilter(QueryFilter.builder().field(Field.INPUT).value(ioValue).operation(QueryFilter.Op.NOT_EQUALS).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(allInputExecutions)
+            .expectedExecutions(List.of(executionWithInputValue))
+            .queryFilter(QueryFilter.builder().field(Field.INPUT).value("value").operation(QueryFilter.Op.CONTAINS).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(allInputExecutions)
+            .expectedExecutions(List.of(executionWithInputValue))
+            .queryFilter(QueryFilter.builder().field(Field.INPUT).value(ioValue).operation(QueryFilter.Op.IN).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(allInputExecutions)
+            .expectedExecutions(List.of(executionWithInputOtherValue))
+            .queryFilter(QueryFilter.builder().field(Field.INPUT).value(ioValue).operation(QueryFilter.Op.NOT_IN).build())
+            .build(),
+
+        FiltersTestCase.builder()
+            .executions(allOutputExecutions)
+            .expectedExecutions(List.of(executionWithOutputValue))
+            .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value(ioValue).operation(QueryFilter.Op.EQUALS).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(allOutputExecutions)
+            .expectedExecutions(List.of(executionWithOutputOtherValue))
+            .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value(ioValue).operation(QueryFilter.Op.NOT_EQUALS).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(allOutputExecutions)
+            .expectedExecutions(List.of(executionWithOutputValue))
+            .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value("value").operation(QueryFilter.Op.CONTAINS).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(allOutputExecutions)
+            .expectedExecutions(List.of(executionWithOutputValue))
+            .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value(ioValue).operation(QueryFilter.Op.IN).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(allOutputExecutions)
+            .expectedExecutions(List.of(executionWithOutputOtherValue))
+            .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value(ioValue).operation(QueryFilter.Op.NOT_IN).build())
+            .build()
+    );
+
+    @Builder
+    private record FiltersTestCase(
+        List<Execution> executions,
+        List<Execution> expectedExecutions,
+        QueryFilter queryFilter
+    ) {
+
     }
 
 }
