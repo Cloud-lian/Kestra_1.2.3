@@ -66,4 +66,47 @@ public abstract class MysqlExecutionRepositoryService {
         return conditions.isEmpty() ? DSL.trueCondition() : DSL.and(conditions);
     }
 
+    public static Condition findOutputCondition(Either<Map<?, ?>, String> input, QueryFilter.Op operation) {
+        return findIoCondition(input, operation, "outputs");
+    }
+
+    public static Condition findInputCondition(Either<Map<?, ?>, String> input, QueryFilter.Op operation) {
+        return findIoCondition(input, operation, "inputs");
+    }
+
+    private static Condition findIoCondition(Either<Map<?, ?>, String> input, QueryFilter.Op operation, String fieldName) {
+        List<Condition> conditions = new ArrayList<>();
+        List<Condition> inConditions = new ArrayList<>();
+        if (input.isRight()) {
+            var query = input.getRight();
+            if (Objects.requireNonNull(operation) == QueryFilter.Op.CONTAINS) {
+                conditions.add(DSL.condition(
+                    "LOWER(CAST(JSON_EXTRACT(value, '$." + fieldName + "') AS CHAR)) LIKE LOWER(CONCAT('%', ?, '%'))",
+                    query
+                ));
+            } else {
+                throw new UnsupportedOperationException("Unsupported operation for query: " + operation);
+            }
+        } else {
+            var values = input.getLeft();
+            values.forEach((key, value) -> {
+                String sql = "JSON_CONTAINS(value, JSON_OBJECT('" + key + "', '" + value + "'), '$." + fieldName + "')";
+                switch(operation){
+                    case EQUALS ->
+                        conditions.add(DSL.condition(sql));
+                    case NOT_EQUALS, NOT_IN ->
+                        conditions.add(DSL.not(DSL.condition(sql)));
+                    case IN ->
+                        inConditions.add(DSL.condition(sql));
+                    default -> throw new UnsupportedOperationException("Unsupported operation: " + operation);
+                }
+            });
+        }
+
+        if(!inConditions.isEmpty()){
+            conditions.add(DSL.or(inConditions));
+        }
+        return conditions.isEmpty() ? DSL.trueCondition() : DSL.and(conditions);
+    }
+
 }

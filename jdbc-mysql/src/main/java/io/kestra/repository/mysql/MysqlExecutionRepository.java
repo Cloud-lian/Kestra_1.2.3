@@ -42,6 +42,16 @@ public class MysqlExecutionRepository extends AbstractJdbcExecutionRepository {
     }
 
     @Override
+    protected Condition findOutputCondition(Either<Map<?, ?>, String> input, QueryFilter.Op operation) {
+        return MysqlExecutionRepositoryService.findOutputCondition(input, operation);
+    }
+
+    @Override
+    protected Condition findInputCondition(Either<Map<?, ?>, String> input, QueryFilter.Op operation) {
+        return MysqlExecutionRepositoryService.findInputCondition(input, operation);
+    }
+
+    @Override
     protected Field<Integer> weekFromTimestamp(Field<Timestamp> timestampField) {
         return this.jdbcRepository.weekFromTimestamp(timestampField);
     }

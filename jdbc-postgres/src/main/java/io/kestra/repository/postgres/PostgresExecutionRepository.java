@@ -46,6 +46,16 @@ public class PostgresExecutionRepository extends AbstractJdbcExecutionRepository
     }
 
     @Override
+    protected Condition findOutputCondition(Either<Map<?, ?>, String> input, QueryFilter.Op operation) {
+        return PostgresExecutionRepositoryService.findOutputCondition(input, operation);
+    }
+
+    @Override
+    protected Condition findInputCondition(Either<Map<?, ?>, String> input, QueryFilter.Op operation) {
+        return PostgresExecutionRepositoryService.findInputCondition(input, operation);
+    }
+
+    @Override
     protected Field<Date> formatDateField(String dateField, DateUtils.GroupType groupType) {
         return PostgresRepositoryUtils.formatDateField(dateField, groupType);
     }

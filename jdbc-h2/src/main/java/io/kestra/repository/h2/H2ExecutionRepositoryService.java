@@ -66,4 +66,44 @@ public abstract class H2ExecutionRepositoryService {
         }
         return conditions.isEmpty() ? DSL.trueCondition() : DSL.and(conditions);
     }
+
+    public static Condition findOutputCondition(Either<Map<?, ?>, String> input, QueryFilter.Op operation) {
+        return findIoCondition(input, operation, "outputs");
+    }
+
+    public static Condition findInputCondition(Either<Map<?, ?>, String> input, QueryFilter.Op operation) {
+        return findIoCondition(input, operation, "inputs");
+    }
+
+    private static Condition findIoCondition(Either<Map<?, ?>, String> input, QueryFilter.Op operation, String fieldName) {
+        List<Condition> conditions = new ArrayList<>();
+        List<Condition> inConditions = new ArrayList<>();
+        if (input.isRight()) {
+            var query = input.right().get();
+            if (Objects.requireNonNull(operation) == QueryFilter.Op.CONTAINS) {
+                Field<String> keyField = DSL.field("JQ_STRING(\"value\", '." + fieldName + " | keys[]?')", String.class);
+                Field<String> valueField = DSL.field("JQ_STRING(\"value\", '." + fieldName + "[]?')", String.class);
+                conditions.add(keyField.contains(query).or(valueField.contains(query)));
+            } else {
+                throw new UnsupportedOperationException("Unsupported operation for query: " + operation);
+            }
+        } else {
+            var values = input.left().get();
+            values.forEach((key, value) -> {
+                Field<String> valueField = DSL.field("JQ_STRING(\"value\", '." + fieldName + "." + key + "')", String.class);
+                switch (operation) {
+                    case EQUALS -> conditions.add(value == null ? valueField.isNull() : valueField.eq((String) value));
+                    case NOT_EQUALS, NOT_IN ->
+                        conditions.add(value == null ? valueField.isNotNull() : valueField.isNull().or(valueField.ne((String) value)));
+                    case IN -> inConditions.add(value == null ? valueField.isNull() : valueField.eq((String) value));
+                    default -> throw new UnsupportedOperationException("Unsupported operation: " + operation);
+                }
+            });
+        }
+
+        if (!inConditions.isEmpty()) {
+            conditions.add(DSL.or(inConditions));
+        }
+        return conditions.isEmpty() ? DSL.trueCondition() : DSL.and(conditions);
+    }
 }

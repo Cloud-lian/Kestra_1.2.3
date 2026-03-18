@@ -327,6 +327,26 @@ public abstract class AbstractJdbcRepository {
             return applyScopeCondition(value, operation);
         }
 
+        if (field.equals(QueryFilter.Field.OUTPUT)) {
+            if (value instanceof Map<?, ?> map ){
+                return findOutputCondition(Either.left(map), operation);
+            } else if(value instanceof String string ) {
+                return findOutputCondition(Either.right(string), operation);
+            } else {
+                throw new InvalidQueryFiltersException("Output field value must be instance of Map or String");
+            }
+        }
+
+        if (field.equals(QueryFilter.Field.INPUT)) {
+            if (value instanceof Map<?, ?> map ){
+                return findInputCondition(Either.left(map), operation);
+            } else if(value instanceof String string ) {
+                return findInputCondition(Either.right(string), operation);
+            } else {
+                throw new InvalidQueryFiltersException("Input field value must be instance of Map or String");
+            }
+        }
+
         if (field.equals(QueryFilter.Field.LABELS)) {
             if (value instanceof Map<?, ?> map ){
                 return findLabelCondition(Either.left(map), operation);
@@ -401,6 +421,14 @@ public abstract class AbstractJdbcRepository {
 
     protected Condition findQueryCondition(String query) {
         throw new InvalidQueryFiltersException("Unsupported operation: ");
+    }
+
+    protected Condition findOutputCondition(Either<Map<?, ?>, String> value, QueryFilter.Op operation) {
+        throw new InvalidQueryFiltersException("Unsupported operation: " + operation);
+    }
+
+    protected Condition findInputCondition(Either<Map<?, ?>, String> value, QueryFilter.Op operation) {
+        throw new InvalidQueryFiltersException("Unsupported operation: " + operation);
     }
 
     public Condition findLabelCondition(Either<Map<?, ?>, String> value, QueryFilter.Op operation) {

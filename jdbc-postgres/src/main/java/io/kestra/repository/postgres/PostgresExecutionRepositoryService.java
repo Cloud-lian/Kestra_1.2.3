@@ -63,6 +63,44 @@ public abstract class PostgresExecutionRepositoryService {
         return conditions.isEmpty() ? DSL.trueCondition() : DSL.and(conditions);
     }
 
+    public static Condition findOutputCondition(Either<Map<?, ?>, String> input, QueryFilter.Op operation) {
+        return findIoCondition(input, operation, "outputs");
+    }
+
+    public static Condition findInputCondition(Either<Map<?, ?>, String> input, QueryFilter.Op operation) {
+        return findIoCondition(input, operation, "inputs");
+    }
+
+    private static Condition findIoCondition(Either<Map<?, ?>, String> input, QueryFilter.Op operation, String fieldName) {
+        List<Condition> conditions = new ArrayList<>();
+        List<Condition> inConditions = new ArrayList<>();
+        if (input.isRight()) {
+            var query = input.right().get();
+            if (Objects.requireNonNull(operation) == QueryFilter.Op.CONTAINS) {
+                String sql = "CAST(value -> '" + fieldName + "' AS TEXT) ILIKE '%' || ? || '%'";
+                conditions.add(DSL.condition(sql, query));
+            } else {
+                throw new UnsupportedOperationException("Unsupported operation for query: " + operation);
+            }
+        } else {
+            var values = input.getLeft();
+            values.forEach((key, value) -> {
+                String sql = "value -> '" + fieldName + "' @> '{\"" + key + "\":\"" + value + "\"}'";
+                switch (operation) {
+                    case EQUALS -> conditions.add(DSL.condition(sql));
+                    case NOT_EQUALS, NOT_IN -> conditions.add(DSL.not(DSL.condition(sql)));
+                    case IN -> inConditions.add(DSL.condition(sql));
+                    default -> throw new UnsupportedOperationException("Unsupported operation: " + operation);
+                }
+            });
+        }
+
+        if (!inConditions.isEmpty()) {
+            conditions.add(DSL.or(inConditions));
+        }
+        return conditions.isEmpty() ? DSL.trueCondition() : DSL.and(conditions);
+    }
+
     public static Condition statesFilter(List<State.Type> state) {
         return DSL.or(state
             .stream()

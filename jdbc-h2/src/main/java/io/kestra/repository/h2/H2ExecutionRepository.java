@@ -39,6 +39,16 @@ public class H2ExecutionRepository extends AbstractJdbcExecutionRepository {
     }
 
     @Override
+    protected Condition findOutputCondition(Either<Map<?, ?>, String> input, QueryFilter.Op operation) {
+        return H2ExecutionRepositoryService.findOutputCondition(input, operation);
+    }
+
+    @Override
+    protected Condition findInputCondition(Either<Map<?, ?>, String> input, QueryFilter.Op operation) {
+        return H2ExecutionRepositoryService.findInputCondition(input, operation);
+    }
+
+    @Override
     protected Field<Date> formatDateField(String dateField, DateUtils.GroupType groupType) {
         return H2RepositoryUtils.formatDateField(dateField, groupType);    }
 }
