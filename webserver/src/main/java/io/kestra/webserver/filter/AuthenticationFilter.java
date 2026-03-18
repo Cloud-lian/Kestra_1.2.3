@@ -59,7 +59,11 @@ public class AuthenticationFilter implements HttpServerFilter {
                     .map(stream -> stream.anyMatch(s -> request.getPath().startsWith(s)))
                     .orElse(false);
 
-                if (isConfigEndpoint || isOpenUrl || isManagementEndpoint(request)) {
+                // MCP endpoints are accessible without basic auth — MCP clients
+                // handle authentication at the protocol level, not via browser basic auth.
+                boolean isMcpEndpoint = request.getPath().matches(".*/mcp(/.*)?");
+
+                if (isConfigEndpoint || isOpenUrl || isMcpEndpoint || isManagementEndpoint(request)) {
                     return chain.proceed(request);
                 }
 

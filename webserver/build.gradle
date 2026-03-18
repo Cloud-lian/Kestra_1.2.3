@@ -32,6 +32,10 @@ dependencies {
 
     implementation("de.siegmar:fastcsv")
 
+    // mcp
+    implementation("io.modelcontextprotocol.sdk:mcp-core:1.1.0")
+    implementation("io.modelcontextprotocol.sdk:mcp-json-jackson2:1.1.0")
+
     // test
     testAnnotationProcessor project(':processor')
     testImplementation project(':core').sourceSets.test.output

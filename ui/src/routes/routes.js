@@ -43,6 +43,14 @@ export default [
     {name: "dashboards/create", path: "/:tenant?/dashboards/new", component: () => import("../components/dashboard/components/Create.vue")},
     {name: "dashboards/update", path: "/:tenant?/dashboards/:dashboard/edit", component: () => import("override/components/dashboard/Edit.vue")},
 
+    //AI - Tools
+    {name: "tools/list", path: "/:tenant?/ai/tools", component: () => import("../components/tools/Tools.vue")},
+    {name: "tools/create", path: "/:tenant?/ai/tools/new", component: () => import("../components/tools/ToolCreate.vue")},
+    {name: "tools/update", path: "/:tenant?/ai/tools/:id/edit", component: () => import("../components/tools/ToolEdit.vue")},
+
+    //AI - MCP
+    {name: "mcp/settings", path: "/:tenant?/ai/mcp", component: () => import("../components/tools/McpSettings.vue")},
+
     //Flows
     {
         name: "flows/list",

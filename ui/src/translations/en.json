@@ -1145,6 +1145,66 @@
       "inherited": "Inherited secrets"
     },
     "workerId": "Worker Id",
+    "tools": {
+      "name": "Tools",
+      "create": "Create Tool",
+      "edit": "Edit Tool",
+      "fields": {
+        "name": "Name",
+        "namePlaceholder": "e.g. get_weather",
+        "nameHelp": "Unique identifier used in MCP tool calls. Only letters, digits, underscores, and hyphens.",
+        "title": "Title",
+        "titlePlaceholder": "Optional human-readable display name",
+        "flowId": "Flow",
+        "tags": "Tags",
+        "enabled": "Enabled",
+        "created": "Created"
+      },
+      "steps": {
+        "identity": "Identity",
+        "linkFlow": "Link Flow",
+        "annotations": "Annotations",
+        "next": "Next",
+        "previous": "Previous"
+      },
+      "selectNamespaceFirst": "Select a namespace first",
+      "validation": {
+        "idRequired": "ID is required",
+        "nameRequired": "Name is required",
+        "namePattern": "Name must start with a letter or digit and contain only letters, digits, underscores, or hyphens",
+        "namespaceRequired": "Namespace is required",
+        "flowIdRequired": "Flow ID is required"
+      },
+      "annotations": {
+        "title": "Annotations",
+        "description": "Annotations provide hints to AI clients about how this tool behaves. All properties are advisory — clients may not enforce them.",
+        "readOnlyHint": "Read-only",
+        "readOnlyHintHelp": "This tool does not modify its environment.",
+        "destructiveHint": "Destructive",
+        "destructiveHintHelp": "This tool may perform destructive updates. Only meaningful when not read-only.",
+        "idempotentHint": "Idempotent",
+        "idempotentHintHelp": "Calling this tool repeatedly with the same arguments has no additional effect. Only meaningful when not read-only.",
+        "openWorldHint": "Open world",
+        "openWorldHintHelp": "This tool may interact with external entities beyond its closed domain.",
+        "readOnlyDisabledNote": "Destructive and idempotent hints are disabled because this tool is marked as read-only."
+      },
+      "mcp": {
+        "title": "MCP Server",
+        "description": "Expose tools via the Model Context Protocol so AI agents can discover and invoke them.",
+        "configHeading": "Server Configuration",
+        "statusEnabled": "Enabled",
+        "statusDisabled": "Disabled",
+        "enable": "Enable",
+        "disable": "Disable",
+        "enabledMessage": "MCP Server enabled",
+        "disabledMessage": "MCP Server disabled",
+        "serverName": "Server Name",
+        "serverNamePlaceholder": "e.g. kestra-mcp",
+        "instructions": "Instructions",
+        "instructionsPlaceholder": "Tell AI agents how to use this server's tools, what conventions to follow, or what context they need.",
+        "savedMessage": "MCP Server settings saved"
+      }
+    },
     "kv": {
       "name": "KV Store",
       "type": "Type",
@@ -1677,6 +1737,7 @@
       }
     },
     "ai": {
+      "name": "AI",
       "flow": {
         "title": "AI Copilot",
         "prompt_placeholder": "Enter instructions to create your Kestra flow. Example prompt: Create a flow that runs every Monday at 9 AM.",

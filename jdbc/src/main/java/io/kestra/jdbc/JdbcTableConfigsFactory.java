@@ -8,6 +8,8 @@ import io.kestra.core.models.executions.LogEntry;
 import io.kestra.core.models.executions.MetricEntry;
 import io.kestra.core.models.executions.TaskOutput;
 import io.kestra.core.models.flows.FlowInterface;
+import io.kestra.core.ai.tool.models.McpServer;
+import io.kestra.core.ai.tool.models.Tool;
 import io.kestra.core.models.flows.sla.SLAMonitor;
 import io.kestra.core.models.kv.PersistedKvMetadata;
 import io.kestra.core.models.namespaces.files.NamespaceFileMetadata;
@@ -144,6 +146,18 @@ public class JdbcTableConfigsFactory {
     @Named("taskoutputs")
     public InstantiableJdbcTableConfig outputs() {
         return new InstantiableJdbcTableConfig("taskoutputs", TaskOutput.class, "task_outputs");
+    }
+
+    @Bean
+    @Named("tools")
+    public InstantiableJdbcTableConfig tools() {
+        return new InstantiableJdbcTableConfig("tools", Tool.class, "tools");
+    }
+
+    @Bean
+    @Named("mcp_servers")
+    public InstantiableJdbcTableConfig mcpServers() {
+        return new InstantiableJdbcTableConfig("mcp_servers", McpServer.class, "mcp_servers");
     }
 
     public static class InstantiableJdbcTableConfig extends JdbcTableConfig {

@@ -30,6 +30,11 @@ import RocketLaunchOutline from "vue-material-design-icons/RocketLaunchOutline.v
 
 // Blueprints icons
 import Wrench from "vue-material-design-icons/Wrench.vue";
+import Hammer from "vue-material-design-icons/Hammer.vue";
+
+// AI icons
+import RobotOutline from "vue-material-design-icons/RobotOutline.vue";
+import LanConnect from "vue-material-design-icons/LanConnect.vue";
 
 // Tenant Administration icons
 import Monitor from "vue-material-design-icons/Monitor.vue";
@@ -139,6 +144,40 @@ export function useLeftMenu() {
                 icon: {
                     element: FileTreeOutline,
                 },
+            },
+            {
+                title: t("ai.name"),
+                routes: [
+                    "tools",
+                    "mcp",
+                ]
+                    .map(routeStartWith)
+                    .find((routes) => routes.length > 0),
+                icon: {
+                    element: RobotOutline,
+                },
+                child: [
+                    {
+                        title: t("tools.name"),
+                        routes: routeStartWith("tools"),
+                        href: {
+                            name: "tools/list",
+                        },
+                        icon: {
+                            element: Hammer,
+                        },
+                    },
+                    {
+                        title: t("tools.mcp.title"),
+                        routes: routeStartWith("mcp"),
+                        href: {
+                            name: "mcp/settings",
+                        },
+                        icon: {
+                            element: LanConnect,
+                        },
+                    },
+                ],
             },
             {
                 title: t("apps"),
