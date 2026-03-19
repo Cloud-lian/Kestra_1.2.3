@@ -1305,130 +1305,210 @@ inject(tenant);
     private static final Map<String, Object> ioValue = Map.of("key", "value");
     private static final Map<String, Object> ioOtherValue = Map.of("key", "other");
     private static final Map<String, Object> ioDifferentKeyValue = Map.of("differentKey", "value");
+    private static final Map<String, Object> ioArrayValue = Map.of("tags", List.of("java", "backend"));
+    private static final Map<String, Object> ioArrayOtherValue = Map.of("tags", List.of("python", "data"));
 
-    private static final Execution executionWithInputValue = Execution.builder()
+
+    private static final Execution executionWithValue = Execution.builder()
         .id(IdUtils.create())
         .inputs(ioValue)
-        .build();
-
-    private static final Execution executionWithInputOtherValue = Execution.builder()
-        .id(IdUtils.create())
-        .inputs(ioOtherValue)
-        .build();
-
-    private static final Execution executionWithInputDifferentKey = Execution.builder()
-        .id(IdUtils.create())
-        .inputs(ioDifferentKeyValue)
-        .build();
-
-    private static final Execution executionWithOutputValue = Execution.builder()
-        .id(IdUtils.create())
         .outputs(ioValue)
         .build();
 
-    private static final Execution executionWithOutputOtherValue = Execution.builder()
+    private static final Execution executionWithOtherValue = Execution.builder()
         .id(IdUtils.create())
+        .inputs(ioOtherValue)
         .outputs(ioOtherValue)
         .build();
 
-    private static final Execution executionWithOutputDifferentKey = Execution.builder()
+    private static final Execution executionWithDifferentKey = Execution.builder()
         .id(IdUtils.create())
+        .inputs(ioDifferentKeyValue)
         .outputs(ioDifferentKeyValue)
         .build();
 
-    private static final List<Execution> allInputExecutions = List.of(
-        executionWithInputValue,
-        executionWithInputOtherValue
-    );
+    private static final Execution executionWithArrayValue = Execution.builder()
+        .id(IdUtils.create())
+        .inputs(ioArrayValue)
+        .outputs(ioArrayValue)
+        .build();
 
-    private static final List<Execution> allOutputExecutions = List.of(
-        executionWithOutputValue,
-        executionWithOutputOtherValue
+    private static final Execution executionWithArrayOtherValue = Execution.builder()
+        .id(IdUtils.create())
+        .inputs(ioArrayOtherValue)
+        .outputs(ioArrayOtherValue)
+        .build();
+
+    private static final List<Execution> allBaseExecutions = List.of(
+        executionWithValue,
+        executionWithOtherValue
     );
 
     private static final List<FiltersTestCase> filtersTestCases = List.of(
+        // --- Scalar input filters ---
         FiltersTestCase.builder()
-            .executions(allInputExecutions)
-            .expectedExecutions(List.of(executionWithInputValue))
+            .executions(allBaseExecutions)
+            .expectedExecutions(List.of(executionWithValue))
             .queryFilter(QueryFilter.builder().field(Field.INPUT).value(ioValue).operation(QueryFilter.Op.EQUALS).build())
             .build(),
         FiltersTestCase.builder()
-            .executions(allInputExecutions)
-            .expectedExecutions(List.of(executionWithInputOtherValue))
+            .executions(allBaseExecutions)
+            .expectedExecutions(List.of(executionWithOtherValue))
             .queryFilter(QueryFilter.builder().field(Field.INPUT).value(ioValue).operation(QueryFilter.Op.NOT_EQUALS).build())
             .build(),
         FiltersTestCase.builder()
-            .executions(allInputExecutions)
-            .expectedExecutions(List.of(executionWithInputValue))
+            .executions(allBaseExecutions)
+            .expectedExecutions(List.of(executionWithValue))
             .queryFilter(QueryFilter.builder().field(Field.INPUT).value("value").operation(QueryFilter.Op.CONTAINS).build())
             .build(),
         FiltersTestCase.builder()
-            .executions(allInputExecutions)
-            .expectedExecutions(allInputExecutions)
+            .executions(allBaseExecutions)
+            .expectedExecutions(allBaseExecutions)
             .queryFilter(QueryFilter.builder().field(Field.INPUT).value("key").operation(QueryFilter.Op.CONTAINS).build())
             .build(),
         FiltersTestCase.builder()
-            .executions(allInputExecutions)
-            .expectedExecutions(List.of(executionWithInputValue))
+            .executions(allBaseExecutions)
+            .expectedExecutions(List.of(executionWithValue))
             .queryFilter(QueryFilter.builder().field(Field.INPUT).value(ioValue).operation(QueryFilter.Op.IN).build())
             .build(),
         FiltersTestCase.builder()
-            .executions(allInputExecutions)
-            .expectedExecutions(List.of(executionWithInputOtherValue))
+            .executions(allBaseExecutions)
+            .expectedExecutions(List.of(executionWithOtherValue))
             .queryFilter(QueryFilter.builder().field(Field.INPUT).value(ioValue).operation(QueryFilter.Op.NOT_IN).build())
             .build(),
 
         FiltersTestCase.builder()
-            .executions(allOutputExecutions)
-            .expectedExecutions(List.of(executionWithOutputValue))
+            .executions(allBaseExecutions)
+            .expectedExecutions(List.of(executionWithValue))
             .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value(ioValue).operation(QueryFilter.Op.EQUALS).build())
             .build(),
         FiltersTestCase.builder()
-            .executions(allOutputExecutions)
-            .expectedExecutions(List.of(executionWithOutputOtherValue))
+            .executions(allBaseExecutions)
+            .expectedExecutions(List.of(executionWithOtherValue))
             .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value(ioValue).operation(QueryFilter.Op.NOT_EQUALS).build())
             .build(),
         FiltersTestCase.builder()
-            .executions(allOutputExecutions)
-            .expectedExecutions(List.of(executionWithOutputValue))
+            .executions(allBaseExecutions)
+            .expectedExecutions(List.of(executionWithValue))
             .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value("value").operation(QueryFilter.Op.CONTAINS).build())
             .build(),
         FiltersTestCase.builder()
-            .executions(allOutputExecutions)
-            .expectedExecutions(allOutputExecutions)
+            .executions(allBaseExecutions)
+            .expectedExecutions(allBaseExecutions)
             .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value("key").operation(QueryFilter.Op.CONTAINS).build())
             .build(),
         FiltersTestCase.builder()
-            .executions(allOutputExecutions)
-            .expectedExecutions(List.of(executionWithOutputValue))
+            .executions(allBaseExecutions)
+            .expectedExecutions(List.of(executionWithValue))
             .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value(ioValue).operation(QueryFilter.Op.IN).build())
             .build(),
         FiltersTestCase.builder()
-            .executions(allOutputExecutions)
-            .expectedExecutions(List.of(executionWithOutputOtherValue))
+            .executions(allBaseExecutions)
+            .expectedExecutions(List.of(executionWithOtherValue))
             .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value(ioValue).operation(QueryFilter.Op.NOT_IN).build())
             .build(),
 
         FiltersTestCase.builder()
-            .executions(List.of(executionWithInputValue, executionWithInputDifferentKey))
-            .expectedExecutions(List.of(executionWithInputValue))
+            .executions(List.of(executionWithValue, executionWithDifferentKey))
+            .expectedExecutions(List.of(executionWithValue))
             .queryFilter(QueryFilter.builder().field(Field.INPUT).value("key").operation(QueryFilter.Op.KEY_EQUALS).build())
             .build(),
         FiltersTestCase.builder()
-            .executions(List.of(executionWithInputValue, executionWithInputDifferentKey))
-            .expectedExecutions(List.of(executionWithInputDifferentKey))
+            .executions(List.of(executionWithValue, executionWithDifferentKey))
+            .expectedExecutions(List.of(executionWithDifferentKey))
             .queryFilter(QueryFilter.builder().field(Field.INPUT).value("key").operation(QueryFilter.Op.KEY_NOT_EQUALS).build())
             .build(),
-
         FiltersTestCase.builder()
-            .executions(List.of(executionWithOutputValue, executionWithOutputDifferentKey))
-            .expectedExecutions(List.of(executionWithOutputValue))
+            .executions(List.of(executionWithValue, executionWithDifferentKey))
+            .expectedExecutions(List.of(executionWithValue))
             .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value("key").operation(QueryFilter.Op.KEY_EQUALS).build())
             .build(),
         FiltersTestCase.builder()
-            .executions(List.of(executionWithOutputValue, executionWithOutputDifferentKey))
-            .expectedExecutions(List.of(executionWithOutputDifferentKey))
+            .executions(List.of(executionWithValue, executionWithDifferentKey))
+            .expectedExecutions(List.of(executionWithDifferentKey))
             .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value("key").operation(QueryFilter.Op.KEY_NOT_EQUALS).build())
+            .build(),
+
+        FiltersTestCase.builder()
+            .executions(List.of(executionWithArrayValue, executionWithDifferentKey))
+            .expectedExecutions(List.of(executionWithArrayValue))
+            .queryFilter(QueryFilter.builder().field(Field.INPUT).value("tags").operation(Op.KEY_EQUALS).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(List.of(executionWithArrayValue, executionWithDifferentKey))
+            .expectedExecutions(List.of(executionWithDifferentKey))
+            .queryFilter(QueryFilter.builder().field(Field.INPUT).value("tags").operation(Op.KEY_NOT_EQUALS).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(List.of(executionWithArrayValue, executionWithDifferentKey))
+            .expectedExecutions(List.of(executionWithArrayValue))
+            .queryFilter(QueryFilter.builder().field(Field.INPUT).value("java").operation(Op.CONTAINS).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(List.of(executionWithArrayValue, executionWithDifferentKey))
+            .expectedExecutions(List.of(executionWithArrayValue))
+            .queryFilter(QueryFilter.builder().field(Field.INPUT).value("tags").operation(Op.CONTAINS).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(List.of(executionWithArrayValue, executionWithArrayOtherValue))
+            .expectedExecutions(List.of(executionWithArrayValue))
+            .queryFilter(QueryFilter.builder().field(Field.INPUT).value(ioArrayValue).operation(Op.EQUALS).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(List.of(executionWithArrayValue, executionWithArrayOtherValue))
+            .expectedExecutions(List.of(executionWithArrayOtherValue))
+            .queryFilter(QueryFilter.builder().field(Field.INPUT).value(ioArrayValue).operation(Op.NOT_EQUALS).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(List.of(executionWithArrayValue, executionWithArrayOtherValue))
+            .expectedExecutions(List.of(executionWithArrayValue))
+            .queryFilter(QueryFilter.builder().field(Field.INPUT).value(ioArrayValue).operation(Op.IN).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(List.of(executionWithArrayValue, executionWithArrayOtherValue))
+            .expectedExecutions(List.of(executionWithArrayOtherValue))
+            .queryFilter(QueryFilter.builder().field(Field.INPUT).value(ioArrayValue).operation(Op.NOT_IN).build())
+            .build(),
+
+        FiltersTestCase.builder()
+            .executions(List.of(executionWithArrayValue, executionWithDifferentKey))
+            .expectedExecutions(List.of(executionWithArrayValue))
+            .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value("tags").operation(Op.KEY_EQUALS).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(List.of(executionWithArrayValue, executionWithDifferentKey))
+            .expectedExecutions(List.of(executionWithDifferentKey))
+            .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value("tags").operation(Op.KEY_NOT_EQUALS).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(List.of(executionWithArrayValue, executionWithDifferentKey))
+            .expectedExecutions(List.of(executionWithArrayValue))
+            .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value("java").operation(Op.CONTAINS).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(List.of(executionWithArrayValue, executionWithDifferentKey))
+            .expectedExecutions(List.of(executionWithArrayValue))
+            .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value("tags").operation(Op.CONTAINS).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(List.of(executionWithArrayValue, executionWithArrayOtherValue))
+            .expectedExecutions(List.of(executionWithArrayValue))
+            .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value(ioArrayValue).operation(Op.EQUALS).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(List.of(executionWithArrayValue, executionWithArrayOtherValue))
+            .expectedExecutions(List.of(executionWithArrayOtherValue))
+            .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value(ioArrayValue).operation(Op.NOT_EQUALS).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(List.of(executionWithArrayValue, executionWithArrayOtherValue))
+            .expectedExecutions(List.of(executionWithArrayValue))
+            .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value(ioArrayValue).operation(Op.IN).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(List.of(executionWithArrayValue, executionWithArrayOtherValue))
+            .expectedExecutions(List.of(executionWithArrayOtherValue))
+            .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value(ioArrayValue).operation(Op.NOT_IN).build())
             .build()
     );
 

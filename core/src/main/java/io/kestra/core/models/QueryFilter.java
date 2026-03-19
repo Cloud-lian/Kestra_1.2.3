@@ -47,9 +47,7 @@ public record QueryFilter(
         CONTAINS,
         REGEX,
         PREFIX,
-        /** Checks whether a key exists in a JSON map field (e.g. inputs, outputs). Value must be a String key name. */
         KEY_EQUALS,
-        /** Checks whether a key does not exist in a JSON map field (e.g. inputs, outputs). Value must be a String key name. */
         KEY_NOT_EQUALS
     }
 

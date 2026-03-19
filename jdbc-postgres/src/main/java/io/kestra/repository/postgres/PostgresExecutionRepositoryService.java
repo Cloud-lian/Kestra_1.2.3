@@ -10,6 +10,7 @@ import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class PostgresExecutionRepositoryService {
     public static Condition findCondition(AbstractJdbcRepository<Execution> jdbcRepository, String query, Map<String, String> labels) {
@@ -92,12 +93,26 @@ public abstract class PostgresExecutionRepositoryService {
         } else {
             var values = input.getLeft();
             values.forEach((key, value) -> {
-                String sql = "value -> '" + fieldName + "' @> '{\"" + key + "\":\"" + value + "\"}'";
-                switch (operation) {
-                    case EQUALS -> conditions.add(DSL.condition(sql));
-                    case NOT_EQUALS, NOT_IN -> conditions.add(DSL.not(DSL.condition(sql)));
-                    case IN -> inConditions.add(DSL.condition(sql));
-                    default -> throw new UnsupportedOperationException("Unsupported operation: " + operation);
+                if (value instanceof List<?> list) {
+                    String jsonArray = toJsonArray(list);
+
+                    String containsSql = "value -> '" + fieldName + "' @> '{\"" + key + "\":" + jsonArray + "}'";
+                    String lengthSql = "jsonb_array_length(value -> '" + fieldName + "' -> '" + key + "') = " + list.size();
+                    Condition equalsCond = DSL.condition(containsSql + " AND " + lengthSql);
+                    switch (operation) {
+                        case EQUALS -> conditions.add(equalsCond);
+                        case NOT_EQUALS, NOT_IN -> conditions.add(DSL.not(equalsCond));
+                        case IN -> inConditions.add(equalsCond);
+                        default -> throw new UnsupportedOperationException("Unsupported operation: " + operation);
+                    }
+                } else {
+                    String sql = "value -> '" + fieldName + "' @> '{\"" + key + "\":\"" + value + "\"}'";
+                    switch (operation) {
+                        case EQUALS -> conditions.add(DSL.condition(sql));
+                        case NOT_EQUALS, NOT_IN -> conditions.add(DSL.not(DSL.condition(sql)));
+                        case IN -> inConditions.add(DSL.condition(sql));
+                        default -> throw new UnsupportedOperationException("Unsupported operation: " + operation);
+                    }
                 }
             });
         }
@@ -106,6 +121,13 @@ public abstract class PostgresExecutionRepositoryService {
             conditions.add(DSL.or(inConditions));
         }
         return conditions.isEmpty() ? DSL.trueCondition() : DSL.and(conditions);
+    }
+
+    private static String toJsonArray(List<?> list) {
+        String elements = list.stream()
+            .map(e -> "\"" + e.toString().replace("\\", "\\\\").replace("\"", "\\\"") + "\"")
+            .collect(Collectors.joining(","));
+        return "[" + elements + "]";
     }
 
     public static Condition statesFilter(List<State.Type> state) {

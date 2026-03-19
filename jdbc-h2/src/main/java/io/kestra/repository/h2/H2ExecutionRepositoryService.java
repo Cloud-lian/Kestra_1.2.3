@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public abstract class H2ExecutionRepositoryService {
     public static Condition findCondition(AbstractJdbcRepository<Execution> jdbcRepository, String query, Map<String, String> labels) {
@@ -83,8 +84,10 @@ public abstract class H2ExecutionRepositoryService {
             switch (Objects.requireNonNull(operation)) {
                 case CONTAINS -> {
                     Field<String> keyField = DSL.field("JQ_STRING(\"value\", '." + fieldName + " | keys[]?')", String.class);
-                    Field<String> valueField = DSL.field("JQ_STRING(\"value\", '." + fieldName + "[]?')", String.class);
-                    conditions.add(keyField.contains(query).or(valueField.contains(query)));
+                    // tojson serialises the whole field (including nested arrays) to a JSON string,
+                    // so substring search finds values inside arrays as well as scalars.
+                    Field<String> rawField = DSL.field("JQ_STRING(\"value\", '." + fieldName + " | tojson')", String.class);
+                    conditions.add(keyField.contains(query).or(rawField.contains(query)));
                 }
                 case KEY_EQUALS -> {
                     Field<String> hasKeyField = DSL.field("JQ_STRING(\"value\", '." + fieldName + " | has(\"" + query + "\")')", String.class);
@@ -99,13 +102,29 @@ public abstract class H2ExecutionRepositoryService {
         } else {
             var values = input.left().get();
             values.forEach((key, value) -> {
-                Field<String> valueField = DSL.field("JQ_STRING(\"value\", '." + fieldName + "." + key + "')", String.class);
-                switch (operation) {
-                    case EQUALS -> conditions.add(value == null ? valueField.isNull() : valueField.eq((String) value));
-                    case NOT_EQUALS, NOT_IN ->
-                        conditions.add(value == null ? valueField.isNotNull() : valueField.isNull().or(valueField.ne((String) value)));
-                    case IN -> inConditions.add(value == null ? valueField.isNull() : valueField.eq((String) value));
-                    default -> throw new UnsupportedOperationException("Unsupported operation: " + operation);
+                if (value instanceof List<?> list) {
+                    String jsonArray = toJsonArray(list);
+                    // JQ contains() is order-independent; length check ensures exact equality.
+                    Field<String> containsField = DSL.field(
+                        "JQ_STRING(\"value\", '." + fieldName + "." + key + " | (contains(" + jsonArray + ") and length == " + list.size() + ") | tostring')",
+                        String.class
+                    );
+                    Condition equalsCond = containsField.eq("true");
+                    switch (operation) {
+                        case EQUALS -> conditions.add(equalsCond);
+                        case NOT_EQUALS, NOT_IN -> conditions.add(DSL.not(equalsCond));
+                        case IN -> inConditions.add(equalsCond);
+                        default -> throw new UnsupportedOperationException("Unsupported operation: " + operation);
+                    }
+                } else {
+                    Field<String> valueField = DSL.field("JQ_STRING(\"value\", '." + fieldName + "." + key + "')", String.class);
+                    switch (operation) {
+                        case EQUALS -> conditions.add(value == null ? valueField.isNull() : valueField.eq((String) value));
+                        case NOT_EQUALS, NOT_IN ->
+                            conditions.add(value == null ? valueField.isNotNull() : valueField.isNull().or(valueField.ne((String) value)));
+                        case IN -> inConditions.add(value == null ? valueField.isNull() : valueField.eq((String) value));
+                        default -> throw new UnsupportedOperationException("Unsupported operation: " + operation);
+                    }
                 }
             });
         }
@@ -114,5 +133,12 @@ public abstract class H2ExecutionRepositoryService {
             conditions.add(DSL.or(inConditions));
         }
         return conditions.isEmpty() ? DSL.trueCondition() : DSL.and(conditions);
+    }
+
+    private static String toJsonArray(List<?> list) {
+        String elements = list.stream()
+            .map(e -> "\"" + e.toString().replace("\\", "\\\\").replace("\"", "\\\"") + "\"")
+            .collect(Collectors.joining(","));
+        return "[" + elements + "]";
     }
 }

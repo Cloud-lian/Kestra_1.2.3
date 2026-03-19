@@ -9,6 +9,7 @@ import org.jooq.Field;
 import org.jooq.impl.DSL;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.kestra.core.models.QueryFilter.Op.EQUALS;
 
@@ -81,8 +82,9 @@ public abstract class MysqlExecutionRepositoryService {
             var query = input.getRight();
             switch (Objects.requireNonNull(operation)) {
                 case CONTAINS -> conditions.add(
+
                     DSL.condition(
-                        "JSON_SEARCH(value, 'one', CONCAT('%', ?, '%'), NULL, '$." + fieldName + ".*') IS NOT NULL",
+                        "LOWER(CAST(JSON_EXTRACT(value, '$." + fieldName + "') AS CHAR)) LIKE LOWER(CONCAT('%', ?, '%'))",
                         query
                     ).or(DSL.condition(
                         "JSON_SEARCH(JSON_KEYS(value, '$." + fieldName + "'), 'one', CONCAT('%', ?, '%')) IS NOT NULL",
@@ -100,15 +102,29 @@ public abstract class MysqlExecutionRepositoryService {
         } else {
             var values = input.getLeft();
             values.forEach((key, value) -> {
-                String sql = "JSON_CONTAINS(value, JSON_OBJECT('" + key + "', '" + value + "'), '$." + fieldName + "')";
-                switch(operation){
-                    case EQUALS ->
-                        conditions.add(DSL.condition(sql));
-                    case NOT_EQUALS, NOT_IN ->
-                        conditions.add(DSL.not(DSL.condition(sql)));
-                    case IN ->
-                        inConditions.add(DSL.condition(sql));
-                    default -> throw new UnsupportedOperationException("Unsupported operation: " + operation);
+                if (value instanceof List<?> list) {
+                    String jsonArray = toJsonArray(list);
+
+                    String containsSql = "JSON_CONTAINS(JSON_EXTRACT(value, '$." + fieldName + "." + key + "'), '" + jsonArray + "')";
+                    String lengthSql = "JSON_LENGTH(JSON_EXTRACT(value, '$." + fieldName + "." + key + "')) = " + list.size();
+                    Condition equalsCond = DSL.condition(containsSql + " AND " + lengthSql);
+                    switch (operation) {
+                        case EQUALS -> conditions.add(equalsCond);
+                        case NOT_EQUALS, NOT_IN -> conditions.add(DSL.not(equalsCond));
+                        case IN -> inConditions.add(equalsCond);
+                        default -> throw new UnsupportedOperationException("Unsupported operation: " + operation);
+                    }
+                } else {
+                    String sql = "JSON_CONTAINS(value, JSON_OBJECT('" + key + "', '" + value + "'), '$." + fieldName + "')";
+                    switch(operation){
+                        case EQUALS ->
+                            conditions.add(DSL.condition(sql));
+                        case NOT_EQUALS, NOT_IN ->
+                            conditions.add(DSL.not(DSL.condition(sql)));
+                        case IN ->
+                            inConditions.add(DSL.condition(sql));
+                        default -> throw new UnsupportedOperationException("Unsupported operation: " + operation);
+                    }
                 }
             });
         }
@@ -117,6 +133,13 @@ public abstract class MysqlExecutionRepositoryService {
             conditions.add(DSL.or(inConditions));
         }
         return conditions.isEmpty() ? DSL.trueCondition() : DSL.and(conditions);
+    }
+
+    private static String toJsonArray(List<?> list) {
+        String elements = list.stream()
+            .map(e -> "\"" + e.toString().replace("\\", "\\\\").replace("\"", "\\\"") + "\"")
+            .collect(Collectors.joining(","));
+        return "[" + elements + "]";
     }
 
 }
