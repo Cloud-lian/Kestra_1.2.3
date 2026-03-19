@@ -5,16 +5,15 @@ import java.util.regex.Matcher;
 
 public class WindowsUtils {
 
-    public static String windowsToUnixPath(String path, boolean startWithSlash) {
-        Matcher matcher = java.util.regex.Pattern.compile("([A-Za-z]:)").matcher(path);
-        String unixPath = matcher.replaceAll(m -> m.group(1).toLowerCase().replace(":", ""));
-        unixPath = unixPath.replace("\\", "/");
-        if (!unixPath.startsWith("/") && startWithSlash) {
-            unixPath = "/" + unixPath;
-        }
-        return unixPath;
+ public static String windowsToUnixPath(String path, boolean startWithSlash) {
+    Matcher matcher = java.util.regex.Pattern.compile("^([A-Za-z]:)").matcher(path);
+    String unixPath = matcher.replaceAll(m -> m.group(1).toLowerCase().replace(":", ""));
+    unixPath = unixPath.replace("\\", "/");
+    if (!unixPath.startsWith("/") && startWithSlash) {
+        unixPath = "/" + unixPath;
     }
-
+    return unixPath;
+}
     public static String windowsToUnixPath(String path) {
         return windowsToUnixPath(path, true);
     }

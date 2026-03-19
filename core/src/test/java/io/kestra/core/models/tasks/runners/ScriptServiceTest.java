@@ -141,7 +141,11 @@ class ScriptServiceTest {
 
                 Matcher matcher = COMMAND_PATTERN_CAPTURE_LOCAL_PATH.matcher(command);
                 assertThat(matcher.matches()).isTrue();
-                File localFile = Path.of(matcher.group(1)).toFile();
+                String captured = matcher.group(1);
+                if (!captured.isEmpty() && "([{".indexOf(captured.charAt(0)) >= 0) {
+                    captured = captured.substring(1);
+                }
+                File localFile = Path.of(captured).toFile();
                 assertThat(localFile.exists()).isTrue();
                 //noinspection ResultOfMethodCallIgnored
                 localFile.delete();
