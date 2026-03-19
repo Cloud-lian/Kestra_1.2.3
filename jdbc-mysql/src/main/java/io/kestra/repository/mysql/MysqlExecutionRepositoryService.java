@@ -79,13 +79,23 @@ public abstract class MysqlExecutionRepositoryService {
         List<Condition> inConditions = new ArrayList<>();
         if (input.isRight()) {
             var query = input.getRight();
-            if (Objects.requireNonNull(operation) == QueryFilter.Op.CONTAINS) {
-                conditions.add(DSL.condition(
-                    "LOWER(CAST(JSON_EXTRACT(value, '$." + fieldName + "') AS CHAR)) LIKE LOWER(CONCAT('%', ?, '%'))",
-                    query
+            switch (Objects.requireNonNull(operation)) {
+                case CONTAINS -> conditions.add(
+                    DSL.condition(
+                        "JSON_SEARCH(value, 'one', CONCAT('%', ?, '%'), NULL, '$." + fieldName + ".*') IS NOT NULL",
+                        query
+                    ).or(DSL.condition(
+                        "JSON_SEARCH(JSON_KEYS(value, '$." + fieldName + "'), 'one', CONCAT('%', ?, '%')) IS NOT NULL",
+                        query
+                    ))
+                );
+                case KEY_EQUALS -> conditions.add(DSL.condition(
+                    "JSON_CONTAINS_PATH(value, 'one', '$." + fieldName + "." + query + "') = 1"
                 ));
-            } else {
-                throw new UnsupportedOperationException("Unsupported operation for query: " + operation);
+                case KEY_NOT_EQUALS -> conditions.add(DSL.condition(
+                    "COALESCE(JSON_CONTAINS_PATH(value, 'one', '$." + fieldName + "." + query + "'), 0) = 0"
+                ));
+                default -> throw new UnsupportedOperationException("Unsupported operation for query: " + operation);
             }
         } else {
             var values = input.getLeft();

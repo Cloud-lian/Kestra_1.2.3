@@ -46,7 +46,11 @@ public record QueryFilter(
         ENDS_WITH,
         CONTAINS,
         REGEX,
-        PREFIX
+        PREFIX,
+        /** Checks whether a key exists in a JSON map field (e.g. inputs, outputs). Value must be a String key name. */
+        KEY_EQUALS,
+        /** Checks whether a key does not exist in a JSON map field (e.g. inputs, outputs). Value must be a String key name. */
+        KEY_NOT_EQUALS
     }
 
     @SuppressWarnings("unchecked")
@@ -69,6 +73,7 @@ public record QueryFilter(
             case CONTAINS -> Contains.<T>builder().field(field).value(value.toString()).build();
             case REGEX -> Regex.<T>builder().field(field).value(value.toString()).build();
             case PREFIX -> Regex.<T>builder().field(field).value("^" + value.toString().replace(".", "\\.") + "(?:\\..+)?$").build();
+            case KEY_EQUALS, KEY_NOT_EQUALS -> throw new UnsupportedOperationException("Operation " + this.operation + " is not supported in dashboard filters");
         };
     }
 
@@ -274,13 +279,13 @@ public record QueryFilter(
         INPUT("input") {
             @Override
             public List<Op> supportedOp() {
-                return List.of(Op.EQUALS, Op.NOT_EQUALS, Op.CONTAINS, Op.IN, Op.NOT_IN);
+                return List.of(Op.EQUALS, Op.NOT_EQUALS, Op.CONTAINS, Op.IN, Op.NOT_IN, Op.KEY_EQUALS, Op.KEY_NOT_EQUALS);
             }
         },
         OUTPUT("output") {
             @Override
             public List<Op> supportedOp() {
-                return List.of(Op.EQUALS, Op.NOT_EQUALS, Op.CONTAINS, Op.IN, Op.NOT_IN);
+                return List.of(Op.EQUALS, Op.NOT_EQUALS, Op.CONTAINS, Op.IN, Op.NOT_IN, Op.KEY_EQUALS, Op.KEY_NOT_EQUALS);
             }
         },
         ENABLED("enabled") {

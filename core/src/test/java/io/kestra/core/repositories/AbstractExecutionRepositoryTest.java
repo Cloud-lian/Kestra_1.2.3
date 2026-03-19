@@ -1304,6 +1304,7 @@ inject(tenant);
 
     private static final Map<String, Object> ioValue = Map.of("key", "value");
     private static final Map<String, Object> ioOtherValue = Map.of("key", "other");
+    private static final Map<String, Object> ioDifferentKeyValue = Map.of("differentKey", "value");
 
     private static final Execution executionWithInputValue = Execution.builder()
         .id(IdUtils.create())
@@ -1315,6 +1316,11 @@ inject(tenant);
         .inputs(ioOtherValue)
         .build();
 
+    private static final Execution executionWithInputDifferentKey = Execution.builder()
+        .id(IdUtils.create())
+        .inputs(ioDifferentKeyValue)
+        .build();
+
     private static final Execution executionWithOutputValue = Execution.builder()
         .id(IdUtils.create())
         .outputs(ioValue)
@@ -1323,6 +1329,11 @@ inject(tenant);
     private static final Execution executionWithOutputOtherValue = Execution.builder()
         .id(IdUtils.create())
         .outputs(ioOtherValue)
+        .build();
+
+    private static final Execution executionWithOutputDifferentKey = Execution.builder()
+        .id(IdUtils.create())
+        .outputs(ioDifferentKeyValue)
         .build();
 
     private static final List<Execution> allInputExecutions = List.of(
@@ -1353,6 +1364,11 @@ inject(tenant);
             .build(),
         FiltersTestCase.builder()
             .executions(allInputExecutions)
+            .expectedExecutions(allInputExecutions)
+            .queryFilter(QueryFilter.builder().field(Field.INPUT).value("key").operation(QueryFilter.Op.CONTAINS).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(allInputExecutions)
             .expectedExecutions(List.of(executionWithInputValue))
             .queryFilter(QueryFilter.builder().field(Field.INPUT).value(ioValue).operation(QueryFilter.Op.IN).build())
             .build(),
@@ -1379,6 +1395,11 @@ inject(tenant);
             .build(),
         FiltersTestCase.builder()
             .executions(allOutputExecutions)
+            .expectedExecutions(allOutputExecutions)
+            .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value("key").operation(QueryFilter.Op.CONTAINS).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(allOutputExecutions)
             .expectedExecutions(List.of(executionWithOutputValue))
             .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value(ioValue).operation(QueryFilter.Op.IN).build())
             .build(),
@@ -1386,6 +1407,28 @@ inject(tenant);
             .executions(allOutputExecutions)
             .expectedExecutions(List.of(executionWithOutputOtherValue))
             .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value(ioValue).operation(QueryFilter.Op.NOT_IN).build())
+            .build(),
+
+        FiltersTestCase.builder()
+            .executions(List.of(executionWithInputValue, executionWithInputDifferentKey))
+            .expectedExecutions(List.of(executionWithInputValue))
+            .queryFilter(QueryFilter.builder().field(Field.INPUT).value("key").operation(QueryFilter.Op.KEY_EQUALS).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(List.of(executionWithInputValue, executionWithInputDifferentKey))
+            .expectedExecutions(List.of(executionWithInputDifferentKey))
+            .queryFilter(QueryFilter.builder().field(Field.INPUT).value("key").operation(QueryFilter.Op.KEY_NOT_EQUALS).build())
+            .build(),
+
+        FiltersTestCase.builder()
+            .executions(List.of(executionWithOutputValue, executionWithOutputDifferentKey))
+            .expectedExecutions(List.of(executionWithOutputValue))
+            .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value("key").operation(QueryFilter.Op.KEY_EQUALS).build())
+            .build(),
+        FiltersTestCase.builder()
+            .executions(List.of(executionWithOutputValue, executionWithOutputDifferentKey))
+            .expectedExecutions(List.of(executionWithOutputDifferentKey))
+            .queryFilter(QueryFilter.builder().field(Field.OUTPUT).value("key").operation(QueryFilter.Op.KEY_NOT_EQUALS).build())
             .build()
     );
 

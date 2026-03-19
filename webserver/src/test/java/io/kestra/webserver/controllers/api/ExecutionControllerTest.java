@@ -7,11 +7,14 @@ import io.kestra.core.models.Label;
 import io.kestra.core.models.executions.Execution;
 import io.kestra.core.models.flows.Flow;
 import io.kestra.core.models.flows.FlowForExecution;
+import io.kestra.core.models.flows.State;
 import io.kestra.core.models.flows.check.Check;
 import io.kestra.core.models.property.Property;
 import io.kestra.core.models.tasks.TaskForExecution;
 import io.kestra.core.models.triggers.AbstractTriggerForExecution;
+import io.kestra.core.repositories.ExecutionRepositoryInterface;
 import io.kestra.core.repositories.LocalFlowRepositoryLoader;
+import io.kestra.core.utils.IdUtils;
 import io.kestra.jdbc.JdbcTestUtils;
 import io.kestra.plugin.core.debug.Return;
 import io.kestra.webserver.responses.BulkResponse;
@@ -63,6 +66,9 @@ class ExecutionControllerTest {
 
     @Inject
     protected LocalFlowRepositoryLoader repositoryLoader;
+
+    @Inject
+    private ExecutionRepositoryInterface executionRepository;
 
     public static final String TESTS_FLOW_NS = "io.kestra.tests";
     public static final String TESTS_WEBHOOK_KEY = "a-secret-key";
@@ -587,6 +593,56 @@ class ExecutionControllerTest {
             HttpRequest.POST("/api/v1/main/executions/" + namespaceId + "/" + flowId, null),
             Execution.class
         );
+    }
+
+    @Test
+    void shouldFilterExecutionByInput() {
+        // Given
+        Execution executionWithNameJohn = buildExecution(Map.of("name", "john"), null);
+        Execution executionWithNameJane = buildExecution(Map.of("name", "jane"), null);
+        executionRepository.save(executionWithNameJohn);
+        executionRepository.save(executionWithNameJane);
+
+        // When
+        PagedResults<Execution> results = client.toBlocking().retrieve(
+            HttpRequest.GET("/api/v1/main/executions/search?filters[input][EQUALS][name]=john"),
+            Argument.of(PagedResults.class, Execution.class)
+        );
+
+        // Then
+        assertThat(results.getTotal()).isEqualTo(1L);
+        assertThat(results.getResults().getFirst().getInputs()).containsEntry("name", "john");
+    }
+
+    @Test
+    void shouldFilterExecutionByOutput() {
+        // Given
+        Execution executionWithSuccessOutput = buildExecution(null, Map.of("result", "success"));
+        Execution executionWithFailedOutput = buildExecution(null, Map.of("result", "failed"));
+        executionRepository.save(executionWithSuccessOutput);
+        executionRepository.save(executionWithFailedOutput);
+
+        // When
+        PagedResults<Execution> results = client.toBlocking().retrieve(
+            HttpRequest.GET("/api/v1/main/executions/search?filters[output][EQUALS][result]=success"),
+            Argument.of(PagedResults.class, Execution.class)
+        );
+
+        // Then
+        assertThat(results.getTotal()).isEqualTo(1L);
+        assertThat(results.getResults().getFirst().getOutputs()).containsEntry("result", "success");
+    }
+
+    private Execution buildExecution(Map<String, Object> inputs, Map<String, Object> outputs) {
+        return Execution.builder()
+            .id(IdUtils.create())
+            .tenantId(MAIN_TENANT)
+            .namespace(TESTS_FLOW_NS)
+            .flowId("webhook")
+            .inputs(inputs)
+            .outputs(outputs)
+            .state(new State())
+            .build();
     }
 
 }

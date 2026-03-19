@@ -80,12 +80,21 @@ public abstract class H2ExecutionRepositoryService {
         List<Condition> inConditions = new ArrayList<>();
         if (input.isRight()) {
             var query = input.right().get();
-            if (Objects.requireNonNull(operation) == QueryFilter.Op.CONTAINS) {
-                Field<String> keyField = DSL.field("JQ_STRING(\"value\", '." + fieldName + " | keys[]?')", String.class);
-                Field<String> valueField = DSL.field("JQ_STRING(\"value\", '." + fieldName + "[]?')", String.class);
-                conditions.add(keyField.contains(query).or(valueField.contains(query)));
-            } else {
-                throw new UnsupportedOperationException("Unsupported operation for query: " + operation);
+            switch (Objects.requireNonNull(operation)) {
+                case CONTAINS -> {
+                    Field<String> keyField = DSL.field("JQ_STRING(\"value\", '." + fieldName + " | keys[]?')", String.class);
+                    Field<String> valueField = DSL.field("JQ_STRING(\"value\", '." + fieldName + "[]?')", String.class);
+                    conditions.add(keyField.contains(query).or(valueField.contains(query)));
+                }
+                case KEY_EQUALS -> {
+                    Field<String> hasKeyField = DSL.field("JQ_STRING(\"value\", '." + fieldName + " | has(\"" + query + "\")')", String.class);
+                    conditions.add(hasKeyField.eq("true"));
+                }
+                case KEY_NOT_EQUALS -> {
+                    Field<String> hasKeyField = DSL.field("JQ_STRING(\"value\", '." + fieldName + " | has(\"" + query + "\")')", String.class);
+                    conditions.add(hasKeyField.eq("false").or(hasKeyField.isNull()));
+                }
+                default -> throw new UnsupportedOperationException("Unsupported operation for query: " + operation);
             }
         } else {
             var values = input.left().get();

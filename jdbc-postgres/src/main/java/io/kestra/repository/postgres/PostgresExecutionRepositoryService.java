@@ -76,11 +76,18 @@ public abstract class PostgresExecutionRepositoryService {
         List<Condition> inConditions = new ArrayList<>();
         if (input.isRight()) {
             var query = input.right().get();
-            if (Objects.requireNonNull(operation) == QueryFilter.Op.CONTAINS) {
-                String sql = "CAST(value -> '" + fieldName + "' AS TEXT) ILIKE '%' || ? || '%'";
-                conditions.add(DSL.condition(sql, query));
-            } else {
-                throw new UnsupportedOperationException("Unsupported operation for query: " + operation);
+            switch (Objects.requireNonNull(operation)) {
+                case CONTAINS -> conditions.add(DSL.condition(
+                    "EXISTS (" +
+                        " SELECT 1 FROM jsonb_each_text(COALESCE(value -> '" + fieldName + "', '{}'::jsonb)) AS kv" +
+                        " WHERE lower(kv.value) LIKE lower('%' || ? || '%')" +
+                        "    OR lower(kv.key) LIKE lower('%' || ? || '%')" +
+                        ")",
+                    query, query
+                ));
+                case KEY_EQUALS -> conditions.add(DSL.condition("jsonb_exists(value -> '" + fieldName + "', ?)", query));
+                case KEY_NOT_EQUALS -> conditions.add(DSL.condition("value -> '" + fieldName + "' IS NULL OR NOT jsonb_exists(value -> '" + fieldName + "', ?)", query));
+                default -> throw new UnsupportedOperationException("Unsupported operation for query: " + operation);
             }
         } else {
             var values = input.getLeft();
