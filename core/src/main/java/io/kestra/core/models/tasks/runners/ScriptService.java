@@ -148,23 +148,17 @@ public final class ScriptService {
             return null;
         }
 
-        URI uri = tryParse(candidate);
-        String strippedCandidate = stripWrapperPunctuation(candidate);
+      
+        String stripped = stripWrapperPunctuation(candidate);
 
-        if (uri == null && !strippedCandidate.equals(candidate) && !containsControlCharacters(strippedCandidate)) {
-            uri = tryParse(strippedCandidate);
-        }
-
-        if (uri == null || !isInternalStorageUri(uri)) {
+        if (containsControlCharacters(stripped)) {
             return null;
         }
 
-        
-        if (!strippedCandidate.equals(candidate)) {
-            URI strippedUri = tryParse(strippedCandidate);
-            if (strippedUri != null && isInternalStorageUri(strippedUri)) {
-                return strippedUri;
-            }
+        URI uri = tryParse(stripped);
+
+        if (uri == null || !isInternalStorageUri(uri)) {
+            return null;
         }
 
         return uri;
