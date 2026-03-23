@@ -1,6 +1,7 @@
 import path from "path";
 import {defineConfig} from "vite";
 import vue from "@vitejs/plugin-vue";
+import {federation} from "@module-federation/vite";
 
 import {commit} from "./plugins/commit"
 import {codecovVitePlugin} from "@codecov/vite-plugin";
@@ -51,6 +52,16 @@ export default defineConfig({
         },
     },
     plugins: [
+        federation({
+            name: "host",
+            shared: {
+                vue: { 
+                    singleton: true, 
+                    eager: true,
+                    requiredVersion: "^3"
+                }
+            }
+        }),
         vue({
             template: {
                 compilerOptions: {
