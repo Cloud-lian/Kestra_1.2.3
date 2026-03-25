@@ -5,6 +5,7 @@
         <KSFilter
             :prefix="`dashboard__${dashboard.id}`"
             :configuration="filterConfiguration"
+            :defaultScope="false"
             :tableOptions="{
                 chart: {shown: false},
                 columns: {shown: false},
