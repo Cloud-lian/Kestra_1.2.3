@@ -546,7 +546,7 @@ public class JdbcExecutor implements ExecutorInterface {
             });
     }
 
-    private void executionQueue(Either<Execution, DeserializationException> either) {
+    public void executionQueue(Either<Execution, DeserializationException> either) {
         if (either.isRight()) {
             log.error("Unable to deserialize an execution: {}", either.getRight().getMessage());
             return;
