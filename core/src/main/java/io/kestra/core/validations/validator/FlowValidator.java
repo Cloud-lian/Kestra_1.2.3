@@ -9,6 +9,7 @@ import io.kestra.core.services.FlowService;
 import io.kestra.core.services.NamespaceService;
 import io.kestra.core.utils.ListUtils;
 import io.kestra.core.validations.FlowValidation;
+import io.kestra.plugin.core.trigger.Schedule;
 import io.micronaut.core.annotation.AnnotationValue;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.core.annotation.NonNull;
@@ -22,6 +23,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.kestra.core.models.Label.READ_ONLY;
 import static io.kestra.core.models.Label.SYSTEM_PREFIX;
@@ -104,6 +106,9 @@ public class FlowValidator implements ConstraintValidator<FlowValidation, Flow> 
         if (!duplicateIds.isEmpty()) {
             violations.add("Duplicate output with name [" + String.join(", ", duplicateIds) + "]");
         }
+
+        // No missing defaults for schedule triggers
+        findMissingInputsForScheduleTriggers(value).forEach(violations::add);
 
         // preconditions unique id
         duplicateIds = getDuplicates(ListUtils.emptyOnNull(value.getTriggers()).stream()
@@ -234,6 +239,37 @@ public class FlowValidator implements ConstraintValidator<FlowValidation, Flow> 
             .distinct()
             .filter(entry -> Collections.frequency(taskIds, entry) > 1)
             .toList();
+    }
+
+    /**
+     * @return the violation formatted message of missing inputs for each schedule trigger
+     */
+    private Stream<String> findMissingInputsForScheduleTriggers(Flow value) {
+        if (!ListUtils.emptyOnNull(value.getTriggers()).isEmpty()
+            && !ListUtils.emptyOnNull(value.getInputs()).isEmpty()) {
+            // Find inputs without defaults
+            Set<String> inputsWithoutDefaults = value.getInputs().stream()
+                .filter(input -> input.getDefaults() == null)
+                .map(Data::getId)
+                .collect(Collectors.toSet());
+            // Find schedules with missing inputs or null inputs
+            return value.getTriggers().stream()
+                .filter(Schedule.class::isInstance)
+                .map(Schedule.class::cast)
+                .flatMap(schedule -> {
+                    Set<String> violations = new HashSet<>();
+                    Map<String, Object> scheduleInputs = schedule.getInputs() != null ? schedule.getInputs() : new HashMap<>();
+                    var missingInputs = inputsWithoutDefaults.stream()
+                        .filter(inputId -> !scheduleInputs.containsKey(inputId))
+                        .collect(Collectors.joining(" | "));
+                    if (!missingInputs.isEmpty()) {
+                        violations.add("Missing inputs for Schedule Trigger '%s', missing inputs: '%s'".formatted(schedule.getId(), missingInputs));
+                    }
+                    return violations.stream();
+                });
+        } else {
+            return Stream.empty();
+        }
     }
 
     /**
