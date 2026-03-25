@@ -10,6 +10,7 @@ import org.jooq.TransactionalRunnable;
 
 import java.sql.SQLException;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.function.Predicate;
 import javax.sql.DataSource;
 
@@ -27,44 +28,40 @@ public class JooqDSLContextWrapper {
         this.dslContext = dslContext;
     }
 
-    private <T> RetryUtils.Instance<T, RuntimeException> retryer() {
-        return RetryUtils.of(
-            Random.builder()
-                .minInterval(Duration.ofMillis(50))
-                .maxAttempts(-1)
-                .maxDuration(Duration.ofSeconds(60))
-                .maxInterval(Duration.ofMillis(1000))
-                .build()
-        );
-    }
+    private static final RetryUtils.Instance<?, RuntimeException> RETRYER = RetryUtils.of(
+        Random.builder()
+            .minInterval(Duration.ofMillis(50))
+            .maxAttempts(-1)
+            .maxDuration(Duration.ofSeconds(60))
+            .maxInterval(Duration.ofMillis(1000))
+            .build()
+    );
 
-    private static  <E extends Throwable> Predicate<E> predicate() {
-        return (e) -> {
-            if (!(e.getCause() instanceof SQLException)) {
-                return false;
-            }
+    private static  final Predicate<Throwable> PREDICATE = (e) -> {
+        if (!(e.getCause() instanceof SQLException)) {
+            return false;
+        }
 
-            SQLException cause = (SQLException) e.getCause();
+        SQLException cause = (SQLException) e.getCause();
 
-            // MySQL/MariaDB vendor codes:
-            // 1213 = ER_LOCK_DEADLOCK
-            // 1205 = ER_LOCK_WAIT_TIMEOUT
-            int vendorCode = cause.getErrorCode();
-            if (vendorCode == 1213 || vendorCode == 1205) {
-                return true;
-            }
+        // MySQL/MariaDB vendor codes:
+        // 1213 = ER_LOCK_DEADLOCK
+        // 1205 = ER_LOCK_WAIT_TIMEOUT
+        int vendorCode = cause.getErrorCode();
+        if (vendorCode == 1213 || vendorCode == 1205) {
+            return true;
+        }
 
-            return
-                // standard deadlock
-                cause.getSQLState().equals("40001") ||
-                // postgres deadlock
-                cause.getSQLState().equals("40P01");
-        };
-    }
+        return
+            // standard deadlock
+            cause.getSQLState().equals("40001") ||
+            // postgres deadlock
+            cause.getSQLState().equals("40P01");
+    };
 
     public void transaction(TransactionalRunnable transactional) {
-        this.<Void>retryer().runRetryIf(
-            predicate(),
+        RETRYER.runRetryIf(
+            PREDICATE,
             () -> {
                 dslContext.transaction(transactional);
                 return null;
@@ -73,8 +70,8 @@ public class JooqDSLContextWrapper {
     }
 
     public <T> T transactionResult(TransactionalCallable<T> transactional) {
-        return this.<T>retryer().runRetryIf(
-            predicate(),
+        return ((RetryUtils.Instance<T, RuntimeException>) RETRYER).runRetryIf(
+            PREDICATE,
             () -> dslContext.transactionResult(transactional)
         );
     }

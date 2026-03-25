@@ -3,6 +3,7 @@ package io.kestra.core.services;
 import io.kestra.core.queues.BroadcastQueueInterface;
 import io.kestra.core.queues.QueueSubscriber;
 import io.kestra.core.runners.FollowLogEvent;
+import io.kestra.core.utils.MapUtils;
 import io.micronaut.http.sse.Event;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -36,7 +37,9 @@ public class LogStreamingService {
 
     @PostConstruct
     void startQueueConsumer() {
-        this.queueSubscriber = logQueue.subscriber().subscribe(either -> {
+        this.queueSubscriber = logQueue.subscriber();
+        this.queueSubscriber.pause();
+        this.queueSubscriber.subscribe(either -> {
             if (either.isRight()) {
                 log.error("Unable to deserialize log: {}", either.getRight().getMessage());
                 return;
@@ -75,6 +78,11 @@ public class LogStreamingService {
     public void registerSubscriber(String executionId, String subscriberId, FluxSink<Event<FollowLogEvent>> sink, List<String> levels) {
         // it needs to be synchronized as we get and remove if empty, so we must be sure that nobody else is adding a new one in-between
         synchronized (subscriberLock) {
+            // resume the subscription if paused
+            if (MapUtils.isEmpty(subscribers) && this.queueSubscriber.isPaused()) {
+                this.queueSubscriber.resume();
+            }
+
             subscribers.computeIfAbsent(executionId, k -> new ConcurrentHashMap<>())
                 .put(subscriberId, Pair.of(sink, levels));
         }
@@ -93,6 +101,11 @@ public class LogStreamingService {
                 if (executionSubscribers.isEmpty()) {
                     subscribers.remove(executionId);
                 }
+            }
+
+            // pause the subscription if no one is listening anymore
+            if (MapUtils.isEmpty(subscribers) && !this.queueSubscriber.isPaused()) {
+                this.queueSubscriber.pause();
             }
         }
     }

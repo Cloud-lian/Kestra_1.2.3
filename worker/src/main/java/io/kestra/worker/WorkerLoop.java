@@ -197,10 +197,10 @@ public abstract class WorkerLoop implements Runnable {
     public void stop() {
         stop(Duration.ZERO);
     }
-    
+
     /**
      * Stops the WorkerLoop.
-     * 
+     *
      * <p>
      * If the loop is not running, this method returns immediately without any action.
      * If the loop does not complete within the timeout, a warning is logged, but the method returns normally.
@@ -217,7 +217,7 @@ public abstract class WorkerLoop implements Runnable {
         if (timeout == null || timeout.isZero()) {
             return;
         }
-        
+
         try {
             if (!stopped.await(timeout.toMillis(), TimeUnit.MILLISECONDS)) {
                 LOG.warn("Timeout while waiting for {} to complete", name);
@@ -242,5 +242,9 @@ public abstract class WorkerLoop implements Runnable {
 
     public boolean isRunning() {
         return running.get();
+    }
+
+    public boolean isPaused() {
+        return paused.get();
     }
 }

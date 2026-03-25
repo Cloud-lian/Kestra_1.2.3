@@ -46,7 +46,7 @@ public abstract class AbstractDispatchQueue<T extends DispatchEvent> extends Abs
             } catch (QueueException e) {
                 throw new CompletionException(e);
             }
-        }, asyncPoolExecutor);
+        }, emitAsyncPoolExecutor);
     }
 
     @Override
@@ -57,7 +57,7 @@ public abstract class AbstractDispatchQueue<T extends DispatchEvent> extends Abs
             } catch (QueueException e) {
                 throw new CompletionException(e);
             }
-        }, asyncPoolExecutor);
+        }, emitAsyncPoolExecutor);
     }
 
     protected abstract void doEmit(byte[] message, String key) throws QueueException;

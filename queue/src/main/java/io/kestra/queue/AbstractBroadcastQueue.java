@@ -45,7 +45,7 @@ public abstract class AbstractBroadcastQueue<T extends BroadcastEvent> extends A
             } catch (QueueException e) {
                 throw new CompletionException(e);
             }
-        }, asyncPoolExecutor);
+        }, emitAsyncPoolExecutor);
     }
 
     @Override
@@ -56,7 +56,7 @@ public abstract class AbstractBroadcastQueue<T extends BroadcastEvent> extends A
             } catch (QueueException e) {
                 throw new CompletionException(e);
             }
-        }, asyncPoolExecutor);
+        }, emitAsyncPoolExecutor);
     }
 
     protected abstract void doEmit(byte[] message, String key) throws QueueException;
