@@ -2,18 +2,24 @@ package io.kestra.core.serializers;
 
 import static io.kestra.core.utils.Rethrow.throwConsumer;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SequenceWriter;
 import java.util.Objects;
+
+import com.fasterxml.jackson.dataformat.ion.IonFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
 
 import java.io.*;
 import java.util.function.Consumer;
+
+import com.amazon.ion.IonWriter;
+import com.amazon.ion.system.IonBinaryWriterBuilder;
 
 public final class FileSerde {
     /**
@@ -105,49 +111,65 @@ public final class FileSerde {
     }
 
     /**
-     * For performance, it is advised to wrap the reader inside a BufferedReader, see {@link #BUFFER_SIZE}.
+     * For performance, it is advised to wrap the input stream inside a BufferedInputStream, see {@link #BUFFER_SIZE}
+     * @deprecated Use {@link #readAll(InputStream)} instead.
      */
+    @Deprecated(since = "1.2", forRemoval = true)
     public static Flux<Object> readAll(Reader reader) throws IOException {
         return readAll(DEFAULT_OBJECT_MAPPER, reader, DEFAULT_TYPE_REFERENCE);
     }
 
     /**
-     * For performance, it is advised to wrap the reader inside a BufferedReader, see {@link #BUFFER_SIZE}.
+     * For performance, it is advised to wrap the input stream inside a BufferedInputStream, see {@link #BUFFER_SIZE}
+     * @deprecated Use {@link #readAll(InputStream, TypeReference)} instead.
      */
+    @Deprecated(since = "1.2", forRemoval = true)
     public static <T> Flux<T> readAll(Reader reader, TypeReference<T> type) throws IOException {
         return readAll(DEFAULT_OBJECT_MAPPER, reader, type);
     }
 
     /**
-     * For performance, it is advised to wrap the reader inside a BufferedReader, see {@link #BUFFER_SIZE}.
+     * For performance, it is advised to wrap the input stream inside a BufferedInputStream, see {@link #BUFFER_SIZE}
+     * @deprecated Use {@link #readAll(InputStream, Class)} instead.
      */
+    @Deprecated(since = "1.2", forRemoval = true)
     public static <T> Flux<T> readAll(Reader reader, Class<T> type) throws IOException {
         return readAll(DEFAULT_OBJECT_MAPPER, reader, type);
     }
 
     /**
-     * For performance, it is advised to wrap the reader inside a BufferedReader, see {@link #BUFFER_SIZE}.
+     * For performance, it is advised to wrap the input stream inside a BufferedInputStream, see {@link #BUFFER_SIZE}
+     * @deprecated Use {@link #readAll(ObjectMapper, InputStream, Class)} instead.
      */
+    @Deprecated(since = "1.2", forRemoval = true)
     public static Flux<Object> readAll(ObjectMapper objectMapper, Reader in) throws IOException {
         return readAll(objectMapper, in, DEFAULT_TYPE_REFERENCE);
     }
 
     /**
-     * For performance, it is advised to wrap the reader inside a BufferedReader, see {@link #BUFFER_SIZE}.
+     * For performance, it is advised to wrap the input stream inside a BufferedInputStream, see {@link #BUFFER_SIZE}
+     * @deprecated Use {@link #readAll(ObjectMapper, InputStream, TypeReference)} instead.
      */
+    @Deprecated(since = "1.2", forRemoval = true)
     public static <T> Flux<T> readAll(ObjectMapper objectMapper, Reader reader, TypeReference<T> type) throws IOException {
         MappingIterator<T> mappingIterator = createMappingIterator(objectMapper, reader, type);
         return readAll(mappingIterator);
     }
 
     /**
-     * For performance, it is advised to wrap the reader inside a BufferedReader, see {@link #BUFFER_SIZE}.
+     * For performance, it is advised to wrap the input stream inside a BufferedInputStream, see {@link #BUFFER_SIZE}
+     * @deprecated Use {@link #readAll(ObjectMapper, InputStream, Class)} instead.
      */
+    @Deprecated(since = "1.2", forRemoval = true)
     public static <T> Flux<T> readAll(ObjectMapper objectMapper, Reader reader, Class<T> type) throws IOException {
         MappingIterator<T> mappingIterator = createMappingIterator(objectMapper, reader, type);
         return readAll(mappingIterator);
     }
 
+
+    /**
+     * For performance, it is advised to wrap the input stream inside a BufferedInputStream, see {@link #BUFFER_SIZE}
+     */
     public static <T> Flux<T> readAll(MappingIterator<T> mappingIterator) throws IOException {
         return Flux.<T>create(sink -> {
                 mappingIterator.forEachRemaining(sink::next);
@@ -157,15 +179,79 @@ public final class FileSerde {
     }
 
     /**
-     * For performance, it is advised to wrap the writer inside a BufferedWriter, see {@link #BUFFER_SIZE}.
+     * Reads values from an InputStream.
+     * Jackson auto-detects if the stream is Ion Text or Ion Binary.
+     * For performance, it is advised to wrap the input stream inside a BufferedInputStream, see {@link #BUFFER_SIZE}
      */
+    public static Flux<Object> readAll(InputStream input) throws IOException {
+        return readAll(DEFAULT_OBJECT_MAPPER, input, DEFAULT_TYPE_REFERENCE);
+    }
+
+    /**
+     * For performance, it is advised to wrap the input stream inside a BufferedInputStream, see {@link #BUFFER_SIZE}
+     */
+    public static <T> Flux<T> readAll(InputStream input, Class<T> type) throws IOException {
+        return readAll(DEFAULT_OBJECT_MAPPER, input, type);
+    }
+
+    /**
+     * For performance, it is advised to wrap the input stream inside a BufferedInputStream, see {@link #BUFFER_SIZE}
+     */
+    public static <T> Flux<T> readAll(InputStream input, TypeReference<T> type) throws IOException {
+        return readAll(DEFAULT_OBJECT_MAPPER, input, type);
+    }
+
+    /**
+     * For performance, it is advised to wrap the input stream inside a BufferedInputStream, see {@link #BUFFER_SIZE}
+     */
+    public static <T> Flux<T> readAll(ObjectMapper objectMapper, InputStream input, Class<T> type) throws IOException {
+        MappingIterator<T> mappingIterator = objectMapper.readerFor(type).readValues(input);
+        return readAll(mappingIterator);
+    }
+
+    /**
+     * For performance, it is advised to wrap the input stream inside a BufferedInputStream, see {@link #BUFFER_SIZE}
+     */
+    public static <T> Flux<T> readAll(ObjectMapper objectMapper, InputStream input, TypeReference<T> type) throws IOException {
+        MappingIterator<T> mappingIterator = objectMapper.readerFor(type).readValues(input);
+        return readAll(mappingIterator);
+    }
+
+    /**
+     * Reads a limited number of lines/objects from an InputStream.
+     * Used by file previews (IonFileRender).
+     */
+    public static boolean reader(InputStream input, int maxLines, Consumer<Object> consumer) throws IOException {
+        int nbLines = 0;
+
+        try (MappingIterator<Object> it = DEFAULT_OBJECT_MAPPER.readerFor(DEFAULT_TYPE_REFERENCE).readValues(input)) {
+            while (it.hasNext()) {
+                if (nbLines >= maxLines) {
+                    return true;
+                }
+                consumer.accept(it.next());
+                nbLines++;
+            }
+        }
+        return false;
+    }
+
+
+    /**
+     * For performance, it is advised to wrap the writer inside a BufferedWriter, see {@link #BUFFER_SIZE}.
+     *
+     * @deprecated Use {@link #writeAll(OutputStream, Flux)} instead for better compression and hashing.
+     */
+    @Deprecated(since = "1.2", forRemoval = true)
     public static <T> Mono<Long> writeAll(Writer writer, Flux<T> values) throws IOException {
         return writeAll(DEFAULT_OBJECT_MAPPER, writer, values);
     }
 
     /**
      * For performance, it is advised to wrap the writer inside a BufferedWriter, see {@link #BUFFER_SIZE}.
+     * @deprecated Use {@link #writeAll(OutputStream, Flux)} instead.
      */
+    @Deprecated(since = "1.2", forRemoval = true)
     public static <T> Mono<Long> writeAll(ObjectMapper objectMapper, Writer writer, Flux<T> values) throws IOException {
         SequenceWriter seqWriter = createSequenceWriter(objectMapper, writer, new TypeReference<T>() {});
         return writeAll(values, seqWriter);
@@ -178,6 +264,48 @@ public final class FileSerde {
             .doFinally(throwConsumer(ignored -> seqWriter.flush())) // we should have called close() but it generates an exception, so we flush
             .count();
     }
+
+    /**
+     * Writes a Flux of values to an OutputStream in Ion Binary format.
+     * @param output The raw output stream (do not wrap in Writer)
+     * @param values The data to write
+     * @return A Mono containing the Count (Long)
+     */
+    public static <T> Mono<Long> writeAll(OutputStream output, Flux<T> values) {
+        return Mono.create(sink -> {
+            try {
+                IonWriter binaryWriter = IonBinaryWriterBuilder.standard().build(output);
+
+                IonFactory ionFactory = (IonFactory) DEFAULT_OBJECT_MAPPER.getFactory();
+                JsonGenerator generator = ionFactory.createGenerator(binaryWriter);
+                generator.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
+
+                SequenceWriter seqWriter = DEFAULT_OBJECT_MAPPER.writer().writeValues(generator);
+
+                values
+                    .filter(Objects::nonNull)
+                    .doOnNext(throwConsumer(seqWriter::write))
+                    .count()
+                    .subscribe(
+                        count -> {
+                            try {
+                                seqWriter.flush();
+                                binaryWriter.finish();
+                                binaryWriter.close();
+
+                                sink.success(count);
+                            } catch (IOException e) {
+                                sink.error(e);
+                            }
+                        },
+                        sink::error
+                    );
+            } catch (Exception e) {
+                sink.error(e);
+            }
+        });
+    }
+
 
     private static <T> MappingIterator<T> createMappingIterator(ObjectMapper objectMapper, Reader reader, TypeReference<T> type) throws IOException {
         try (var parser = objectMapper.createParser(reader)) {

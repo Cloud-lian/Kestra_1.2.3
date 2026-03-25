@@ -177,4 +177,49 @@ class FileSerdeTest {
     }
 
     private record SimpleEntry(long id, String value) {}
+
+
+    @Test
+    void writeAll_checkFormat() throws IOException {
+        Path outputTempFilePath = createTempFile();
+
+        final List<SimpleEntry> inputValues = List.of(
+            new SimpleEntry(1, "value1"),
+            new SimpleEntry(2, "value2")
+        );
+
+        Long resultCount = FileSerde.writeAll(Files.newOutputStream(outputTempFilePath), Flux.fromIterable(inputValues)).block();
+
+        assertThat(resultCount).isEqualTo(2L);
+
+        byte[] fileBytes = Files.readAllBytes(outputTempFilePath);
+        assertThat(fileBytes.length).isGreaterThan(4);
+        assertThat(fileBytes[0]).isEqualTo((byte) 0xE0);
+        assertThat(fileBytes[1]).isEqualTo((byte) 0x01);
+        assertThat(fileBytes[2]).isEqualTo((byte) 0x00);
+        assertThat(fileBytes[3]).isEqualTo((byte) 0xEA);
+
+        List<SimpleEntry> readBack = FileSerde.readAll(Files.newInputStream(outputTempFilePath), SimpleEntry.class).collectList().block();
+        assertThat(readBack).hasSize(2);
+        assertThat(readBack.getFirst().value).isEqualTo("value1");
+    }
+
+
+    @Test
+    void backwardCompatibility_WriteText_ReadInputStream() throws IOException {
+        Path tempFile = createTempFile();
+        List<SimpleEntry> input = List.of(new SimpleEntry(1, "val1"), new SimpleEntry(2, "val2"));
+
+        // 1. Write using OLD method (Text)
+        FileSerde.writeAll(Files.newBufferedWriter(tempFile), Flux.fromIterable(input)).block();
+
+        // 2. Read using NEW method (InputStream)
+        List<SimpleEntry> result = FileSerde.readAll(Files.newInputStream(tempFile), SimpleEntry.class)
+            .collectList()
+            .block();
+
+        assertThat(result).hasSize(2);
+        assertThat(result.getFirst().value).isEqualTo("val1");
+    }
+
 }
