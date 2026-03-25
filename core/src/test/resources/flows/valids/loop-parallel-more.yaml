@@ -1,0 +1,12 @@
+id: loop-parallel-more
+namespace: io.kestra.tests
+
+tasks:
+  - id: loop
+    type: io.kestra.plugin.core.flow.Loop
+    concurrencyLimit: 5
+    values: ["value 1", "value 2", "value 3"]
+    tasks:
+      - id: log
+        type: io.kestra.plugin.core.log.Log
+        message: "Processing {{ item.value }}"

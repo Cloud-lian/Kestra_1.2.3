@@ -74,6 +74,9 @@ public abstract class AbstractRunnerTest {
     protected LoopUntilCaseTest loopUntilTestCaseTest;
 
     @Inject
+    protected LoopCaseTest loopCaseTest;
+
+    @Inject
     protected ScheduleDateCaseTest scheduleDateCaseTest;
 
     @Inject
@@ -321,7 +324,7 @@ public abstract class AbstractRunnerTest {
 
         assertThat(execution.getTaskRunList()).hasSize(1);
         assertThat(execution.getState().getCurrent()).isEqualTo(State.Type.FAILED);
-        LogEntry matchingLog = TestsUtils.awaitLog(logs, logEntry -> logEntry.getMessage().contains("Found '1' null values on Each, with values=[1, null, {key=my-key, value=my-value}]"));
+        LogEntry matchingLog = TestsUtils.awaitLog(logs, logEntry -> logEntry.getMessage().contains("Found a null value inside the iteration values"));
         assertThat(matchingLog).isNotNull();
     }
 
@@ -537,6 +540,54 @@ public abstract class AbstractRunnerTest {
     @LoadFlows(value = { "flows/valids/waitfor-multiple-tasks-failed.yaml" }, tenantId = "waitformultipletasksfailed")
     void waitforMultipleTasksFailed() throws Exception {
         loopUntilTestCaseTest.waitforMultipleTasksFailed("waitformultipletasksfailed");
+    }
+
+    @Test
+    @LoadFlows(value = { "flows/valids/loop-serial.yaml" }, tenantId = "loopserial")
+    protected void loopSerial() throws Exception {
+        loopCaseTest.loopSerial("loopserial");
+    }
+
+    @Test
+    @LoadFlows(value = { "flows/valids/loop-serial-multiple-tasks.yaml" }, tenantId = "loopserialmultipletasks")
+    protected void loopSerialMultipleTasks() throws Exception {
+        loopCaseTest.loopSerialMultipleTasks("loopserialmultipletasks");
+    }
+
+    @Test
+    @LoadFlows(value = { "flows/valids/loop-failed.yaml" }, tenantId = "loopfailed")
+    protected void loopFailed() throws Exception {
+        loopCaseTest.loopFailed("loopfailed");
+    }
+
+    @Test
+    @LoadFlows(value = { "flows/valids/loop-failed-no-transmit.yaml" }, tenantId = "loopfailednotransmit")
+    protected void loopTransmitFailedFalse() throws Exception {
+        loopCaseTest.loopTransmitFailedFalse("loopfailednotransmit");
+    }
+
+    @Test
+    @LoadFlows(value = { "flows/valids/loop-parallel-unlimited.yaml" }, tenantId = "loopparallelunlimited")
+    protected void loopParallelUnlimited() throws Exception {
+        loopCaseTest.loopParallelUnlimited("loopparallelunlimited");
+    }
+
+    @Test
+    @LoadFlows(value = { "flows/valids/loop-parallel-equal.yaml" }, tenantId = "loopparallelequal")
+    protected void loopParallelEqual() throws Exception {
+        loopCaseTest.loopParallelEqual("loopparallelequal");
+    }
+
+    @Test
+    @LoadFlows(value = { "flows/valids/loop-parallel-more.yaml" }, tenantId = "loopparallelmore")
+    protected void loopParallelMore() throws Exception {
+        loopCaseTest.loopParallelMore("loopparallelmore");
+    }
+
+    @Test
+    @LoadFlows(value = { "flows/valids/loop-parallel-less.yaml" }, tenantId = "loopparallelless")
+    protected void loopParallelLess() throws Exception {
+        loopCaseTest.loopParallelLess("loopparallelless");
     }
 
     @Test
