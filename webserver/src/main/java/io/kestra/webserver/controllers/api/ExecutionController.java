@@ -62,7 +62,6 @@ import io.kestra.core.utils.IdUtils;
 import io.kestra.core.utils.ListUtils;
 import io.kestra.core.utils.Logs;
 import io.kestra.plugin.core.flow.ForEach;
-import io.kestra.plugin.core.flow.Pause;
 import io.kestra.plugin.core.trigger.AbstractWebhookTrigger;
 import io.kestra.plugin.core.trigger.WebhookContext;
 import io.kestra.plugin.core.trigger.WebhookResponse;
@@ -2596,21 +2595,21 @@ public class ExecutionController {
 
     @ExecuteOn(TaskExecutors.IO)
     @Get(uri = "/namespaces/{namespace}/flows/{flowId}/average-duration")
-    @Operation(tags = {"Executions"}, summary = "Get the average duration of recent successful executions for a flow, used to estimate execution progress. When executionId is provided, adjusts the estimate for ForEach tasks based on the current execution's iteration count.")
+    @Operation(
+        tags = { "Executions" },
+        summary = "Get the average duration of recent successful executions for a flow, used to estimate execution progress. When executionId is provided, adjusts the estimate for ForEach tasks based on the current execution's iteration count."
+    )
     public FlowAverageDuration getFlowAverageDuration(
         @Parameter(description = "The flow namespace") @PathVariable String namespace,
         @Parameter(description = "The flow id") @PathVariable String flowId,
-        @Parameter(description = "Optional running execution id to enable ForEach-aware duration estimation") @Nullable @QueryValue String executionId
-    ) {
-        var recentExecutions = executionRepository.findByFlowId(
+        @Parameter(description = "Optional running execution id to enable ForEach-aware duration estimation") @Nullable @QueryValue String executionId) {
+        List<Execution> successful = executionRepository.findByFlowId(
             tenantService.resolveTenant(),
             namespace,
             flowId,
-            PageableUtils.from(1, 50)
-        );
-
-        List<Execution> successful = recentExecutions.stream()
-            .filter(e -> e.getState().getCurrent() == State.Type.SUCCESS || e.getState().getCurrent() == State.Type.WARNING)
+            PageableUtils.from(1, 50),
+            List.of(State.Type.SUCCESS, State.Type.WARNING)
+        ).stream()
             .filter(e -> e.getState().getDuration().isPresent())
             .collect(Collectors.toList());
 
@@ -2657,8 +2656,7 @@ public class ExecutionController {
     private Long computeForEachAwareDuration(
         List<ForEach> foreachTasks,
         List<Execution> historical,
-        Execution current
-    ) {
+        Execution current) {
         if (current.getTaskRunList() == null || current.getTaskRunList().isEmpty()) {
             return null;
         }
@@ -2675,7 +2673,8 @@ public class ExecutionController {
             Optional<TaskRun> currentForeachRunOpt = current.getTaskRunList().stream()
                 .filter(tr -> tr.getTaskId().equals(taskId))
                 .findFirst();
-            if (currentForeachRunOpt.isEmpty()) continue;
+            if (currentForeachRunOpt.isEmpty())
+                continue;
 
             TaskRun currentForeachRun = currentForeachRunOpt.get();
             String currentForeachRunId = currentForeachRun.getId();
@@ -2693,16 +2692,19 @@ public class ExecutionController {
             List<Long> historicalNs = new ArrayList<>();
 
             for (Execution hist : historical) {
-                if (hist.getTaskRunList() == null) continue;
+                if (hist.getTaskRunList() == null)
+                    continue;
 
                 Optional<TaskRun> histForeachRunOpt = hist.getTaskRunList().stream()
                     .filter(tr -> tr.getTaskId().equals(taskId))
                     .findFirst();
-                if (histForeachRunOpt.isEmpty()) continue;
+                if (histForeachRunOpt.isEmpty())
+                    continue;
 
                 TaskRun histForeachRun = histForeachRunOpt.get();
                 Optional<Duration> foreachDurOpt = histForeachRun.getState().getDuration();
-                if (foreachDurOpt.isEmpty()) continue;
+                if (foreachDurOpt.isEmpty())
+                    continue;
 
                 long foreachMs = foreachDurOpt.get().toMillis();
 
@@ -2711,18 +2713,20 @@ public class ExecutionController {
                     .map(TaskRun::getValue)
                     .distinct()
                     .count();
-                if (nHist == 0) continue;
+                if (nHist == 0)
+                    continue;
 
                 long effectiveBatchesHist = foreachEffectiveBatches(nHist, concurrencyLimit);
                 iterDurationsMs.add(foreachMs / effectiveBatchesHist);
                 historicalNs.add(nHist);
 
-                hist.getState().getDuration().ifPresent(totalDur ->
-                    nonForeachDurationsMs.add(Math.max(0, totalDur.toMillis() - foreachMs))
+                hist.getState().getDuration().ifPresent(
+                    totalDur -> nonForeachDurationsMs.add(Math.max(0, totalDur.toMillis() - foreachMs))
                 );
             }
 
-            if (iterDurationsMs.isEmpty()) continue;
+            if (iterDurationsMs.isEmpty())
+                continue;
 
             long avgIterDurationMs = (long) iterDurationsMs.stream()
                 .mapToLong(Long::longValue).average().orElse(0);
@@ -2748,21 +2752,22 @@ public class ExecutionController {
             processedCount++;
         }
 
-        if (processedCount == 0) return null;
+        if (processedCount == 0)
+            return null;
         return totalHistoricalNonForeachMs + totalAdjustedForeachMs;
     }
 
     @VisibleForTesting
     static long foreachEffectiveBatches(long n, int concurrencyLimit) {
-        if (concurrencyLimit == 0 || n <= concurrencyLimit) return 1;
+        if (concurrencyLimit == 0 || n <= concurrencyLimit)
+            return 1;
         return (long) Math.ceil((double) n / concurrencyLimit);
     }
 
-    @Introspected
     public record FlowAverageDuration(
-        @io.micronaut.core.annotation.Nullable Long avgDurationMs,
-        long count
-    ) {}
+        @jakarta.annotation.Nullable Long avgDurationMs,
+        long count) {
+    }
 
     @ExecuteOn(TaskExecutors.IO)
     @Get(uri = "/{executionId}/follow-dependencies", produces = MediaType.TEXT_EVENT_STREAM)

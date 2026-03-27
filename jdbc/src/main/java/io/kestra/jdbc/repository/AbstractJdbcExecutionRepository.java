@@ -275,6 +275,14 @@ public abstract class AbstractJdbcExecutionRepository extends AbstractJdbcCrudRe
     }
 
     @Override
+    public ArrayListTotal<Execution> findByFlowId(String tenantId, String namespace, String id, Pageable pageable, List<State.Type> states) {
+        var condition = field("namespace").eq(namespace)
+            .and(field("flow_id").eq(id))
+            .and(this.statesFilter(states));
+        return findPage(pageable, tenantId, condition, START_DATE_FIELD.desc());
+    }
+
+    @Override
     public Flux<Execution> findAsync(String tenantId, List<QueryFilter> filters) {
         if (filters == null || filters.isEmpty()) {
             return findAllAsync(tenantId);
