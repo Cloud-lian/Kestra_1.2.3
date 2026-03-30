@@ -1,16 +1,5 @@
 package io.kestra.core.models.tasks.runners;
 
-import com.google.common.collect.ImmutableMap;
-import io.kestra.core.exceptions.IllegalVariableEvaluationException;
-import io.kestra.core.models.property.Property;
-import io.kestra.core.runners.RunContext;
-import io.kestra.core.utils.ListUtils;
-import io.kestra.core.utils.Slugify;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import jakarta.annotation.Nullable;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +11,20 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+
+import com.google.common.collect.ImmutableMap;
+
+import io.kestra.core.exceptions.IllegalVariableEvaluationException;
+import io.kestra.core.models.property.Property;
+import io.kestra.core.runners.RunContext;
+import io.kestra.core.utils.ListUtils;
+import io.kestra.core.utils.Slugify;
+
+import jakarta.annotation.Nullable;
 
 import static io.kestra.core.utils.Rethrow.throwConsumer;
 import static io.kestra.core.utils.Rethrow.throwFunction;
@@ -55,8 +58,7 @@ public final class ScriptService {
     public static String replaceInternalStorage(
         RunContext runContext,
         @Nullable String command,
-        boolean replaceWithRelativePath
-    ) throws IOException {
+        boolean replaceWithRelativePath) throws IOException {
         if (command == null) {
             return "";
         }
@@ -84,8 +86,7 @@ public final class ScriptService {
         RunContext runContext,
         Map<String, Object> additionalVars,
         String command,
-        boolean replaceWithRelativePath
-    ) throws IOException, IllegalVariableEvaluationException {
+        boolean replaceWithRelativePath) throws IOException, IllegalVariableEvaluationException {
         if (command == null) {
             return null;
         }
@@ -97,8 +98,7 @@ public final class ScriptService {
         RunContext runContext,
         Map<String, Object> additionalVars,
         List<String> commands,
-        boolean replaceWithRelativePath
-    ) throws IOException, IllegalVariableEvaluationException {
+        boolean replaceWithRelativePath) throws IOException, IllegalVariableEvaluationException {
         return ListUtils.emptyOnNull(commands)
             .stream()
             .map(throwFunction(c -> runContext.render(c, additionalVars)))
@@ -111,18 +111,16 @@ public final class ScriptService {
         RunContext runContext,
         Map<String, Object> additionalVars,
         Property<List<String>> commands,
-        boolean replaceWithRelativePath
-    ) throws IOException, IllegalVariableEvaluationException {
-        return commands == null ? Collections.emptyList() :
-            runContext.render(commands).asList(String.class, additionalVars).stream()
+        boolean replaceWithRelativePath) throws IOException, IllegalVariableEvaluationException {
+        return commands == null ? Collections.emptyList()
+            : runContext.render(commands).asList(String.class, additionalVars).stream()
                 .map(throwFunction(c -> ScriptService.replaceInternalStorage(runContext, c, replaceWithRelativePath)))
                 .toList();
     }
 
     public static List<String> replaceInternalStorage(
         RunContext runContext,
-        List<String> commands
-    ) throws IOException, IllegalVariableEvaluationException {
+        List<String> commands) throws IOException, IllegalVariableEvaluationException {
         return ScriptService.replaceInternalStorage(runContext, Collections.emptyMap(), commands, false);
     }
 
@@ -253,7 +251,6 @@ public final class ScriptService {
         return uploaded;
     }
 
-
     public static List<String> scriptCommands(List<String> interpreter, List<String> beforeCommands, String command) {
         return scriptCommands(interpreter, beforeCommands, List.of(command), TargetOS.LINUX);
     }
@@ -348,12 +345,14 @@ public final class ScriptService {
         Map<String, String> flow = (Map<String, String>) runContext.getVariables().get("flow");
         Map<String, String> task = (Map<String, String>) runContext.getVariables().get("task");
 
-        String name = Slugify.of(String.join(
-            "-",
-            flow.get("namespace"),
-            flow.get("id"),
-            task.get("id")
-        ));
+        String name = Slugify.of(
+            String.join(
+                "-",
+                flow.get("namespace"),
+                flow.get("id"),
+                task.get("id")
+            )
+        );
         String normalized = normalizeValue(name, true, true);
         if (normalized.length() > 55) {
             normalized = normalized.substring(0, 54);
