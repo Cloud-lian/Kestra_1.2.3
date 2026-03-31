@@ -11,11 +11,13 @@ import io.kestra.core.reporter.Schedules;
 import io.kestra.core.reporter.Types;
 import io.kestra.core.repositories.ServiceInstanceRepositoryInterface;
 
+import io.micronaut.context.annotation.Requires;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.Builder;
 
 @Singleton
+@Requires(beans = ServiceInstanceRepositoryInterface.class)
 public class ServiceUsageReport extends AbstractReportable<ServiceUsageReport.ServiceUsageEvent> {
 
     private final ServiceInstanceRepositoryInterface serviceInstanceRepository;
