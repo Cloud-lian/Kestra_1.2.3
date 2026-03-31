@@ -36,6 +36,8 @@ public interface ExecutionRepositoryInterface extends QueryBuilderInterface<Exec
 
     ArrayListTotal<Execution> findByFlowId(String tenantId, String namespace, String id, Pageable pageable);
 
+    ArrayListTotal<Execution> findByFlowId(String tenantId, String namespace, String id, Pageable pageable, List<State.Type> states);
+
     /**
      * Finds all the executions that were triggered by the given execution id.
      *
