@@ -126,6 +126,7 @@ public class JsonSchemaGenerator {
             replaceOneOfWithAnyOf(objectNode);
             pullDocumentationAndDefaultFromAnyOf(objectNode);
             removeRequiredOnPropsWithDefaults(objectNode);
+            findArraysAndFilterOutNullValues(objectNode);
 
             return MAPPER.convertValue(objectNode, MAP_TYPE_REFERENCE);
         } catch (Exception e) {
@@ -169,6 +170,46 @@ public class JsonSchemaGenerator {
             });
         }
     }
+
+    private void findArraysAndFilterOutNullValues(ObjectNode objectNode) {
+        objectNode.get("$defs").forEach(jsonNode -> {
+            // If a node has a properties section, the code will go through it and begin filtering out any null data types.
+            Optional<ObjectNode> properties = Optional.ofNullable((ObjectNode) jsonNode.get("properties"));
+            if(properties.isPresent()) {
+                filterNullValues(properties.get());
+            }
+        });
+    }
+
+    private void filterNullValues(JsonNode properties) {
+        // Checks if properties is null. If so, stop the function.
+        // Iterate through each property in the node.
+        properties.forEach(field -> {
+            JsonNode anyOf = field.get("anyOf");
+            if(anyOf instanceof ArrayNode fieldProperties) {
+                // Initiate iterator
+                Iterator<JsonNode> it = fieldProperties.elements();
+                while(it.hasNext()) {
+                    // Saves the element into a readable JsonNode object.
+                    JsonNode fieldProperty = it.next();
+                    // Turns the data type into a String value.
+                    String type = fieldProperty.get("type").asText();
+                    if(type.equals("object")) {
+                        // If the String is equal to object, it implies that the value is a definition.
+                        // As a result, the code goes through the definitions in this step.
+                        Optional<ObjectNode> innerProperty = Optional.ofNullable((ObjectNode) fieldProperty.get("properties"));
+                        if(innerProperty.isPresent())
+                            filterNullValues(innerProperty.get());
+                    } else if(type.equals("null")) {
+                        // If it detects a null data type, it removes the element from the array node.
+                        it.remove();
+                    }
+                }
+            }
+        });
+    }
+
+    
 
     // This hack exists because for Property we generate a anyOf for properties that are not strings.
     // By default, the 'default' is in each anyOf which Monaco editor didn't take into account.
@@ -911,7 +952,8 @@ public class JsonSchemaGenerator {
             replaceOneOfWithAnyOf(objectNode);
             pullDocumentationAndDefaultFromAnyOf(objectNode);
             removeRequiredOnPropsWithDefaults(objectNode);
-
+            findArraysAndFilterOutNullValues(objectNode);
+            
             return MAPPER.convertValue(extractMainRef(objectNode), MAP_TYPE_REFERENCE);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Unable to generate jsonschema for '" + cls.getName() + "'", e);
