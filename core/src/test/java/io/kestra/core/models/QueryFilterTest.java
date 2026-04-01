@@ -54,7 +54,9 @@ public class QueryFilterTest {
                 Field.SCOPE, Resource.EXECUTION,
                 Set.of(
                     Op.EQUALS,
-                    Op.NOT_EQUALS
+                    Op.NOT_EQUALS,
+                    Op.IN,
+                    Op.NOT_IN
                 )
             ),
 
@@ -480,8 +482,6 @@ public class QueryFilterTest {
                     Op.LESS_THAN,
                     Op.GREATER_THAN_OR_EQUAL_TO,
                     Op.LESS_THAN_OR_EQUAL_TO,
-                    Op.IN,
-                    Op.NOT_IN,
                     Op.STARTS_WITH,
                     Op.ENDS_WITH,
                     Op.CONTAINS,
