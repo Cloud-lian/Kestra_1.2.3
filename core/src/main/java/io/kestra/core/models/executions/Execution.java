@@ -25,7 +25,6 @@ import io.kestra.core.models.flows.FlowInterface;
 import io.kestra.core.models.flows.State;
 import io.kestra.core.models.tasks.ResolvedTask;
 import io.kestra.core.queues.event.DispatchEvent;
-import io.kestra.core.runners.FlowableUtils;
 import io.kestra.core.runners.RunContextLogger;
 import io.kestra.core.serializers.ListOrMapOfLabelDeserializer;
 import io.kestra.core.serializers.ListOrMapOfLabelSerializer;
@@ -516,14 +515,13 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
         resolvedErrors = removeDisabled(resolvedErrors);
         resolvedFinally = removeDisabled(resolvedFinally);
 
-        List<TaskRun> errorsFlow = this.findTaskRunByTasks(resolvedErrors, parentTaskRun);
         List<TaskRun> finallyFlow = this.findTaskRunByTasks(resolvedFinally, parentTaskRun);
-
-        // finally is already started, just continue these finally
+        // finally is already started, just continue it
         if (!finallyFlow.isEmpty()) {
             return resolvedFinally == null ? Collections.emptyList() : resolvedFinally;
         }
 
+        List<TaskRun> errorsFlow = this.findTaskRunByTasks(resolvedErrors, parentTaskRun);
         // check if the parent task should fail, and there is error tasks so we start them
         if (errorsFlow.isEmpty() && terminalState == State.Type.FAILED) {
             return resolvedErrors == null ? resolvedFinally == null ? Collections.emptyList() : resolvedFinally : resolvedErrors;
@@ -573,16 +571,14 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
             return Collections.emptyList();
         }
 
+        // to avoid nested loops, we pre-compute a per-uid resolved task map to fast retrieval
+        Map<String, ResolvedTask> resolvedTaskMap = HashMap.newHashMap(resolvedTasks.size());
+        resolvedTasks.forEach(resolvedTask -> resolvedTaskMap.put(resolvedTask.uid(), resolvedTask));
+        String parentTaskRunId = parentTaskRun != null ? parentTaskRun.getId() : null;
         return this
             .getTaskRunList()
             .stream()
-            .filter(
-                t -> resolvedTasks
-                    .stream()
-                    .anyMatch(
-                        resolvedTask -> FlowableUtils.isTaskRunFor(resolvedTask, t, parentTaskRun)
-                    )
-            )
+            .filter(t -> resolvedTaskMap.containsKey(IdUtils.fromParts(t.getTaskId(), parentTaskRunId, t.getValue())))
             .toList();
     }
 
@@ -628,35 +624,11 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
             .findFirst();
     }
 
-    public Optional<TaskRun> findLastByState(List<TaskRun> taskRuns, State.Type state) {
-        return taskRuns
-            .reversed()
-            .stream()
-            .filter(t -> t.getState().getCurrent() == state)
-            .findFirst();
-    }
-
     public Optional<TaskRun> findLastCreated(List<TaskRun> taskRuns) {
         return taskRuns
             .reversed()
             .stream()
             .filter(t -> t.getState().isCreated())
-            .findFirst();
-    }
-
-    public Optional<TaskRun> findLastSubmitted(List<TaskRun> taskRuns) {
-        return taskRuns
-            .reversed()
-            .stream()
-            .filter(t -> t.getState().getCurrent() == State.Type.SUBMITTED)
-            .findFirst();
-    }
-
-    public Optional<TaskRun> findLastRunning(List<TaskRun> taskRuns) {
-        return taskRuns
-            .reversed()
-            .stream()
-            .filter(t -> t.getState().isRunning())
             .findFirst();
     }
 
@@ -774,22 +746,19 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
         boolean allowFailure, boolean allowWarning, State.Type terminalState) {
         List<TaskRun> taskRuns = this.findTaskRunByTasks(currentTasks, parentTaskRun);
         var state = this
-            .findLastByState(taskRuns, State.Type.KILLED)
+            .findAnyByState(taskRuns, State.Type.KILLED)
             .map(taskRun -> taskRun.getState().getCurrent())
-            .or(
-                () -> this
-                    .findLastByState(taskRuns, State.Type.FAILED)
-                    .map(taskRun -> taskRun.getState().getCurrent())
+            .or(() -> this
+                .findAnyByState(taskRuns, State.Type.FAILED)
+                .map(taskRun -> taskRun.getState().getCurrent())
             )
-            .or(
-                () -> this
-                    .findLastByState(taskRuns, State.Type.WARNING)
-                    .map(taskRun -> taskRun.getState().getCurrent())
+            .or(() -> this
+                .findAnyByState(taskRuns, State.Type.WARNING)
+                .map(taskRun -> taskRun.getState().getCurrent())
             )
-            .or(
-                () -> this
-                    .findLastByState(taskRuns, State.Type.PAUSED)
-                    .map(taskRun -> taskRun.getState().getCurrent())
+            .or(() -> this
+                .findAnyByState(taskRuns, State.Type.PAUSED)
+                .map(taskRun -> taskRun.getState().getCurrent())
             )
             .orElse(terminalState);
 
@@ -803,6 +772,13 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
             return State.Type.SUCCESS;
         }
         return state;
+    }
+
+    private Optional<TaskRun> findAnyByState(List<TaskRun> taskRuns, State.Type state) {
+        return taskRuns
+            .stream()
+            .filter(t -> t.getState().getCurrent() == state)
+            .findAny();
     }
 
     @JsonIgnore
