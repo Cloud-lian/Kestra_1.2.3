@@ -15,6 +15,7 @@ import io.kestra.core.repositories.DashboardRepositoryInterface;
 import io.kestra.core.repositories.ExecutionRepositoryInterface;
 import io.kestra.core.repositories.FlowRepositoryInterface;
 
+import io.micronaut.context.annotation.Requires;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.Getter;
@@ -22,6 +23,7 @@ import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
 @Singleton
+@Requires(beans = FlowRepositoryInterface.class)
 public class FeatureUsageReport extends AbstractReportable<FeatureUsageReport.UsageEvent> {
 
     private final FlowRepositoryInterface flowRepository;
