@@ -37,6 +37,7 @@ import io.kestra.core.utils.ListUtils;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.classic.spi.ThrowableProxy;
+import io.kestra.plugin.core.flow.Loop;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
@@ -129,6 +130,9 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
 
     @Nullable
     List<Breakpoint> breakpoints;
+
+    @Nullable
+    LoopRun loopRun;
 
     @Override
     @JsonIgnore
@@ -276,7 +280,8 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
             this.traceParent,
             this.fixtures,
             this.kind,
-            this.breakpoints
+            this.breakpoints,
+            this.loopRun
         );
     }
 
@@ -302,7 +307,8 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
             this.traceParent,
             this.fixtures,
             this.kind,
-            this.breakpoints
+            this.breakpoints,
+            this.loopRun
         );
     }
 
@@ -343,7 +349,8 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
             this.traceParent,
             this.fixtures,
             this.kind,
-            this.breakpoints
+            this.breakpoints,
+            this.loopRun
         );
     }
 
@@ -369,7 +376,8 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
             this.traceParent,
             this.fixtures,
             this.kind,
-            newBreakpoints
+            newBreakpoints,
+            this.loopRun
         );
     };
 
@@ -405,7 +413,39 @@ public class Execution implements SoftDeletable<Execution>, TenantInterface, Has
             this.traceParent,
             this.fixtures,
             this.kind,
-            this.breakpoints
+            this.breakpoints,
+            this.loopRun
+        );
+    }
+
+    public Execution loopExecution(String loopExecutionId, TaskRun taskRun, String value, int iteration) {
+        if (this.kind == ExecutionKind.LOOP) {
+            throw new IllegalStateException("Can't create a loop execution on a loop execution");
+        }
+
+        return new Execution(
+            this.tenantId,
+            loopExecutionId,
+            this.namespace,
+            this.flowId,
+            this.flowRevision,
+            null,
+            this.inputs,
+            this.outputs,
+            this.labels,
+            this.variables,
+            this.state,
+            this.id,
+            this.originalId,
+            this.trigger,
+            this.deleted,
+            this.metadata,
+            this.scheduleDate,
+            this.traceParent,
+            this.fixtures,
+            ExecutionKind.LOOP,
+            this.breakpoints,
+            new LoopRun(this.id, taskRun.getTaskId(), taskRun.getId(), value, iteration)
         );
     }
 
