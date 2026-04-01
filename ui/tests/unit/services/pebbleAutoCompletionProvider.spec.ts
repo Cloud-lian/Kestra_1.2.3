@@ -30,12 +30,17 @@ describe("PebbleAutoCompletion", () => {
         expect(result).toEqual(filters);
     });
 
-    it("functionNames fetches functions from API", async () => {
-        const functions = ["json", "kv", "max", "min", "now", "secret", "uuid"];
+    it("functionsWithDefaults fetches functions list from API", async () => {
+        const functions = [
+            {name: "kv", arguments: [{name: "key", defaultValue: "'my_key'"}, {name: "namespace", defaultValue: "flow.namespace"}, {name: "errorOnMissing", defaultValue: null}]},
+            {name: "now", arguments: [{name: "format", defaultValue: null}]},
+            {name: "secret", arguments: [{name: "key", defaultValue: "'MY_SECRET'"}]},
+            {name: "uuid", arguments: []},
+        ];
         axiosGet.mockResolvedValue({data: functions});
 
         const provider = new PebbleAutoCompletion();
-        const result = await provider.functionNames();
+        const result = await provider.functionsWithDefaults();
 
         expect(axiosGet).toHaveBeenCalledWith("http://localhost/api/v1/pebble/functions");
         expect(result).toEqual(functions);
@@ -50,11 +55,11 @@ describe("PebbleAutoCompletion", () => {
         expect(result).toEqual([]);
     });
 
-    it("functionNames returns empty array on API error", async () => {
+    it("functionsWithDefaults returns empty array on API error", async () => {
         axiosGet.mockRejectedValue(new Error("Network error"));
 
         const provider = new PebbleAutoCompletion();
-        const result = await provider.functionNames();
+        const result = await provider.functionsWithDefaults();
 
         expect(result).toEqual([]);
     });
