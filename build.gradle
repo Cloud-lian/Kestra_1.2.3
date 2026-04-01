@@ -239,6 +239,8 @@ subprojects {subProj ->
             //assertj
             testImplementation 'org.assertj:assertj-core'
 
+            // ArchUnit for architecture testing
+            testImplementation "com.tngtech.archunit:archunit-junit5"
             // awaitility
             testImplementation 'org.awaitility:awaitility'
 
