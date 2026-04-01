@@ -117,7 +117,7 @@
         "husky": "^9.1.7",
         "jsdom": "^28.1.0",
         "lint-staged": "^16.3.3",
-        "monaco-editor": "^0.52.2",
+        "monaco-editor": "^0.55.1",
         "monaco-yaml": "5.3.1",
         "patch-package": "^8.0.1",
         "playwright": "^1.55.0",
